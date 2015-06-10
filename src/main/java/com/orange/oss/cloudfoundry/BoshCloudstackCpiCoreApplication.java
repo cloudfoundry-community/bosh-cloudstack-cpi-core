@@ -4,9 +4,9 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class BoshCloudstackCpiCore2Application {
+public class BoshCloudstackCpiCoreApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(BoshCloudstackCpiCore2Application.class, args);
+        SpringApplication.run(BoshCloudstackCpiCoreApplication.class, args);
     }
 }
