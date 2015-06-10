@@ -34,7 +34,13 @@
 		    <groupId>org.springframework.integration</groupId>
 		    <artifactId>spring-integration-java-dsl</artifactId>
 		    <version>1.0.1.RELEASE</version>
-		</dependency>		
+		</dependency>	
+		
+		<dependency>
+		    <groupId>com.fasterxml.jackson.core</groupId>
+		    <artifactId>jackson-databind</artifactId>
+		</dependency>	
+			
 		
 		<dependency>
 		    <groupId>org.apache.jclouds.api</groupId>
@@ -60,11 +66,6 @@
 		    <artifactId>jclouds-slf4j</artifactId>
 		    <version>${jclouds.version}</version>
 		</dependency>
-        
- 		
-				
-		
-		
 		
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
