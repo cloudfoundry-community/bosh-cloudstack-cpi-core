@@ -1,4 +1,4 @@
-package com.orange.oss.cloudfoundry;
+package com.orange.oss.cloudfoundry.cscpi;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;

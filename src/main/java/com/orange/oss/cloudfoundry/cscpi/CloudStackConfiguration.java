@@ -1,4 +1,4 @@
-package com.orange.oss.cloudfoundry;
+package com.orange.oss.cloudfoundry.cscpi;
 
 
 import org.jclouds.ContextBuilder;
