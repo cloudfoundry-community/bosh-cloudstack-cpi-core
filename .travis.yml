@@ -22,9 +22,9 @@
 #  - git clone git://github.com/cptactionhank/sekexe
   
 install:
+  - sudo apt-get update  
   - sudo sh -c "wget -qO- https://get.docker.com/gpg | apt-key add -"
   - sudo sh -c "echo deb http://get.docker.com/ubuntu docker main > /etc/apt/sources.list.d/docker.list"
-  - sudo apt-get update
   - sudo mkdir -p /var/lib/docker
   - echo exit 101 | sudo tee /usr/sbin/policy-rc.d
   - sudo chmod +x /usr/sbin/policy-rc.d
