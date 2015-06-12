@@ -25,7 +25,7 @@
     </appender>
 
     <logger name="com.orange.oss.cloudfoundry" level="${LOGGING_LEVEL:-INFO}"/>
-    <logger name="org.apache.jclouds" level="DEBUG"/>
+    <logger name="org.jclouds" level="DEBUG"/>
 
     <root level="WARN">
         <appender-ref ref="STDERR"/>

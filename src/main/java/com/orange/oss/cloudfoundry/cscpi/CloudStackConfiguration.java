@@ -1,6 +1,9 @@
 package com.orange.oss.cloudfoundry.cscpi;
 
 
+import java.util.Properties;
+
+import org.jclouds.Constants;
 import org.jclouds.ContextBuilder;
 import org.jclouds.cloudstack.CloudStackApi;
 import org.jclouds.cloudstack.compute.strategy.CloudStackComputeServiceAdapter;
@@ -37,18 +40,21 @@ public class CloudStackConfiguration {
         logger.debug("initialize jclouds compute API");
         String provider = "cloudstack";
         String identity = tenant+":"+username; // tenantName:userName
-        String credential = password;
-        
+
         
         logger.debug("logging as {}",identity);
-
         
         CloudStackComputeServiceAdapter adapter=null;
         
+        Properties overrides = new Properties();
+        overrides.setProperty(Constants.PROPERTY_RELAX_HOSTNAME, "true");
+        overrides.setProperty(Constants.PROPERTY_TRUST_ALL_CERTS, "true");
+        
         CloudStackApi api = ContextBuilder.newBuilder(provider)
                 .endpoint(endpoint)
-                .credentials(identity, credential)
+                .credentials(identity, password)
                 .modules(modules)
+                .overrides(overrides)
                 .buildApi(CloudStackApi.class);
         return api;
 
