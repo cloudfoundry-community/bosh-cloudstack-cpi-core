@@ -9,3 +9,4 @@ bosh external cloustack cpi implementation (spring boot, included in bosh-clouds
 # TODO
 leverage cloudstack simulator
 http://sebgoa.blogspot.fr/2015/04/running-cloudstack-simulator-in-docker.html
+http://stackoverflow.com/questions/26098531/can-travis-ci-run-docker
