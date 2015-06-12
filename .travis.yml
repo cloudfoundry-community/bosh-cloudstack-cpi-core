@@ -1,7 +1,7 @@
-#language: java
-#jdk:
-#  - oraclejdk8
-#
+language: java
+jdk:
+  - oraclejdk8
+
 #env:
 #  global:
 #    - "HOST_IP=$(/sbin/ifconfig venet0:0 | grep 'inet addr' | awk -F: '{print $2}' | awk '{print $1}')"
@@ -15,29 +15,24 @@
 #  - echo exit 101 | sudo tee /usr/sbin/policy-rc.d
 #  - sudo chmod +x /usr/sbin/policy-rc.d
 
-#install:
-# - sudo apt-get -qqy update
-#  - sudo apt-get -qqy install lxc lxc-docker slirp
-#  - sudo sudo usermod -aG docker "$USER"
-#  - git clone git://github.com/cptactionhank/sekexe
   
-install:
-  - sudo apt-get update  
-  - sudo sh -c "wget -qO- https://get.docker.com/gpg | apt-key add -"
-  - sudo sh -c "echo deb http://get.docker.com/ubuntu docker main > /etc/apt/sources.list.d/docker.list"
-  - sudo mkdir -p /var/lib/docker
-  - echo exit 101 | sudo tee /usr/sbin/policy-rc.d
-  - sudo chmod +x /usr/sbin/policy-rc.d
-  - sudo apt-get install -y slirp lxc lxc-docker aufs-tools cgroup-lite
-  - curl -sLo linux https://github.com/jpetazzo/sekexe/raw/master/uml
-  - chmod +x linux
-
-before_script:
-  - ./linux quiet mem=2G rootfstype=hostfs rw eth0=slirp,,/usr/bin/slirp-fullbolt init=$(pwd)/uml.sh WORKDIR=$(pwd) HOME=$HOME; exit `cat $(pwd)/$DIR/exit.status`  
-  - "while ! docker info &> /dev/null ; do sleep 1; done"
+#install:
+#  - sudo apt-get update  
+#  - sudo sh -c "wget -qO- https://get.docker.com/gpg | apt-key add -"
+#  - sudo sh -c "echo deb http://get.docker.com/ubuntu docker main > /etc/apt/sources.list.d/docker.list"
+#  - sudo mkdir -p /var/lib/docker
+#  - echo exit 101 | sudo tee /usr/sbin/policy-rc.d
+#  - sudo chmod +x /usr/sbin/policy-rc.d
+#  - sudo apt-get install -y slirp lxc lxc-docker aufs-tools cgroup-lite
+#  - curl -sLo linux https://github.com/jpetazzo/sekexe/raw/master/uml
+#  - chmod +x linux
+#
+#before_script:
+#  - ./linux quiet mem=2G rootfstype=hostfs rw eth0=slirp,,/usr/bin/slirp-fullbolt init=$(pwd)/uml.sh WORKDIR=$(pwd) HOME=$HOME; exit `cat $(pwd)/$DIR/exit.status`  
+#  - "while ! docker info &> /dev/null ; do sleep 1; done"
     #  - docker pull rocker/r-base
 
-script:
-  - docker version
+#script:
+#  - docker version
 #  - docker build -t local/r-base r-base
 #  - docker run local/r-base r -e 'sapply(installed.packages()[,"Package"], tools::testInstalledPackage)'
