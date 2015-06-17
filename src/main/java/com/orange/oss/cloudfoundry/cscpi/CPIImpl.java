@@ -9,7 +9,7 @@ import java.util.Map;
 /**
  *
  */
-public class CPIImpl {
+public class CPIImpl implements CPI{
 
     public String create_vm(String agent_id,
                             String stemcell_id,

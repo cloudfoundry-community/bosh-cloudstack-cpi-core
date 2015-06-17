@@ -1,6 +1,4 @@
-package com.orange.oss.cloudfoundry.cscpi;
-
-import com.orange.oss.cloudfoundry.cscpi.domain.Network;
+package com.orange.oss.cloudfoundry.cscpi.domain;
 
 import java.util.Map;
 
