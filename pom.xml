@@ -55,13 +55,6 @@
 		</dependency>
 
 		<dependency>
-			<groupId>org.apache.jclouds.api</groupId>
-			<artifactId>openstack-nova-ec2</artifactId>
-			<version>${jclouds.version}</version>
-		</dependency>
-
-
-		<dependency>
 		    <groupId>org.apache.jclouds.driver</groupId>
 		    <artifactId>jclouds-slf4j</artifactId>
 		    <version>${jclouds.version}</version>
@@ -86,7 +79,7 @@
 			<version>1.4</version>
 			<scope>test</scope>
 		</dependency>
-
+		
 	</dependencies>
 	
 	<build>

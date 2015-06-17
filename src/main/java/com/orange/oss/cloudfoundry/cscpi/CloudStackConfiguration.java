@@ -8,6 +8,7 @@ import org.jclouds.ContextBuilder;
 import org.jclouds.cloudstack.CloudStackApi;
 import org.jclouds.cloudstack.compute.strategy.CloudStackComputeServiceAdapter;
 import org.jclouds.logging.slf4j.config.SLF4JLoggingModule;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -28,21 +29,22 @@ public class CloudStackConfiguration {
 	
 	
 	@Bean
-	public CloudStackApi cloudStackAdapter(
-			@Value("${cs.endpoint}") String endpoint,
-			@Value("${cs.tenant}")String tenant,
-			@Value("${cs.username}")String username,
-			@Value("${cs.password}")String password
-			){
+		public CloudStackApi cloudStackAdapter(	
+				@Value("${cs.endpoint}") String endpoint,
+				@Value("${cs.tenant}") String tenant,
+				@Value("${cs.username}")String username,
+				@Value("${cs.password}") String password
+){
+		
+		
+		logger.debug("cloudstack adapter. endpoint {} \n username {} \n",endpoint,username);
 		
         Iterable<Module> modules = ImmutableSet.<Module>of(new SLF4JLoggingModule());
 
         logger.debug("initialize jclouds compute API");
         String provider = "cloudstack";
-        String identity = tenant+":"+username; // tenantName:userName
-
         
-        logger.debug("logging as {}",identity);
+        logger.debug("logging as {}",username);
         
         CloudStackComputeServiceAdapter adapter=null;
         
@@ -52,16 +54,13 @@ public class CloudStackConfiguration {
         
         CloudStackApi api = ContextBuilder.newBuilder(provider)
                 .endpoint(endpoint)
-                .credentials(identity, password)
+                .credentials(username, password)
                 .modules(modules)
                 .overrides(overrides)
                 .buildApi(CloudStackApi.class);
         return api;
 
 	}
-	
-	
-	
 	
 	
 }

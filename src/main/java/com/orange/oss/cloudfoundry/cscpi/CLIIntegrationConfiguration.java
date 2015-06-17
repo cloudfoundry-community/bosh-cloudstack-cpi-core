@@ -34,7 +34,7 @@ public class CLIIntegrationConfiguration {
 	public IntegrationFlow pollingFlow() {
 		return IntegrationFlows
 				.from(stdinMessageSource(),
-						c -> c.poller(Pollers.fixedRate(100)
+						c -> c.poller(Pollers.fixedRate(10000)
 								.maxMessagesPerPoll(1)))
 				.transform(new JsonToObjectTransformer(CPIRequest.class))
 				.transform(new ObjectToJsonTransformer())
