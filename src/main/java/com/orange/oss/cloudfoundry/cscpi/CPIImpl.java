@@ -1,15 +1,21 @@
 package com.orange.oss.cloudfoundry.cscpi;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 
 import org.jclouds.cloudstack.CloudStackApi;
+import org.jclouds.cloudstack.domain.AsyncCreateResponse;
+import org.jclouds.cloudstack.domain.VirtualMachine;
+import org.jclouds.cloudstack.domain.Volume;
+import org.jclouds.cloudstack.features.VolumeApi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  *
@@ -81,12 +87,15 @@ public class CPIImpl implements CPI{
 	@Override
 	public void reboot_vm(String vm_id) {
 		logger.info("reboot_vm");
+		api.getVirtualMachineApi().rebootVirtualMachine(vm_id);
+
 		
 	}
 
 	@Override
 	public void set_vm_metadata(String vm_id, Map<String, String> metadata) {
 		logger.info("set vm metadata");
+		
 		
 	}
 
@@ -99,18 +108,33 @@ public class CPIImpl implements CPI{
 	@Override
 	public String create_disk(Integer size, Map<String, String> cloud_properties) {
 		logger.info("create_disk");
-		return null;
+		
+		//generate random disk id
+		
+		//FIXME see disk offering (cloud properties specificy?)
+		
+		String name=UUID.randomUUID().toString();
+		String diskOfferingId="xxxxx";
+		String zoneId="zzzzz";
+		api.getVolumeApi().createVolumeFromCustomDiskOfferingInZone(name, diskOfferingId, zoneId, size);
+		
+		return name;
+
 	}
 
 	@Override
 	public void delete_disk(String disk_id) {
 		logger.info("delete_disk");
+		api.getVolumeApi().deleteVolume(disk_id);
 		
 	}
 
 	@Override
 	public void attach_disk(String vm_id, String disk_id) {
 		logger.info("attach disk");
+		VolumeApi vol = this.api.getVolumeApi();
+		AsyncCreateResponse resp=vol.attachVolume(disk_id, vm_id);
+		
 		
 	}
 
@@ -129,12 +153,20 @@ public class CPIImpl implements CPI{
 	@Override
 	public void detach_disk(String vm_id, String disk_id) {
 		logger.info("detach disk");
+		VolumeApi vol = this.api.getVolumeApi();
+		AsyncCreateResponse resp=vol.detachVolume(disk_id);
+		
 		
 	}
 
 	@Override
 	public List<String> get_disks(String vm_id) {
 		logger.info("get_disks");
+		VirtualMachine vm=api.getVirtualMachineApi().getVirtualMachine(vm_id);
+		
+		 VolumeApi vol = this.api.getVolumeApi();
+		 Set<Volume> vols=vol.listVolumes();
+		 //FIXME : fix search volume (option to target a single vm)
 		return null;
 	}
     
