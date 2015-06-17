@@ -24,7 +24,7 @@
         </encoder>
     </appender>
 
-    <logger name="com.orange.oss.cloudfoundry" level="${LOGGING_LEVEL:-INFO}"/>
+    <logger name="com.orange.oss.cloudfoundry" level="${LOGGING_LEVEL:-DEBUG}"/>
     <logger name="org.jclouds" level="DEBUG"/>
 
     <root level="WARN">

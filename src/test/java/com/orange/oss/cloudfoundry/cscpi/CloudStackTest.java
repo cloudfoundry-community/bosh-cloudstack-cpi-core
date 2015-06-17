@@ -1,10 +1,14 @@
 package com.orange.oss.cloudfoundry.cscpi;
 
+import java.util.Set;
+
 import org.jclouds.cloudstack.CloudStackApi;
-import org.jclouds.cloudstack.features.SessionApi;
+import org.jclouds.cloudstack.domain.Template;
 import org.jclouds.cloudstack.features.TemplateApi;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.test.SpringApplicationConfiguration;
@@ -15,15 +19,19 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @ConfigurationProperties
 public class CloudStackTest {
 
+	private static Logger logger=LoggerFactory.getLogger(CloudStackTest.class);
+	
 	@Autowired
 	CloudStackApi api;
 	
 	@Test
 	public void testLogin(){
 
-		SessionApi session = api.getSessionApi();
 		TemplateApi templateApi = api.getTemplateApi();
-		templateApi.listTemplates();
+		Set<Template> templates = templateApi.listTemplates();
+		for (Template t:templates){
+			logger.debug("found template {} ",t.getDisplayText());
+		}
 	}
 	
 }
