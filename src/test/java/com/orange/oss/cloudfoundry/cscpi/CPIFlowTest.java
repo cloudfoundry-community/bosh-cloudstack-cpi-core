@@ -47,15 +47,16 @@ public class CPIFlowTest {
 
 		String vm_id=cpi.create_vm(agent_id, stemcell_id, resource_pool, networks, disk_locality, env);
 		
-		//TODO assert vm_id
+		//TODO assert hasVM
+		boolean exist=cpi.has_vm(vm_id);
+		
+		
 		
 		Integer size=new Integer(10);		
 		Map<String, String> cloud_properties=new HashMap<String, String>();
 		String disk_id=cpi.create_disk(size, cloud_properties);
 		
 		
-		//TODO assert hasVM
-		boolean exist=cpi.has_vm(vm_id);
 		
 		
 		//TODO assert disk
@@ -67,6 +68,8 @@ public class CPIFlowTest {
 		
 		
 		cpi.detach_disk(vm_id, disk_id);
+
+		
 		cpi.delete_vm(vm_id);
 		cpi.delete_disk(disk_id);
 		

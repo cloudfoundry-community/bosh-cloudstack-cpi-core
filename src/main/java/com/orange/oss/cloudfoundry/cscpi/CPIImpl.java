@@ -1,5 +1,7 @@
 package com.orange.oss.cloudfoundry.cscpi;
 
+import static java.util.concurrent.TimeUnit.SECONDS;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -13,8 +15,12 @@ import org.jclouds.cloudstack.domain.Volume;
 import org.jclouds.cloudstack.domain.Zone;
 import org.jclouds.cloudstack.features.VolumeApi;
 import org.jclouds.cloudstack.options.DeployVirtualMachineOptions;
+import org.jclouds.cloudstack.options.ListDiskOfferingsOptions;
 import org.jclouds.cloudstack.options.ListServiceOfferingsOptions;
 import org.jclouds.cloudstack.options.ListZonesOptions;
+import org.jclouds.cloudstack.predicates.JobComplete;
+import org.jclouds.cloudstack.predicates.VirtualMachineRunning;
+import org.jclouds.cloudstack.strategy.BlockUntilJobCompletesAndReturnResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,13 +28,21 @@ import org.springframework.beans.factory.annotation.Value;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.base.Predicate;
 
 /**
  * Implementation of the CPI API, translating to CloudStack jclouds API calls
+ * 
+ * 
+ * @see: http://www.programcreek.com/java-api-examples/index.php?api=org.jclouds.predicates.RetryablePredicate
+ * @see:
+ * 
  */
 public class CPIImpl implements CPI{
 
 	private static Logger logger=LoggerFactory.getLogger(CPIImpl.class);
+	
+
 	
 	@Value("${cloudstack.state_timeout}")	
 	int state_timeout;
@@ -43,10 +57,25 @@ public class CPIImpl implements CPI{
 	String  default_zone;
 
 	
+	
+	protected Predicate<String> jobComplete;
+
 	@Autowired
 	private CloudStackApi api;
+
 	
 	
+	/**
+	 * creates a vm
+	 * 
+	 * @param agent_id
+	 * @param stemcell_id
+	 * @param resource_pool
+	 * @param networks
+	 * @param disk_locality
+	 * @param env
+	 * @return
+	 */
     public String create_vm(String agent_id,
                             String stemcell_id,
                             JsonNode resource_pool,
@@ -64,17 +93,14 @@ public class CPIImpl implements CPI{
 //        	    .build();
 		
 
+        String vmName="cpivm-"+UUID.randomUUID().toString();
 		String serviceOfferingName="Ultra Tiny";
 		String templateId=stemcell_id;
+        
+		String zoneId = findZoneId();
 		
 		
-        
-        //find zone
-        ListZonesOptions zoneOptions=ListZonesOptions.Builder.available(true);
-		Set<Zone> zones = api.getZoneApi().listZones(zoneOptions);
-		//FIXME: assert a single zone matching
-		Zone zone=zones.iterator().next();
-        
+		
 		//find offering
 		Set<ServiceOffering> s = api.getOfferingApi().listServiceOfferings(ListServiceOfferingsOptions.Builder.name(serviceOfferingName));
 		//FIXME assert a single offering
@@ -87,13 +113,20 @@ public class CPIImpl implements CPI{
 		DeployVirtualMachineOptions options=DeployVirtualMachineOptions.Builder
         			.userData(userData.getBytes())
         			.dataDiskSize(dataDiskSize)
-        			.name("toto");
+        			.name(vmName);
 		
-		AsyncCreateResponse vm = api.getVirtualMachineApi().deployVirtualMachineInZone(zone.getId(), so.getId(), templateId, options);
+		
+		AsyncCreateResponse job = api.getVirtualMachineApi().deployVirtualMachineInZone(zoneId, so.getId(), templateId, options);
+		
+		jobComplete = new JobComplete(api);
+		
+		
+		BlockUntilJobCompletesAndReturnResult blockUntilJobCompletesAndReturnResult=new BlockUntilJobCompletesAndReturnResult(this.api,jobComplete);
+		VirtualMachine vm = blockUntilJobCompletesAndReturnResult.<VirtualMachine>apply(job);
         
-        
-        return null;
+        return vm.getId();
     }
+
 
 	@Override
 	public void initialize(Map<String, String> options) {
@@ -177,9 +210,16 @@ public class CPIImpl implements CPI{
 		
 		//FIXME see disk offering (cloud properties specificy?)
 		
-		String name=UUID.randomUUID().toString();
-		String diskOfferingId="xxxxx";
-		String zoneId="zzzzz";
+		String name="cpidisk-"+UUID.randomUUID().toString();
+		
+		//find disk offering
+		
+		//TODO: Custom disk offering possible, but cant delete vol ?
+		String diskOfferingId=api.getOfferingApi().listDiskOfferings(ListDiskOfferingsOptions.Builder.name("Small")).iterator().next().getId();
+		//FIXME assert a single offering found
+		
+		
+		String zoneId=this.findZoneId();
 		api.getVolumeApi().createVolumeFromCustomDiskOfferingInZone(name, diskOfferingId, zoneId, size);
 		
 		return name;
@@ -235,7 +275,21 @@ public class CPIImpl implements CPI{
 		return null;
 	}
     
-    
+  
+	/**
+	 * utility to retrieve cloudstack zoneId
+	 * @return
+	 */
+	private String findZoneId() {
+		//find zone
+        ListZonesOptions zoneOptions=ListZonesOptions.Builder.available(true);
+		Set<Zone> zones = api.getZoneApi().listZones(zoneOptions);
+		//FIXME: assert a single zone matching
+		Zone zone=zones.iterator().next();
+		String zoneId = zone.getId();
+		return zoneId;
+	}
+
     
     
 }
