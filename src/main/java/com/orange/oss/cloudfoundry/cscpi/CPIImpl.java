@@ -7,26 +7,44 @@ import java.util.UUID;
 
 import org.jclouds.cloudstack.CloudStackApi;
 import org.jclouds.cloudstack.domain.AsyncCreateResponse;
+import org.jclouds.cloudstack.domain.ServiceOffering;
 import org.jclouds.cloudstack.domain.VirtualMachine;
 import org.jclouds.cloudstack.domain.Volume;
+import org.jclouds.cloudstack.domain.Zone;
 import org.jclouds.cloudstack.features.VolumeApi;
+import org.jclouds.cloudstack.options.DeployVirtualMachineOptions;
+import org.jclouds.cloudstack.options.ListServiceOfferingsOptions;
+import org.jclouds.cloudstack.options.ListZonesOptions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
- *
+ * Implementation of the CPI API, translating to CloudStack jclouds API calls
  */
 public class CPIImpl implements CPI{
 
 	private static Logger logger=LoggerFactory.getLogger(CPIImpl.class);
 	
+	@Value("${cloudstack.state_timeout}")	
+	int state_timeout;
+
+	@Value("${cloudstack.state_timeout_volume}")	
+	int state_timeout_volume;
+
+	@Value("${cloudstack.stemcell_public_visibility}")	
+	boolean stemcell_public_visibility;
+
+	@Value("${cloudstack.default_zone}")	
+	String  default_zone;
+
 	
 	@Autowired
-	CloudStackApi api;
+	private CloudStackApi api;
 	
 	
     public String create_vm(String agent_id,
@@ -38,6 +56,42 @@ public class CPIImpl implements CPI{
 
         ObjectMapper mapper = new ObjectMapper();
 
+//        
+//        Template template = api.getVirtualMachineApi().templateBuilder()
+//        	    .osFamily(OsFamily.UBUNTU)
+//        	    .minRam(2048)
+//        	    .options(inboundPorts(22, 80))
+//        	    .build();
+		
+
+		String serviceOfferingName="Ultra Tiny";
+		String templateId=stemcell_id;
+		
+		
+        
+        //find zone
+        ListZonesOptions zoneOptions=ListZonesOptions.Builder.available(true);
+		Set<Zone> zones = api.getZoneApi().listZones(zoneOptions);
+		//FIXME: assert a single zone matching
+		Zone zone=zones.iterator().next();
+        
+		//find offering
+		Set<ServiceOffering> s = api.getOfferingApi().listServiceOfferings(ListServiceOfferingsOptions.Builder.name(serviceOfferingName));
+		//FIXME assert a single offering
+		ServiceOffering so=s.iterator().next();
+
+		//set options
+        long dataDiskSize=100;
+        String userData="testdata=zzz";
+        
+		DeployVirtualMachineOptions options=DeployVirtualMachineOptions.Builder
+        			.userData(userData.getBytes())
+        			.dataDiskSize(dataDiskSize)
+        			.name("toto");
+		
+		AsyncCreateResponse vm = api.getVirtualMachineApi().deployVirtualMachineInZone(zone.getId(), so.getId(), templateId, options);
+        
+        
         return null;
     }
 
@@ -75,13 +129,20 @@ public class CPIImpl implements CPI{
 	@Override
 	public boolean has_vm(String vm_id) {
 		logger.info("has_vm ?");
-		return false;
+		
+		VirtualMachine vm = api.getVirtualMachineApi().getVirtualMachine(vm_id);
+		if (vm==null) return false;
+		return true;
+		
 	}
 
 	@Override
 	public boolean has_disk(String disk_id) {
 		logger.info("has_disk ?");
-		return false;
+		
+		Volume vol = api.getVolumeApi().getVolume(disk_id);
+		if (vol==null) return false;
+		return true;
 	}
 
 	@Override
@@ -104,6 +165,9 @@ public class CPIImpl implements CPI{
 		logger.info("configure network");
 		
 	}
+	
+	
+	
 
 	@Override
 	public String create_disk(Integer size, Map<String, String> cloud_properties) {
@@ -141,13 +205,14 @@ public class CPIImpl implements CPI{
 	@Override
 	public String snapshot_disk(String disk_id, Map<String, String> metadata) {
 		logger.info("snapshot disk");
+		//TODO
 		return null;
 	}
 
 	@Override
 	public void delete_snapshot(String snapshot_id) {
 		logger.info("delete snapshot");
-		
+		//TODO
 	}
 
 	@Override

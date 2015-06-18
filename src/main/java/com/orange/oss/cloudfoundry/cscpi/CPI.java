@@ -7,6 +7,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 
 /**
  *
+ *
+ *
+ *
  * CPI - Cloud Provider Interface, used for interfacing with various IaaS APIs.
    Key terms:
    Stemcell: template used for creating VMs (shouldn't be powered on)
@@ -14,6 +17,8 @@ import com.fasterxml.jackson.databind.JsonNode;
    Disk:     volume that can be attached and detached from the VMs,
              never attached to more than a single VM at one time
  *
+ *
+ * @see https://github.com/cloudfoundry/bosh/wiki/BOSH-CPI-API-v1-%28WIP%29	
  *  
  */
 public interface CPI {

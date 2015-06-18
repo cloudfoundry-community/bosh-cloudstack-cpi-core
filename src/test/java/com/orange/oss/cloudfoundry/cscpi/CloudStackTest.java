@@ -31,6 +31,7 @@ public class CloudStackTest {
 		Set<Template> templates = templateApi.listTemplates();
 		for (Template t:templates){
 			logger.debug("found template {} ",t.getDisplayText());
+			logger.debug("template id {}",t.getId());
 		}
 	}
 	

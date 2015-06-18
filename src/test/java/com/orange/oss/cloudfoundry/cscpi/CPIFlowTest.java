@@ -8,6 +8,7 @@ import java.util.Map;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -31,8 +32,13 @@ public class CPIFlowTest {
 	@Test
 	public void testCompleteFlow(){
 		
+		//should be vmid ?
 		String agent_id="xxxxx";
-		String stemcell_id="zzzzzz";
+		
+		//TODO: add stemcell generation step = template creation
+		String stemcell_id="fed01f08-f4f6-11e4-a7e9-0800270c9aa5";
+		
+		
 		JsonNode resource_pool=null;
 		JsonNode networks=null;		
 		List<String> disk_locality=new ArrayList<String>();
@@ -46,6 +52,11 @@ public class CPIFlowTest {
 		Integer size=new Integer(10);		
 		Map<String, String> cloud_properties=new HashMap<String, String>();
 		String disk_id=cpi.create_disk(size, cloud_properties);
+		
+		
+		//TODO assert hasVM
+		boolean exist=cpi.has_vm(vm_id);
+		
 		
 		//TODO assert disk
 		

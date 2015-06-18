@@ -27,15 +27,44 @@ public class CloudStackConfiguration {
 	
 	
 	
+	@Value("${cloudstack.endpoint}")	
+	String endpoint;
+
+	@Value("${cloudstack.api_key}")	
+	String api_key;
+
+	@Value("${cloudstack.secret_access_key}")	
+	String secret_access_key;
+
+	@Value("${cloudstack.default_key_name}")	
+	String default_key_name;
+
+	@Value("${cloudstack.private_key}")	
+	String private_key;
+
+//	@Value("${cloudstack.state_timeout}")	
+//	int state_timeout;
+//
+//	@Value("${cloudstack.state_timeout_volume}")	
+//	int state_timeout_volume;
+//
+//	@Value("${cloudstack.stemcell_public_visibility}")	
+//	boolean stemcell_public_visibility;
+//
+//	@Value("${cloudstack.default_zone}")	
+//	String  default_zone;
+	
 	
 	@Bean
 		public CloudStackApi cloudStackAdapter(	
-				@Value("${cs.endpoint}") String endpoint,
-				@Value("${cs.tenant}") String tenant,
-				@Value("${cs.username}")String username,
-				@Value("${cs.password}") String password
+				//@Value("${cs.endpoint}") String endpoint,
+				//@Value("${cs.tenant}") String tenant,
+//				@Value("${cs.username}")String username,
+//				@Value("${cs.password}") String password
 ){
 		
+		String username=this.api_key;
+		String password=this.secret_access_key;
 		
 		logger.debug("cloudstack adapter. endpoint {} \n username {} \n",endpoint,username);
 		
