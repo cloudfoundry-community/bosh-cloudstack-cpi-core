@@ -8,7 +8,6 @@ import java.util.Map;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -35,9 +34,12 @@ public class CPIFlowTest {
 		//should be vmid ?
 		String agent_id="xxxxx";
 		
-		//TODO: add stemcell generation step = template creation
-		String stemcell_id="fed01f08-f4f6-11e4-a7e9-0800270c9aa5";
 		
+		
+		String image_path="/tmp";
+		Map<String, String> cloud_properties=new HashMap<String, String>();
+		String stemcell_id=cpi.create_stemcell(image_path, cloud_properties);
+
 		
 		JsonNode resource_pool=null;
 		JsonNode networks=null;		
@@ -53,11 +55,8 @@ public class CPIFlowTest {
 		
 		
 		Integer size=new Integer(10);		
-		Map<String, String> cloud_properties=new HashMap<String, String>();
-		String disk_id=cpi.create_disk(size, cloud_properties);
-		
-		
-		
+		Map<String, String> diskcloud_properties=new HashMap<String, String>();
+		String disk_id=cpi.create_disk(size, diskcloud_properties);
 		
 		//TODO assert disk
 		

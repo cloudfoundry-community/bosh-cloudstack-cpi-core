@@ -1,7 +1,5 @@
 package com.orange.oss.cloudfoundry.cscpi;
 
-import static java.util.concurrent.TimeUnit.SECONDS;
-
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -17,9 +15,11 @@ import org.jclouds.cloudstack.features.VolumeApi;
 import org.jclouds.cloudstack.options.DeployVirtualMachineOptions;
 import org.jclouds.cloudstack.options.ListDiskOfferingsOptions;
 import org.jclouds.cloudstack.options.ListServiceOfferingsOptions;
+import org.jclouds.cloudstack.options.ListTemplatesOptions;
+import org.jclouds.cloudstack.options.ListVirtualMachinesOptions;
+import org.jclouds.cloudstack.options.ListVolumesOptions;
 import org.jclouds.cloudstack.options.ListZonesOptions;
 import org.jclouds.cloudstack.predicates.JobComplete;
-import org.jclouds.cloudstack.predicates.VirtualMachineRunning;
 import org.jclouds.cloudstack.strategy.BlockUntilJobCompletesAndReturnResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -124,7 +124,7 @@ public class CPIImpl implements CPI{
 		BlockUntilJobCompletesAndReturnResult blockUntilJobCompletesAndReturnResult=new BlockUntilJobCompletesAndReturnResult(this.api,jobComplete);
 		VirtualMachine vm = blockUntilJobCompletesAndReturnResult.<VirtualMachine>apply(job);
         
-        return vm.getId();
+        return vmName;
     }
 
 
@@ -137,14 +137,23 @@ public class CPIImpl implements CPI{
 	@Override
 	public String current_vm_id() {
 		logger.info("current_vm_id");
+		//FIXME : strange API ? must keep state in CPI with latest changed / created vm ??
 		return null;
 	}
 
 	@Override
 	public String create_stemcell(String image_path,
 			Map<String, String> cloud_properties) {
-		logger.info("current_stemcell");
-		return null;
+		logger.info("create_stemcell");
+		
+		//map stemcell to cloudstack template concept.
+		
+		//FIXME: change with template generation, for now use existing centos template
+		String stemcellId="cpitemplate-"+UUID.randomUUID();
+		
+		String csTemplateId=api.getTemplateApi().listTemplates(ListTemplatesOptions.Builder.name("CentOS 5.6(64-bit) no GUI (XenServer)")).iterator().next().getId();
+		
+		return csTemplateId;
 	}
 
 	@Override
@@ -157,6 +166,11 @@ public class CPIImpl implements CPI{
 	public void delete_vm(String vm_id) {
 		logger.info("delete_vm");
 		
+		//FIXME : check vm is existing
+		String csVmId=api.getVirtualMachineApi().listVirtualMachines(ListVirtualMachinesOptions.Builder.name(vm_id)).iterator().next().getId();
+		api.getVirtualMachineApi().destroyVirtualMachine(csVmId);
+		
+		logger.info("deleted successfully vm {}",vm_id);
 	}
 
 	@Override
@@ -206,8 +220,6 @@ public class CPIImpl implements CPI{
 	public String create_disk(Integer size, Map<String, String> cloud_properties) {
 		logger.info("create_disk");
 		
-		//generate random disk id
-		
 		//FIXME see disk offering (cloud properties specificy?)
 		
 		String name="cpidisk-"+UUID.randomUUID().toString();
@@ -215,12 +227,17 @@ public class CPIImpl implements CPI{
 		//find disk offering
 		
 		//TODO: Custom disk offering possible, but cant delete vol ?
-		String diskOfferingId=api.getOfferingApi().listDiskOfferings(ListDiskOfferingsOptions.Builder.name("Small")).iterator().next().getId();
+		
+		
+		//String diskOfferingName = "Small";
+		String diskOfferingName = "Custom";
+		String diskOfferingId=api.getOfferingApi().listDiskOfferings(ListDiskOfferingsOptions.Builder.name(diskOfferingName)).iterator().next().getId();
 		//FIXME assert a single offering found
 		
 		
 		String zoneId=this.findZoneId();
 		api.getVolumeApi().createVolumeFromCustomDiskOfferingInZone(name, diskOfferingId, zoneId, size);
+		
 		
 		return name;
 
@@ -229,15 +246,20 @@ public class CPIImpl implements CPI{
 	@Override
 	public void delete_disk(String disk_id) {
 		logger.info("delete_disk");
-		api.getVolumeApi().deleteVolume(disk_id);
 		
+		String csDiskId=api.getVolumeApi().listVolumes(ListVolumesOptions.Builder.name(disk_id)).iterator().next().getId();
+		api.getVolumeApi().deleteVolume(csDiskId);
 	}
 
 	@Override
 	public void attach_disk(String vm_id, String disk_id) {
 		logger.info("attach disk");
+		String csDiskId=api.getVolumeApi().listVolumes(ListVolumesOptions.Builder.name(disk_id)).iterator().next().getId();
+		
+		
+		
 		VolumeApi vol = this.api.getVolumeApi();
-		AsyncCreateResponse resp=vol.attachVolume(disk_id, vm_id);
+		AsyncCreateResponse resp=vol.attachVolume(csDiskId, vm_id);
 		
 		
 	}
