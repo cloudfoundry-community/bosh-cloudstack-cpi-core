@@ -1,5 +1,7 @@
 package com.orange.oss.cloudfoundry.cscpi;
 
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -12,6 +14,7 @@ import org.jclouds.cloudstack.domain.VirtualMachine;
 import org.jclouds.cloudstack.domain.Volume;
 import org.jclouds.cloudstack.domain.Zone;
 import org.jclouds.cloudstack.features.VolumeApi;
+import org.jclouds.cloudstack.options.CreateSnapshotOptions;
 import org.jclouds.cloudstack.options.DeployVirtualMachineOptions;
 import org.jclouds.cloudstack.options.ListDiskOfferingsOptions;
 import org.jclouds.cloudstack.options.ListServiceOfferingsOptions;
@@ -95,11 +98,12 @@ public class CPIImpl implements CPI{
 
         String vmName="cpivm-"+UUID.randomUUID().toString();
 		String serviceOfferingName="Ultra Tiny";
-		String templateId=stemcell_id;
+
+		
+		//TODO: find csTemplateId from name when template generation is OK
+		String csTemplateId=stemcell_id;
         
 		String zoneId = findZoneId();
-		
-		
 		
 		//find offering
 		Set<ServiceOffering> s = api.getOfferingApi().listServiceOfferings(ListServiceOfferingsOptions.Builder.name(serviceOfferingName));
@@ -116,13 +120,11 @@ public class CPIImpl implements CPI{
         			.name(vmName);
 		
 		
-		AsyncCreateResponse job = api.getVirtualMachineApi().deployVirtualMachineInZone(zoneId, so.getId(), templateId, options);
+		AsyncCreateResponse job = api.getVirtualMachineApi().deployVirtualMachineInZone(zoneId, so.getId(), csTemplateId, options);
 		
-		jobComplete = new JobComplete(api);
-		
-		
-		BlockUntilJobCompletesAndReturnResult blockUntilJobCompletesAndReturnResult=new BlockUntilJobCompletesAndReturnResult(this.api,jobComplete);
-		VirtualMachine vm = blockUntilJobCompletesAndReturnResult.<VirtualMachine>apply(job);
+//		jobComplete = new JobComplete(api);
+//		BlockUntilJobCompletesAndReturnResult blockUntilJobCompletesAndReturnResult=new BlockUntilJobCompletesAndReturnResult(this.api,jobComplete);
+//		VirtualMachine vm = blockUntilJobCompletesAndReturnResult.<VirtualMachine>apply(job);
         
         return vmName;
     }
@@ -176,8 +178,8 @@ public class CPIImpl implements CPI{
 	@Override
 	public boolean has_vm(String vm_id) {
 		logger.info("has_vm ?");
-		
-		VirtualMachine vm = api.getVirtualMachineApi().getVirtualMachine(vm_id);
+		VirtualMachine vm=api.getVirtualMachineApi().listVirtualMachines(ListVirtualMachinesOptions.Builder.name("vm_id")).iterator().next();
+
 		if (vm==null) return false;
 		return true;
 		
@@ -255,19 +257,22 @@ public class CPIImpl implements CPI{
 	public void attach_disk(String vm_id, String disk_id) {
 		logger.info("attach disk");
 		String csDiskId=api.getVolumeApi().listVolumes(ListVolumesOptions.Builder.name(disk_id)).iterator().next().getId();
-		
-		
+		String csVmId=api.getVirtualMachineApi().listVirtualMachines(ListVirtualMachinesOptions.Builder.name(vm_id)).iterator().next().getId();
 		
 		VolumeApi vol = this.api.getVolumeApi();
-		AsyncCreateResponse resp=vol.attachVolume(csDiskId, vm_id);
+		AsyncCreateResponse resp=vol.attachVolume(csDiskId, csVmId);
+		//TODO: wait for attachment ? need to restart vm ?
 		
-		
+		logger.info("==> detach disk successfull");
 	}
 
 	@Override
 	public String snapshot_disk(String disk_id, Map<String, String> metadata) {
 		logger.info("snapshot disk");
-		//TODO
+		
+		String csDiskId=api.getVolumeApi().getVolume(disk_id).getId();
+		AsyncCreateResponse async = api.getSnapshotApi().createSnapshot(csDiskId,CreateSnapshotOptions.Builder.domainId("domain"));
+		//FIXME
 		return null;
 	}
 
@@ -280,23 +285,31 @@ public class CPIImpl implements CPI{
 	@Override
 	public void detach_disk(String vm_id, String disk_id) {
 		logger.info("detach disk");
-		VolumeApi vol = this.api.getVolumeApi();
-		AsyncCreateResponse resp=vol.detachVolume(disk_id);
-		
+		String csDiskId=api.getVolumeApi().listVolumes(ListVolumesOptions.Builder.name(disk_id)).iterator().next().getId();		
+		AsyncCreateResponse resp=api.getVolumeApi().detachVolume(csDiskId);
+		logger.info("==> detach disk successfull");
 		
 	}
 
 	@Override
 	public List<String> get_disks(String vm_id) {
 		logger.info("get_disks");
-		VirtualMachine vm=api.getVirtualMachineApi().getVirtualMachine(vm_id);
-		
-		 VolumeApi vol = this.api.getVolumeApi();
-		 Set<Volume> vols=vol.listVolumes();
-		 //FIXME : fix search volume (option to target a single vm)
-		return null;
+
+		VirtualMachine vm=api.getVirtualMachineApi().listVirtualMachines(ListVirtualMachinesOptions.Builder.name(vm_id)).iterator().next();		
+
+		VolumeApi vol = this.api.getVolumeApi();
+		Set<Volume> vols=vol.listVolumes(ListVolumesOptions.Builder.virtualMachineId(vm.getId()));
+
+		ArrayList<String> disks = new ArrayList<String>();
+		Iterator<Volume> it=vols.iterator();
+		while (it.hasNext()){
+			Volume v=it.next();
+			String disk_id=v.getName();
+			disks.add(disk_id);
+		}
+		return disks;
 	}
-    
+
   
 	/**
 	 * utility to retrieve cloudstack zoneId

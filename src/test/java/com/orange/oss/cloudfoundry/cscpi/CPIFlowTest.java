@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.junit.Test;
+import static org.junit.Assert.*;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -31,7 +32,7 @@ public class CPIFlowTest {
 	@Test
 	public void testCompleteFlow(){
 		
-		//should be vmid ?
+		//provided by bosh ?
 		String agent_id="xxxxx";
 		
 		
@@ -49,8 +50,6 @@ public class CPIFlowTest {
 
 		String vm_id=cpi.create_vm(agent_id, stemcell_id, resource_pool, networks, disk_locality, env);
 		
-		//TODO assert hasVM
-		boolean exist=cpi.has_vm(vm_id);
 		
 		
 		
@@ -65,8 +64,14 @@ public class CPIFlowTest {
 		
 		//delete flow
 		
+		List<String >disks=cpi.get_disks(vm_id);
+		assertEquals(1, disks.size());
+		
 		
 		cpi.detach_disk(vm_id, disk_id);
+
+		//TODO assert hasVM
+//		boolean exist=cpi.has_vm(vm_id);
 
 		
 		cpi.delete_vm(vm_id);
