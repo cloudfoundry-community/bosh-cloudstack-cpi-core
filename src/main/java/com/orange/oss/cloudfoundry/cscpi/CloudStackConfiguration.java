@@ -71,6 +71,9 @@ public class CloudStackConfiguration {
         overrides.setProperty(Constants.PROPERTY_TIMEOUTS_PREFIX + "AlertClient", "360000");
         overrides.setProperty(Constants.PROPERTY_TIMEOUTS_PREFIX + "GlobalAccountClient", "360000");
         overrides.setProperty(Constants.PROPERTY_TIMEOUTS_PREFIX + "AccountClient", "360000");
+        overrides.setProperty("jclouds.retries-delay-start", "1000");
+        
+        
         
         CloudStackApi api = ContextBuilder.newBuilder(provider)
                 .endpoint(endpoint)

@@ -1,5 +1,7 @@
 cloudstack:
-  endpoint: http://localhost:8080/client/api
+#  endpoint: http://localhost:8080/client/api
+  endpoint: http://192.168.56.11:8080/client/api
+
   api_key: Jfy8RHP1-BddKb0qTBfGJxTm8FQreLjSQvej7nF5XZOnmNzUMA9f9qhbFzBwwsny-XId8Eo56CnYTs-Ws-OoeQ
   secret_access_key: ZZ0lguo0uk2QM5NFncdTQANAm6eyaMemTwyO4xI5j8tQIVzv7zOctNDx81Y7vSfeRb2OY7CGIzv_w6KR4l4AbQ
 #  api_key: Pfq9J0ySWcFWEee_TcK3FzsjtUcquPcVWmmFO_66O_GUARi2HSdJjm6-kpz3ksedwfO2ZO_nxi53jRroBqYXIQ

@@ -20,6 +20,14 @@ import org.springframework.integration.stream.CharacterStreamReadingMessageSourc
 import org.springframework.integration.stream.CharacterStreamWritingMessageHandler;
 import org.springframework.messaging.MessageChannel;
 
+
+/**
+ * https://spring.io/blog/2014/11/25/spring-integration-java-dsl-line-by-line-tutorial
+ * 
+ * 
+ * @author pierre
+ *
+ */
 @Configuration
 @EnableIntegration
 public class CLIIntegrationConfiguration {

@@ -119,15 +119,18 @@ public class CPIImpl implements CPI{
         			.dataDiskSize(dataDiskSize)
         			.name(vmName);
 		
-		
+
 		AsyncCreateResponse job = api.getVirtualMachineApi().deployVirtualMachineInZone(zoneId, so.getId(), csTemplateId, options);
-		jobComplete = retry(new JobComplete(api), 1200, 1, 5, SECONDS);
+		jobComplete = retry(new JobComplete(api), 1200, 3, 5, SECONDS);
 		jobComplete.apply(job.getJobId());
-		AsyncJob<VirtualMachine> jobWithResult = api.getAsyncJobApi().<VirtualMachine> getAsyncJob(job.getId());
-		if (jobWithResult.getError() != null) {
-			throw new RuntimeException("Failed with:" + jobWithResult.getError());
-		}
-		VirtualMachine vm = jobWithResult.getResult();
+		
+//		AsyncJob<VirtualMachine> jobWithResult = api.getAsyncJobApi().<VirtualMachine> getAsyncJob(job.getId());
+//		if (jobWithResult.getError() != null) {
+//			throw new RuntimeException("Failed with:" + jobWithResult.getError());
+//		}
+		
+		
+		VirtualMachine vm = api.getVirtualMachineApi().listVirtualMachines(ListVirtualMachinesOptions.Builder.name(vmName)).iterator().next();
 		if (! vm.getState().equals(State.RUNNING)) {
 			throw new RuntimeException("Not in expectedrunning:" + vm.getState());
 		}
