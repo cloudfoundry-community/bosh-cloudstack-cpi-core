@@ -31,11 +31,8 @@ public class CPIFlowTest {
 	 */
 	@Test
 	public void testCompleteFlow(){
-		
 		//provided by bosh ?
 		String agent_id="xxxxx";
-		
-		
 		
 		String image_path="/tmp";
 		Map<String, String> cloud_properties=new HashMap<String, String>();
@@ -46,33 +43,32 @@ public class CPIFlowTest {
 		JsonNode networks=null;		
 		List<String> disk_locality=new ArrayList<String>();
 		Map<String, String> env=new HashMap<String, String>();
-		
 
 		String vm_id=cpi.create_vm(agent_id, stemcell_id, resource_pool, networks, disk_locality, env);
-		
-		
-		
 		
 		Integer size=new Integer(10);		
 		Map<String, String> diskcloud_properties=new HashMap<String, String>();
 		String disk_id=cpi.create_disk(size, diskcloud_properties);
 		
 		//TODO assert disk
-		
 		cpi.attach_disk(vm_id, disk_id);
 
 		
 		//delete flow
-		
+
+		//disk include root disk, so 2 disks		
 		List<String >disks=cpi.get_disks(vm_id);
-		assertEquals(1, disks.size());
-		
+		assertEquals(2, disks.size());
+
 		
 		cpi.detach_disk(vm_id, disk_id);
 
+		disks=cpi.get_disks(vm_id);
+		assertEquals(1, disks.size());		
+		
+		
 		//TODO assert hasVM
 //		boolean exist=cpi.has_vm(vm_id);
-
 		
 		cpi.delete_vm(vm_id);
 		cpi.delete_disk(disk_id);
