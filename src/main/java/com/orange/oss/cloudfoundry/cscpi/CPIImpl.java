@@ -30,6 +30,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Predicate;
 
+import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.jclouds.util.Predicates2.retry;
+
 /**
  * Implementation of the CPI API, translating to CloudStack jclouds API calls
  * 
@@ -118,6 +121,7 @@ public class CPIImpl implements CPI{
 		
 		
 		AsyncCreateResponse job = api.getVirtualMachineApi().deployVirtualMachineInZone(zoneId, so.getId(), csTemplateId, options);
+		jobComplete = retry(new JobComplete(api), 1200, 1, 5, SECONDS);
 		jobComplete.apply(job.getJobId());
 		AsyncJob<VirtualMachine> jobWithResult = api.getAsyncJobApi().<VirtualMachine> getAsyncJob(job.getId());
 		if (jobWithResult.getError() != null) {
