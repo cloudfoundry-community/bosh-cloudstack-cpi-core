@@ -31,7 +31,10 @@ module Bosh
     ##
     # Get the vm_id of this host
     #
-    # @return [String] opaque id later used by other methods of the CPI
+    # @return [String] opaque id later used by other methods of the CPI.
+    # additional info: This may be used by the cpi itself (e.g. as part of create_stemcell
+    # to attach a volume to the current host, in order to create a template from this volume)
+    # This is also used by bosh director to request snapshots of himself
     def current_vm_id
       not_implemented(:current_vm_id)
     end

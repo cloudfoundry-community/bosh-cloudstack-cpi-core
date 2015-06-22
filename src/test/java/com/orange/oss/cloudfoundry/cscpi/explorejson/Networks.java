@@ -1,4 +1,4 @@
-package com.orange.oss.cloudfoundry.cscpi.domain;
+package com.orange.oss.cloudfoundry.cscpi.explorejson;
 
 import java.util.Map;
 

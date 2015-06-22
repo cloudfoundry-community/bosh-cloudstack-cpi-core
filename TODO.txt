@@ -1,0 +1,64 @@
+
+External CPI CC contract:
+- validate CPI contract
+    - w.r.t. cloud properties injection:
+        - in cpi bosh release config prop
+        - in context: director uuid
+        - env vars: nothing
+    - better understand exception serialization
+        https://github.com/cloudfoundry/bosh/blob/master/bosh_cpi/lib/cloud/external_cpi.rb#L15-L26
+    - better understand cpi start/stop and expected state management
+        - current_vm_id() is rather for introspection (and locally mount a volume for stemcell creation)
+        - each verbs leads to a CPI exec invocation, which exits among completion
+         => as an optimization imagine something to keep the JVM running across invocations
+    - understand which verbs are optional: ping (nats vs stdin) ?
+        https://github.com/cloudfoundry/bosh/blob/master/bosh_cpi/lib/bosh/cpi/cli.rb
+        [httpClient] 2015/06/19 16:10:02 DEBUG - Sending POST request with body {"method":"ping","arguments":[],"reply_to":"a09a1d1b-3910-45f3-5312-69eb4ee8ccde"}, endpoint https://mbus:mbus-password@10.106.236.106:6868/agent
+    - better understand the configure_network verb
+        - is an optional verb, used as an optimization
+            https://github.com/cloudfoundry/bosh/blob/ede389a2e112e1b4f2dbc4495c08977da4439483/bosh-director/spec/unit/instance_updater/network_updater_spec.rb#L85-L86
+        - capture internal CPI traces ?
+        - study source code
+            
+
+- map stdin/stdout to CPI request / CPI response classes
+    Is spring integration overkill ?
+        How to test CLIIntegrationConfiguration ?
+        Pointer to manual / samples ? (spring DSL and spring boot)
+        How to trigger invocation of handlers as part of the flow ?
+    Impl simple stdin and stdout ?
+        
+- map CPI request to calls to generic CPI interface: CPI#create_vm() ...
+    Add Java checked exception corresponding to known RPC exception:
+              Bosh::Clouds::CpiError
+              Bosh::Clouds::NotSupported
+              Bosh::Clouds::NotImplemented
+              Bosh::Clouds::CloudError
+              Bosh::Clouds::VMNotFound
+              Bosh::Clouds::NoDiskSpace
+              Bosh::Clouds::DiskNotAttached
+              Bosh::Clouds::DiskNotFound
+              Bosh::Clouds::VMCreationFailed
+   
+
+Get familiar with CloudStack API and features, and our local cloudstack specificities:
+- meta-data service (necessary to inject specs to bosh agents: IP address, DNS config ...)
+- template generation
+- floating ips
+- security groups
+- multi-tenant features: domains, projects
+
+Prereqs:
+- DFY LDAP for docs (stemcell generation) and network access
+- DFY cloud stack preprod access (API + instances)
+- DFY collab to understand/reuse current automation (scripts for image boot)
+
+Design supported cloud-specific manifest format & features:
+- choose resource pool units to expose in manifest: catalog offering (m1.small) or exact values (100MB) ? Does JClouds support both ?
+
+CloudStack CPI impl:
+- load CPI Impl cloud config and validate it: spring boot properties
+    https://github.com/Orange-OpenSource/bosh-cloudstack-cpi-release/blob/master/jobs/cpi/templates/application.yml.erb
+- validate generic CPI interface arguments against CPI specific contract: cloudstack through typed objects
+- iterate through CPI arguments and pass in arguments to
+

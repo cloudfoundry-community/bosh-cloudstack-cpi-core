@@ -1,6 +1,4 @@
-package com.orange.oss.cloudfoundry.cscpi.domain;
-
-import java.util.Map;
+package com.orange.oss.cloudfoundry.cscpi.explorejson;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
@@ -9,14 +7,20 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 /**
  *
  */
-public class Network {
+public class VSphereResourcePool {
 
-    public String ip;
-    public String netmask;
-    public Map<String,String> cloud_properties;
-    //public List<String> default;
-    public String dns;
-    public String gateway;
+    public String ram;
+    public String disk;
+    public int cpu;
+
+    public VSphereResourcePool() {
+    }
+
+    public VSphereResourcePool(String ram, String disk, int cpu) {
+        this.ram = ram;
+        this.disk = disk;
+        this.cpu = cpu;
+    }
 
     public boolean equals(Object obj) {
         return EqualsBuilder.reflectionEquals(this, obj);

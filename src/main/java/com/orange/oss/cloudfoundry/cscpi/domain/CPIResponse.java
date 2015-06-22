@@ -1,15 +1,14 @@
 package com.orange.oss.cloudfoundry.cscpi.domain;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.google.gson.JsonObject;
 
 public class CPIResponse {
 
-	@JsonProperty
-	String result;
+	JsonNode result;
 	
-	@JsonProperty
-	String error;
+	JsonObject error;
 	
-	@JsonProperty
 	String log;
 }

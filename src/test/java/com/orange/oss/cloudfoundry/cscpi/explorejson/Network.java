@@ -1,5 +1,9 @@
-package com.orange.oss.cloudfoundry.cscpi.domain;
+package com.orange.oss.cloudfoundry.cscpi.explorejson;
 
+import java.util.List;
+import java.util.Map;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
@@ -7,20 +11,16 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 /**
  *
  */
-public class ResourcePool {
+public class Network {
 
-    public String ram;
-    public String disk;
-    public int cpu;
+    public String ip;
+    public String netmask;
+    public Map<String,String> cloud_properties;
 
-    public ResourcePool() {
-    }
-
-    public ResourcePool(String ram, String disk, int cpu) {
-        this.ram = ram;
-        this.disk = disk;
-        this.cpu = cpu;
-    }
+    @JsonProperty("default")
+    public List<String> defaultServices;
+    public List<String> dns;
+    public String gateway;
 
     public boolean equals(Object obj) {
         return EqualsBuilder.reflectionEquals(this, obj);

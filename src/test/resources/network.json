@@ -1,0 +1,11 @@
+{
+  "ip": "10.203.7.0",
+  "netmask": "255.255.254.0",
+  "cloud_properties": {"name": "NET_APPS_SERV"},
+  "default": [
+    "dns",
+    "gateway"
+  ],
+  "dns": ["10.203.6.105"],
+  "gateway": "10.203.7.254"
+}
