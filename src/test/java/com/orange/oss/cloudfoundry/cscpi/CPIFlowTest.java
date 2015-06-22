@@ -53,6 +53,10 @@ public class CPIFlowTest {
 		//TODO assert disk
 		cpi.attach_disk(vm_id, disk_id);
 
+
+		//reboot the vm
+		cpi.reboot_vm(vm_id);
+		
 		
 		//delete flow
 
