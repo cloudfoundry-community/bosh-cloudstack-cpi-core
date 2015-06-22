@@ -60,6 +60,17 @@ public class CloudStackConfiguration {
        Properties overrides = new Properties();
         overrides.setProperty(Constants.PROPERTY_RELAX_HOSTNAME, "true");
         overrides.setProperty(Constants.PROPERTY_TRUST_ALL_CERTS, "true");
+
+        //see https://raw.githubusercontent.com/abayer/cloudcat/master/src/groovy/cloudstack/reporting/JCloudsConnection.groovy
+        overrides.setProperty(Constants.PROPERTY_CONNECTION_TIMEOUT, "360000");
+        overrides.setProperty(Constants.PROPERTY_TIMEOUTS_PREFIX + "VirtualMachineClient", "360000");
+        overrides.setProperty(Constants.PROPERTY_TIMEOUTS_PREFIX + "TemplateClient", "360000");
+        overrides.setProperty(Constants.PROPERTY_TIMEOUTS_PREFIX + "GlobalHostClient", "360000");
+        overrides.setProperty(Constants.PROPERTY_TIMEOUTS_PREFIX + "HostClient", "360000");
+        overrides.setProperty(Constants.PROPERTY_TIMEOUTS_PREFIX + "GlobalAlertClient", "360000");
+        overrides.setProperty(Constants.PROPERTY_TIMEOUTS_PREFIX + "AlertClient", "360000");
+        overrides.setProperty(Constants.PROPERTY_TIMEOUTS_PREFIX + "GlobalAccountClient", "360000");
+        overrides.setProperty(Constants.PROPERTY_TIMEOUTS_PREFIX + "AccountClient", "360000");
         
         CloudStackApi api = ContextBuilder.newBuilder(provider)
                 .endpoint(endpoint)
