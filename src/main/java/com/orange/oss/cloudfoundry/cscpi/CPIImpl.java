@@ -8,12 +8,8 @@ import java.util.Set;
 import java.util.UUID;
 
 import org.jclouds.cloudstack.CloudStackApi;
-import org.jclouds.cloudstack.domain.AsyncCreateResponse;
-import org.jclouds.cloudstack.domain.ServiceOffering;
-import org.jclouds.cloudstack.domain.VirtualMachine;
+import org.jclouds.cloudstack.domain.*;
 import org.jclouds.cloudstack.domain.VirtualMachine.State;
-import org.jclouds.cloudstack.domain.Volume;
-import org.jclouds.cloudstack.domain.Zone;
 import org.jclouds.cloudstack.features.VolumeApi;
 import org.jclouds.cloudstack.options.CreateSnapshotOptions;
 import org.jclouds.cloudstack.options.DeployVirtualMachineOptions;
@@ -122,38 +118,18 @@ public class CPIImpl implements CPI{
 		
 		
 		AsyncCreateResponse job = api.getVirtualMachineApi().deployVirtualMachineInZone(zoneId, so.getId(), csTemplateId, options);
-		
-		
-		//TODO: replace with jclouds async feature
-		boolean done=false;
-		while (!done){
-			VirtualMachine vm=api.getVirtualMachineApi().listVirtualMachines(ListVirtualMachinesOptions.Builder.name(vmName)).iterator().next();
-			State status=vm.getState();
-			logger.info("create vm {}, state is : {}",vmName,vm.getState());
-			if (vm.getState().equals(State.RUNNING)){
-				done=true;
-			}
-			
+
+		AsyncJob<VirtualMachine> jobWithResult = api.getAsyncJobApi().getAsyncJob(job.getId());
+		if (jobWithResult.getError() != null) {
+			throw new RuntimeException("Failed with:" + jobWithResult.getError());
 		}
-		
-		
-//		jobComplete = new JobComplete(api);
-//		BlockUntilJobCompletesAndReturnResult blockUntilJobCompletesAndReturnResult=new BlockUntilJobCompletesAndReturnResult(this.api,jobComplete);
-//		
-//		VirtualMachine vm = blockUntilJobCompletesAndReturnResult.<VirtualMachine>apply(job);
+		VirtualMachine vm = jobWithResult.getResult();
+		if (! vm.getState().equals(State.RUNNING)) {
+			throw new RuntimeException("Not in expectedrunning:" + vm.getState());
+		}
 
 		logger.info("vm creation completed, now running ! {}");
 
-//		
-//		boolean result = jobComplete.apply(job.getId());
-//		if (result) {
-//			logger.info("vm creation completed ! {}",job.toString());
-//		} else {
-//			logger.error("vm creation job failed {}",job.toString());
-//			throw new RuntimeException(job.toString());
-//		}
-//		
-        
         return vmName;
     }
 
