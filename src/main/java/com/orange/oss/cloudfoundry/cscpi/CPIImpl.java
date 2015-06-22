@@ -119,7 +119,7 @@ public class CPIImpl implements CPI{
 		
 		AsyncCreateResponse job = api.getVirtualMachineApi().deployVirtualMachineInZone(zoneId, so.getId(), csTemplateId, options);
 
-		AsyncJob<VirtualMachine> jobWithResult = api.getAsyncJobApi().getAsyncJob(job.getId());
+		AsyncJob<VirtualMachine> jobWithResult = api.getAsyncJobApi().<VirtualMachine> getAsyncJob(job.getId());
 		if (jobWithResult.getError() != null) {
 			throw new RuntimeException("Failed with:" + jobWithResult.getError());
 		}
