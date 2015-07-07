@@ -14,17 +14,21 @@ import org.jclouds.cloudstack.CloudStackApi;
 import org.jclouds.cloudstack.domain.AsyncCreateResponse;
 import org.jclouds.cloudstack.domain.Network;
 import org.jclouds.cloudstack.domain.NetworkOffering;
+import org.jclouds.cloudstack.domain.OSType;
 import org.jclouds.cloudstack.domain.ServiceOffering;
+import org.jclouds.cloudstack.domain.TemplateMetadata;
 import org.jclouds.cloudstack.domain.VirtualMachine;
 import org.jclouds.cloudstack.domain.VirtualMachine.State;
 import org.jclouds.cloudstack.domain.Volume;
 import org.jclouds.cloudstack.domain.Zone;
 import org.jclouds.cloudstack.features.VolumeApi;
 import org.jclouds.cloudstack.options.CreateSnapshotOptions;
+import org.jclouds.cloudstack.options.CreateTemplateOptions;
 import org.jclouds.cloudstack.options.DeployVirtualMachineOptions;
 import org.jclouds.cloudstack.options.ListDiskOfferingsOptions;
 import org.jclouds.cloudstack.options.ListNetworkOfferingsOptions;
 import org.jclouds.cloudstack.options.ListNetworksOptions;
+import org.jclouds.cloudstack.options.ListOSTypesOptions;
 import org.jclouds.cloudstack.options.ListServiceOfferingsOptions;
 import org.jclouds.cloudstack.options.ListTemplatesOptions;
 import org.jclouds.cloudstack.options.ListVirtualMachinesOptions;
@@ -35,6 +39,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -94,16 +99,27 @@ public class CPIImpl implements CPI{
         ObjectMapper mapper = new ObjectMapper();
 
         //TODO parse from resource pool
-		String instance_type="Ultra Tiny";
+		//String instance_type="Ultra Tiny";
+		String instance_type="CO1 - Small STD";
+		
 		
 		//TODO parse from networks
 		
 		//String network_name="elpaaso-network";
-		String network_name="DefaultIsolatedNetworkOfferingWithSourceNat";
+		//String network_name="DefaultIsolatedNetworkOfferingWithSourceNat";
+		String network_name="DefaultIsolatedNetworkOffering";
 		
 
         String vmName="cpivm-"+UUID.randomUUID().toString();
 		
+		this.vmCreation(stemcell_id, instance_type, network_name, vmName);
+
+        return vmName;
+    }
+
+
+	private void vmCreation(String stemcell_id, String instance_type,
+			String network_name, String vmName) {
 		//TODO: find csTemplateId from name when template generation is OK
 		String csTemplateId=stemcell_id;
         
@@ -150,9 +166,7 @@ public class CPIImpl implements CPI{
 		}
 
 		logger.info("vm creation completed, now running ! {}");
-
-        return vmName;
-    }
+	}
 
 
 	@Override
@@ -168,20 +182,87 @@ public class CPIImpl implements CPI{
 		return null;
 	}
 
+	
+	
+	/**
+	 * 
+	 * first try : create a vm from an existing template, stop it, create template from vm, delete it
+	 * 
+	 * @param image_path
+	 * @param cloud_properties
+	 * @return
+	 */
 	@Override
 	public String create_stemcell(String image_path,
 			Map<String, String> cloud_properties) {
 		logger.info("create_stemcell");
 		
-		//map stemcell to cloudstack template concept.
 		
 		//FIXME: change with template generation, for now use existing centos template
-		String stemcellId="cpitemplate-"+UUID.randomUUID();
 		
-		String csTemplateId=api.getTemplateApi().listTemplates(ListTemplatesOptions.Builder.name("CentOS 5.6(64-bit) no GUI (XenServer)")).iterator().next().getId();
+		//default vm
+		//String stemcell_id="fed01f08-f4f6-11e4-a7e9-0800270c9aa5"; //build in centos 6.5 template for now
+		String stemcell_id="cc71fc7f-56a6-45b3-9872-7b6c79af991c"; //ubuntu precise template
 		
-		return csTemplateId;
+		
+		
+		//String instance_type="Ultra Tiny";
+		String instance_type="CO1 - Small STD";
+		
+		//FIXME : should parameter the network offering
+		//String network_name="DefaultIsolatedNetworkOfferingWithSourceNat";
+		String network_name="DefaultIsolatedNetworkOfferingWithSourceNatService";	
+		
+		
+		logger.info("CREATING work vm for template generation");
+		//map stemcell to cloudstack template concept.
+		String workVmName="cpi-stemcell-work-"+UUID.randomUUID();
+		this.vmCreation(stemcell_id, instance_type, network_name, workVmName);
+		VirtualMachine m=api.getVirtualMachineApi().listVirtualMachines(ListVirtualMachinesOptions.Builder.name(workVmName)).iterator().next();
+		
+		logger.info("STOPPING work vm for template generation");
+		String stopJob=api.getVirtualMachineApi().stopVirtualMachine(m.getId());
+		jobComplete = retry(new JobComplete(api), 1200, 3, 5, SECONDS);
+		jobComplete.apply(stopJob);
+		
+		logger.info("Work vm stopped. now creating template from it its ROOT Volume");
+		
+		
+		Volume rootVolume=api.getVolumeApi().listVolumes(ListVolumesOptions.Builder.virtualMachineId(m.getId())).iterator().next(); //hopefully, fist volume is ROOT ?
+
+		
+		//FIXME : tempalte name limited to 32 chars, UUID is longer.
+		String stemcellId="cpitemplate-XXXX";
+		
+		//FIXME: find correct os type (Ubuntu Trusty)
+		OSType osType=api.getGuestOSApi().listOSTypes().iterator().next();
+		
+		
+		TemplateMetadata templateMetadata=TemplateMetadata.builder()
+				.name(stemcellId)
+				.osTypeId(osType.getId())
+				.volumeId(rootVolume.getId())
+				.displayText("generated cpi stemcell template")
+				.build();
+		
+		CreateTemplateOptions options=CreateTemplateOptions.Builder
+				.isPublic(true)
+				.isFeatured(true);
+		
+		AsyncCreateResponse asyncTemplateCreateJob =api.getTemplateApi().createTemplate(templateMetadata, options);
+		jobComplete = retry(new JobComplete(api), 1200, 3, 5, SECONDS);
+		jobComplete.apply(asyncTemplateCreateJob.getJobId());
+
+		logger.info("Template successfully created ! {} - {}",stemcellId);
+		
+		logger.info("now cleaning work vm");
+		this.delete_vm(workVmName);
+		
+		return stemcellId;
 	}
+
+	
+
 
 	@Override
 	public void delete_stemcell(String stemcell_id) {

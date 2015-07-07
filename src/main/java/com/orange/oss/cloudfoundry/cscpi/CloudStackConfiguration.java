@@ -40,6 +40,23 @@ public class CloudStackConfiguration {
 	@Value("${cloudstack.private_key}")	
 	String private_key;
 
+
+	
+	@Value("${cloudstack.proxy_host}")	
+    String proxy_host;
+
+	@Value("${cloudstack.proxy_port}")	
+	String proxy_port;
+
+	@Value("${cloudstack.proxy_user}")	
+	String proxy_user;
+
+	@Value("${cloudstack.proxy_password}")	
+	String proxy_password;
+
+	
+	
+	
 	
 	
 	@Bean
@@ -71,6 +88,17 @@ public class CloudStackConfiguration {
         overrides.setProperty(Constants.PROPERTY_TIMEOUTS_PREFIX + "AlertClient", "360000");
         overrides.setProperty(Constants.PROPERTY_TIMEOUTS_PREFIX + "GlobalAccountClient", "360000");
         overrides.setProperty(Constants.PROPERTY_TIMEOUTS_PREFIX + "AccountClient", "360000");
+
+		if (proxy_host.length() > 0) {
+			logger.info("using proxy {}:{} with user {}", proxy_host,proxy_port, proxy_user);
+
+			overrides.setProperty(Constants.PROPERTY_PROXY_HOST, proxy_host);
+			overrides.setProperty(Constants.PROPERTY_PROXY_PORT, proxy_port);
+			overrides.setProperty(Constants.PROPERTY_PROXY_USER, proxy_user);
+			overrides.setProperty(Constants.PROPERTY_PROXY_PASSWORD,
+					proxy_password);
+		}
+	
         overrides.setProperty("jclouds.retries-delay-start", "1000");
         
         
