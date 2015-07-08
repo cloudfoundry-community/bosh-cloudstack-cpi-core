@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
 
@@ -16,6 +17,7 @@ import org.jclouds.cloudstack.domain.Network;
 import org.jclouds.cloudstack.domain.NetworkOffering;
 import org.jclouds.cloudstack.domain.OSType;
 import org.jclouds.cloudstack.domain.ServiceOffering;
+import org.jclouds.cloudstack.domain.Template;
 import org.jclouds.cloudstack.domain.TemplateMetadata;
 import org.jclouds.cloudstack.domain.VirtualMachine;
 import org.jclouds.cloudstack.domain.VirtualMachine.State;
@@ -39,7 +41,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-
+import org.springframework.util.Assert;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -120,8 +122,12 @@ public class CPIImpl implements CPI{
 
 	private void vmCreation(String stemcell_id, String instance_type,
 			String network_name, String vmName) {
-		//TODO: find csTemplateId from name when template generation is OK
-		String csTemplateId=stemcell_id;
+		
+		Set<Template> matchingTemplates=api.getTemplateApi().listTemplates(ListTemplatesOptions.Builder.name(stemcell_id));
+		
+		Template stemCellTemplate=matchingTemplates.iterator().next();
+		String csTemplateId=stemCellTemplate.getId();
+		logger.info("found cloudstack template {} matching name / stemcell_id {}",csTemplateId,stemcell_id );
         
 		String csZoneId = findZoneId();
 		
@@ -132,7 +138,7 @@ public class CPIImpl implements CPI{
 		
 		
 		//find network offering
-		//TODO: endusers choose offering or indicate precie network id ??
+		//TODO: endusers choose offering or indicate precise network id ??
 		Set<NetworkOffering> listNetworkOfferings = api.getOfferingApi().listNetworkOfferings(ListNetworkOfferingsOptions.Builder.zoneId(csZoneId).name(network_name));		
 		NetworkOffering networkOffering=listNetworkOfferings.iterator().next();
 		
@@ -153,12 +159,6 @@ public class CPIImpl implements CPI{
 		AsyncCreateResponse job = api.getVirtualMachineApi().deployVirtualMachineInZone(csZoneId, so.getId(), csTemplateId, options);
 		jobComplete = retry(new JobComplete(api), 1200, 3, 5, SECONDS);
 		jobComplete.apply(job.getJobId());
-		
-//		AsyncJob<VirtualMachine> jobWithResult = api.getAsyncJobApi().<VirtualMachine> getAsyncJob(job.getId());
-//		if (jobWithResult.getError() != null) {
-//			throw new RuntimeException("Failed with:" + jobWithResult.getError());
-//		}
-		
 		
 		VirtualMachine vm = api.getVirtualMachineApi().listVirtualMachines(ListVirtualMachinesOptions.Builder.name(vmName)).iterator().next();
 		if (! vm.getState().equals(State.RUNNING)) {
@@ -186,7 +186,7 @@ public class CPIImpl implements CPI{
 	
 	/**
 	 * 
-	 * first try : create a vm from an existing template, stop it, create template from vm, delete it
+	 * first try : create a vm from an existing template, stop it, create template from vm, delete work vm
 	 * 
 	 * @param image_path
 	 * @param cloud_properties
@@ -198,11 +198,8 @@ public class CPIImpl implements CPI{
 		logger.info("create_stemcell");
 		
 		
-		//FIXME: change with template generation, for now use existing centos template
-		
-		//default vm
-		//String stemcell_id="fed01f08-f4f6-11e4-a7e9-0800270c9aa5"; //build in centos 6.5 template for now
-		String stemcell_id="cc71fc7f-56a6-45b3-9872-7b6c79af991c"; //ubuntu precise template
+		//FIXME: change with template generation, for now use existing cloustack template
+		String existingTemplateName="Ubuntu Trusty amd64 [2015-06-01]"; //ubuntu precise template
 		
 		
 		
@@ -217,7 +214,7 @@ public class CPIImpl implements CPI{
 		logger.info("CREATING work vm for template generation");
 		//map stemcell to cloudstack template concept.
 		String workVmName="cpi-stemcell-work-"+UUID.randomUUID();
-		this.vmCreation(stemcell_id, instance_type, network_name, workVmName);
+		this.vmCreation(existingTemplateName, instance_type, network_name, workVmName);
 		VirtualMachine m=api.getVirtualMachineApi().listVirtualMachines(ListVirtualMachinesOptions.Builder.name(workVmName)).iterator().next();
 		
 		logger.info("STOPPING work vm for template generation");
@@ -231,12 +228,17 @@ public class CPIImpl implements CPI{
 		Volume rootVolume=api.getVolumeApi().listVolumes(ListVolumesOptions.Builder.virtualMachineId(m.getId())).iterator().next(); //hopefully, fist volume is ROOT ?
 
 		
-		//FIXME : tempalte name limited to 32 chars, UUID is longer.
-		String stemcellId="cpitemplate-XXXX";
+		//FIXME : template name limited to 32 chars, UUID is longer. use Random
+		Random randomGenerator=new Random();
+		String stemcellId="cpitemplate-"+randomGenerator.nextInt(1000);
 		
-		//FIXME: find correct os type (Ubuntu Trusty)
-		OSType osType=api.getGuestOSApi().listOSTypes().iterator().next();
+		//FIXME: find correct os type (PVM 64 bits)
+		OSType osType=null;
+		for (OSType ost:api.getGuestOSApi().listOSTypes()){
+			if (ost.getDescription().equals("Other PV (64-bit)")) osType=ost;
+		}
 		
+		Assert.notNull(osType, "Unable to find OsType");
 		
 		TemplateMetadata templateMetadata=TemplateMetadata.builder()
 				.name(stemcellId)
@@ -267,6 +269,8 @@ public class CPIImpl implements CPI{
 	@Override
 	public void delete_stemcell(String stemcell_id) {
 		logger.info("delete_stemcell");
+		
+		//FIXME : implement
 		
 	}
 
@@ -344,14 +348,20 @@ public class CPIImpl implements CPI{
 		
 		//find disk offering
 		
-		//TODO: Custom disk offering possible, custom size.
-		String diskOfferingName = "Custom";
+		//TODO: Custom disk offering possible, custom size ? how to manage size ?
+		//String diskOfferingName = "Custom";
+		String diskOfferingName = "DO1 - Small STD";
 		String diskOfferingId=api.getOfferingApi().listDiskOfferings(ListDiskOfferingsOptions.Builder.name(diskOfferingName)).iterator().next().getId();
 		//FIXME assert a single offering found
 		
 		
 		String zoneId=this.findZoneId();
-		api.getVolumeApi().createVolumeFromCustomDiskOfferingInZone(name, diskOfferingId, zoneId, size);
+		//api.getVolumeApi().createVolumeFromCustomDiskOfferingInZone(diskOfferingName, diskOfferingId, zoneId, size);
+		AsyncCreateResponse resp=api.getVolumeApi().createVolumeFromDiskOfferingInZone(name, diskOfferingId, zoneId);
+		jobComplete = retry(new JobComplete(api), 1200, 3, 5, SECONDS);
+		jobComplete.apply(resp.getJobId());
+		
+		logger.info("disk {} successfully created ",name);
 		
 		return name;
 

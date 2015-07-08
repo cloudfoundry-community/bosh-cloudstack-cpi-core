@@ -36,7 +36,7 @@ public class CPIImplITTest {
 		String agent_id="xxxxx";
 		
 		//TODO: add stemcell generation step = template creation
-		String stemcell_id="fed01f08-f4f6-11e4-a7e9-0800270c9aa5";
+		String stemcell_id="Ubuntu Trusty amd64 [2015-06-01]"; //ubuntu precise template";
 		
 		
 		JsonNode resource_pool=null;
@@ -67,8 +67,7 @@ public class CPIImplITTest {
 		Map<String, String> cloud_properties=new HashMap<String, String>();
 		String image_path="/tmp/";
 		String stemcell=this.cpi.create_stemcell(image_path, cloud_properties);
-		assertTrue("fed01f08-f4f6-11e4-a7e9-0800270c9aa5".equals(stemcell));
-		
+		//TODO: clean stemcell
 	}
 
 	@Test
