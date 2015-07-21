@@ -38,18 +38,18 @@ public class CLIIntegrationConfiguration {
 		return new CharacterStreamReadingMessageSource(reader);
 	}
 
-	@Bean
-	public IntegrationFlow pollingFlow() {
-		return IntegrationFlows
-				.from(stdinMessageSource(),
-						c -> c.poller(Pollers.fixedRate(10000)
-								.maxMessagesPerPoll(1)))
-				.transform(new JsonToObjectTransformer(CPIRequest.class))
-				.transform(new ObjectToJsonTransformer())
-				.handle(CharacterStreamWritingMessageHandler.stdout())
-				.get();
-	}
-
+//	@Bean
+//	public IntegrationFlow pollingFlow() {
+//		return IntegrationFlows
+//				.from(stdinMessageSource(),
+//						c -> c.poller(Pollers.fixedRate(10000)
+//								.maxMessagesPerPoll(1)))
+//				.transform(new JsonToObjectTransformer(CPIRequest.class))
+//				.transform(new ObjectToJsonTransformer())
+//				.handle(CharacterStreamWritingMessageHandler.stdout())
+//				.get();
+//	}
+//
 	@Bean
 	@Description("Entry to the messaging system through the gateway.")
 	public MessageChannel requestChannel() {
