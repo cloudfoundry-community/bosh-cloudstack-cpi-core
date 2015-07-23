@@ -27,6 +27,7 @@
     <logger name="com.orange.oss.cloudfoundry" level="${LOGGING_LEVEL:-DEBUG}"/>
     <logger name="org.jclouds" level="DEBUG"/>
     <logger name="jclouds.wire" level="DEBUG" />
+    <logger name="org.springframework.boot.actuate" level="DEBUG" />
 
     <root level="WARN">
         <appender-ref ref="STDERR"/>
