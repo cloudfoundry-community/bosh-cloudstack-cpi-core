@@ -3,7 +3,6 @@ package com.orange.oss.cloudfoundry.cscpi;
 import java.util.Iterator;
 import java.util.Map;
 
-import org.neo4j.cypher.internal.compiler.v2_1.ast.rewriters.deMorganRewriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
