@@ -1,0 +1,9 @@
+{
+   "method":"delete_vm",
+   "arguments":[
+      "urn:vcloud:vm:e686f519-da08-4633-b326-b84ec1cc9fa6"
+   ],
+   "context":{
+      "director_uuid":"9b66130e-77e6-4c54-b292-564e4668b4ce"
+   }
+}

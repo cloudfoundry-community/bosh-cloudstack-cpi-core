@@ -17,7 +17,7 @@
 
 <configuration>
 
-    <appender name="STDERR" class="ch.qos.logback.core.ConsoleAppender">
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
     	<target>System.out</target>
         <encoder>
             <pattern>[CLOUDSTACK CPI] %-5level %msg%n</pattern>
@@ -28,9 +28,11 @@
     <logger name="org.jclouds" level="DEBUG"/>
     <logger name="jclouds.wire" level="DEBUG" />
     <logger name="org.springframework.boot.actuate" level="DEBUG" />
+	<logger name="org.springframework.web.servlet.mvc" level="TRACE" /> <!-- some serialization issues are at trace level here: org.springframework.web.servlet.mvc.method.annotation.ServletInvocableHandlerMethod -->
+    
 
-    <root level="WARN">
-        <appender-ref ref="STDERR"/>
+    <root level="DEBUG">
+        <appender-ref ref="STDOUT"/>
     </root>
 
 </configuration>

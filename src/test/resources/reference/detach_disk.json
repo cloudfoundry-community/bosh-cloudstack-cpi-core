@@ -1,0 +1,10 @@
+ {  
+   "method":"detach_disk",
+   "arguments":[  
+      "urn:vcloud:vm:9dce58a9-d1e7-4779-adce-b56d6c98e652",
+      "urn:vcloud:disk:74d8a522-f138-4b07-8fba-d2228f6a3b69"
+   ],
+   "context":{  
+      "director_uuid":"9b66130e-77e6-4c54-b292-564e4668b4ce"
+   }
+}

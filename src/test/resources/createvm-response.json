@@ -1,9 +1,0 @@
-{
-  "result": null,
-  "error": {
-    "type": "Unknown",
-    "message": "genisoimage: 2: Current option settings\nerrexit         on\nnoglob          on\nignoreeof       on\ninteractive     on\nmonitor         on\nnoexec          on\nstdin           on\nxtrace          on\nverbose         on\nvi              on\nemacs           on\nnoclobber       on\nallexport       on\nnotify          on\nnounset         on\nnolog           on\ndebug           on\n",
-    "ok_to_retry": false
-  },
-  "log": ""
-}
