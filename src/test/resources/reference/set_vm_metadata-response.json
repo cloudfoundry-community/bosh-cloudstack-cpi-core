@@ -1,0 +1,9 @@
+{  
+   "result":null,
+   "error":{  
+      "type":"Bosh::Clouds::NotImplemented",
+      "message":"`set_vm_metadata' is not implemented by VCloudCloud::Cloud",
+      "ok_to_retry":false,
+      "log":"Rescued Bosh::Clouds::NotImplemented etc ..."
+   }
+}   

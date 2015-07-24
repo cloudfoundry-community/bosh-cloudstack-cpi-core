@@ -1,17 +1,20 @@
 package com.orange.oss.cloudfoundry.cscpi.restapi;
 
-import java.io.IOException;
+import static junit.framework.Assert.assertEquals;
 
-import static junit.framework.Assert.*;
+import java.io.IOException;
+import java.util.Arrays;
 
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.boot.test.WebIntegrationTest;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.web.client.RestTemplate;
 
@@ -38,7 +41,7 @@ public class RestApiTest {
 	
 	//inject the dynamic http port of the embedded container
 	@Value("${local.server.port}")
-    int port;
+    int port=8081;
 	
 	@Autowired
 	RestTemplate client;
@@ -46,22 +49,50 @@ public class RestApiTest {
 	
 	@Test
 	public void testLoadJsonFromClasspath() throws IOException{
-		String test="createvm";
+		String test="create_vm";
 		loadData(test);
-		
 	}
 	
 	
 	@Test
 	public void testCreateVM() throws IOException{
-		TestData data=this.loadData("createvm");
-
-		String response=this.client.postForObject("http://localhost:"+port+"/cpi", data.request, String.class);
+		TestData data=this.loadData("create_vm");
+		String response = postRequest(data);		
 		assertEquals(data.response,response);
-		
-		
-		
-	}
+		}
+
+
+	
+	@Test
+	public void testAttachDisk() throws IOException{
+		TestData data=this.loadData("attach_disk");
+		String response = postRequest(data);		
+		assertEquals(data.response,response);
+		}
+
+	@Test
+	public void testCreateDisk() throws IOException{
+		TestData data=this.loadData("create_disk");
+		String response = postRequest(data);		
+		assertEquals(data.response,response);
+		}
+	
+	
+	@Test
+	public void testDeleteDisk() throws IOException{
+		TestData data=this.loadData("delete_disk");
+		String response = postRequest(data);		
+		assertEquals(data.response,response);
+		}
+	
+	
+
+	@Test
+	public void testSetVMMetadata() throws IOException{
+		TestData data=this.loadData("set_vm_metadata");
+		String response = postRequest(data);		
+		assertEquals(data.response,response);
+		}
 	
 	
 
@@ -72,8 +103,24 @@ public class RestApiTest {
 	 */
 	private TestData loadData(String test) throws IOException {
 		TestData data=new TestData();
-		data.request=IOUtils.toString(RestApiTest.class.getClassLoader().getResourceAsStream(test+".json"));
-		data.response=IOUtils.toString(RestApiTest.class.getClassLoader().getResourceAsStream(test+"-response.json"));
+		data.request=IOUtils.toString(RestApiTest.class.getClassLoader().getResourceAsStream("reference/"+test+".json"));
+		data.response=IOUtils.toString(RestApiTest.class.getClassLoader().getResourceAsStream("reference/"+test+"-response.json"));
 		return data;
 	}
+	
+	/**
+	 * util class to post REST request
+	 * @param data
+	 * @return
+	 */
+	private String postRequest(TestData data) {
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_JSON);
+		headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
+
+		HttpEntity<String> entity = new HttpEntity<String>(data.request,headers);
+		String response=this.client.postForEntity("http://localhost:"+port+"/cpi", entity,String.class).getBody();
+		return response;
+	}
+	
 }

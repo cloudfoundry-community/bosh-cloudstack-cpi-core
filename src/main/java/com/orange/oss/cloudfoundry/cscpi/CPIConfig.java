@@ -14,5 +14,8 @@ public class CPIConfig {
 	};
 	
 	
+	 @Bean CPIAdapter cpiAdapter(){
+		 return new CPIAdapterImpl();
+	 }
 	
 }

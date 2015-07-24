@@ -1,0 +1,13 @@
+{
+   "method":"set_vm_metadata",
+   "arguments":[
+      "urn:vcloud:vm:b068ad18-2903-407d-aeba-c6ff8b721749",
+      {
+         "director":"my-bosh",
+         "deployment":"bosh-cloudstack"
+      }
+   ],
+   "context":{
+      "director_uuid":"9b66130e-77e6-4c54-b292-564e4668b4ce"
+   }
+}
