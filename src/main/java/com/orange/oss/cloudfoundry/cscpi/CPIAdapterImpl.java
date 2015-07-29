@@ -3,7 +3,6 @@ package com.orange.oss.cloudfoundry.cscpi;
 import java.util.Iterator;
 import java.util.Map;
 
-import org.apache.xml.resolver.apps.resolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
