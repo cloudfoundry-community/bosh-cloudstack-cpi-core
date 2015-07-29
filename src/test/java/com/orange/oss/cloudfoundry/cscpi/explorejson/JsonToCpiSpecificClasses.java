@@ -29,7 +29,7 @@ public class JsonToCpiSpecificClasses {
     @Test
     public void it_extracts_parts_from_tree_model_into_object_model() throws IOException {
         //given
-        String json = TestResourceLoader.loadLocalResource("createvm.json");
+        String json = TestResourceLoader.loadLocalResource("reference/createvm.json");
         CPIRequest cpiRequest = objectMapper.readValue(json, CPIRequest.class);
 
         //when

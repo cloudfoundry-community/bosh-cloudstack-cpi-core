@@ -11,6 +11,8 @@ import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
 
+import javax.resource.NotSupportedException;
+
 import org.jclouds.cloudstack.CloudStackApi;
 import org.jclouds.cloudstack.domain.AsyncCreateResponse;
 import org.jclouds.cloudstack.domain.Network;
@@ -116,6 +118,10 @@ public class CPIImpl implements CPI{
 		
 		this.vmCreation(stemcell_id, instance_type, network_name, vmName);
 
+		
+		//FIXME: add bosh id / cloustack id association to bosh registry
+		//see :  
+		
         return vmName;
     }
 
@@ -146,13 +152,20 @@ public class CPIImpl implements CPI{
 
 		//set options
         long dataDiskSize=100;
+        
+        
+        //FIXME: base encode 64 for server name / network spec. for cloud-init OR vm startup config
         String userData="testdata=zzz";
+        
+        //FIXME : need to create an ephemeral disk !!
+        
         
 		DeployVirtualMachineOptions options=DeployVirtualMachineOptions.Builder
 					.name(vmName)
 					.networkId(network.getId())
 					.userData(userData.getBytes())
         			.dataDiskSize(dataDiskSize)
+        			//.ipOnDefaultNetwork(ip)
         			;
 		
 
@@ -179,6 +192,8 @@ public class CPIImpl implements CPI{
 	public String current_vm_id() {
 		logger.info("current_vm_id");
 		//FIXME : strange API ? must keep state in CPI with latest changed / created vm ?? Or find current vm running cpi ? by IP / hostname ?
+		// ==> use local vm meta data server to identify.
+		// see http://cloudstack-administration.readthedocs.org/en/latest/api.html#user-data-and-meta-data
 		return null;
 	}
 
@@ -322,16 +337,26 @@ public class CPIImpl implements CPI{
 		
 	}
 
+	/**
+	 * add metadata to the VM. CPI should not rely on the presence of specific ket
+	 */
 	@Override
 	public void set_vm_metadata(String vm_id, Map<String, String> metadata) {
 		logger.info("set vm metadata");
 		
+		//FIXME: set the metadata key /value list.
 		
 	}
 
+	/**
+	 * Modify the VM network configuration
+	 * NB: throws NotSupported error for now. => The director will delete the VM and recreate a new One with the desired target conf
+	 * @throws com.orange.oss.cloudfoundry.cscpi.exceptions.NotSupportedException 
+	 */
 	@Override
-	public void configure_networks(String vm_id, JsonNode networks) {
+	public void configure_networks(String vm_id, JsonNode networks) throws com.orange.oss.cloudfoundry.cscpi.exceptions.NotSupportedException {
 		logger.info("configure network");
+		throw new com.orange.oss.cloudfoundry.cscpi.exceptions.NotSupportedException("no support for modifying network yet");
 		
 	}
 	

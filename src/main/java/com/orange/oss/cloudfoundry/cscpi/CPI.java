@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.orange.oss.cloudfoundry.cscpi.exceptions.NotSupportedException;
 
 /**
  *
@@ -89,6 +90,7 @@ public interface CPI {
 	 * Get the vm_id of this host
 	 * @return [String] opaque id later used by other methods of the CPI 
 	 */
+	@Deprecated
     String current_vm_id();
 
 	
@@ -206,9 +208,10 @@ public interface CPI {
     def configure_networks(vm_id, networks)
       not_implemented(:configure_networks)
     end
+ * @throws NotSupportedException 
     * 
     */
-   void configure_networks(String vm_id,JsonNode networks);
+   void configure_networks(String vm_id,JsonNode networks) throws NotSupportedException;
    
    
    

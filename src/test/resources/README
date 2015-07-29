@@ -1,0 +1,6 @@
+disk partitionning
+
+root@8065d653-f026-4105-a2b7-1b15d89ac18e:/dev/disk# mount
+/dev/sda1 on / type ext4 (rw)
+/dev/sdb2 on /var/vcap/data type ext4 (rw)
+/dev/sdc1 on /var/vcap/store type ext4 (rw)

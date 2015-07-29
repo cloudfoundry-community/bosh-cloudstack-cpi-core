@@ -2,13 +2,21 @@
 logging:
   level:
     org.springframework: INFO
-    org.hibernate: ERROR
+    org.springframework.boot.actuate: DEBUG
     
 spring:
   main:
-    show-banner: false
+    show-banner: true
+  jackson:
+    deserialization:
+      ACCEPT_SINGLE_VALUE_AS_ARRAY: true    
   profiles:
     active: qa
+  pidfile: ./target/application.pid
+server:
+  tomcat:
+    access-log-enabled: true
+  
 
 ---
 spring:
@@ -20,8 +28,8 @@ cloudstack:
   proxy_user:
   proxy_password:
 
-  api_key: xxxxxxxxxxxxxxx
-  secret_access_key: yyyyyyyyyyyyyyy
+  api_key: xx
+  secret_access_key: yy
 
   default_key_name: xx
   private_key: zz
@@ -35,17 +43,17 @@ cloudstack:
 spring:
   profiles: qa    
 cloudstack:
-  endpoint:  http://XXX:8080/client/api
+  endpoint:  http://xxx:8080/client/api
   
-  proxy_host: YYY
+  proxy_host: 11.11.11.11
   proxy_port: 8080
-  proxy_user: xxxxxxxxxx
-  proxy_password: yyyyyyyyyy
+  proxy_user: usser
+  proxy_password: wwwww
   
   
   
-  api_key: xxxxxxxxxxxxxxx
-  secret_access_key: yyyyyyyyyyyyyyy
+  api_key: xx
+  secret_access_key: zz
 
   default_key_name: xx
   private_key: zz

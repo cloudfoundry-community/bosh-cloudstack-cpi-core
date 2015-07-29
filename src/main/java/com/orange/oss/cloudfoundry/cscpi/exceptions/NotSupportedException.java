@@ -10,6 +10,12 @@ public class NotSupportedException extends CPIException {
 		super(msg, e);
 	}
 	
+	public NotSupportedException(String msg){
+		super(msg);
+	}
+	
+	
+	
 	@Override
 	public String toString(){
 		return "Bosh::Clouds::NotSupported";

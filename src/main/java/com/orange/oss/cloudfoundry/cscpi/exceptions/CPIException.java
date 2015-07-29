@@ -11,8 +11,15 @@ public abstract class CPIException extends Exception {
 	public CPIException(Throwable e){
 		super(e);
 	}
+
+	public CPIException(String msg){
+		super(msg);
+	}
+
 	
 	public CPIException(String msg,Throwable e){
 		super(msg,e);
 	}
+	
+	
 }
