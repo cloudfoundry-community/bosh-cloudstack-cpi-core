@@ -3,6 +3,7 @@ package com.orange.oss.cloudfoundry.cscpi;
 import java.util.Iterator;
 import java.util.Map;
 
+import org.apache.xml.resolver.apps.resolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,7 +42,7 @@ public class CPIAdapterImpl implements CPIAdapter {
 			if (method.equals("create_disk")) {
 				Integer size=args.next().asInt();
 				String diskId=this.cpi.create_disk(size, null);
-				//FIXME: put disk_id in response				
+				response.result.add(diskId);
 
 			} else if (method.equals("delete_disk")) {
 				String disk_id=args.next().asText();
@@ -84,14 +85,14 @@ public class CPIAdapterImpl implements CPIAdapter {
 			return response;
 
 		}
-		// catch (CPIException e) {
-		// logger.error("Caught Exception {}, converted to CPI response.", e);
-		// CPIResponse response = new CPIResponse();
-		// response.error = e.toString() + "\n" + e.getMessage() + "\n"
-		// + e.getCause();
-		// return response;
-		//
-		// }
+//		 catch (CPIException e) {
+//		 logger.error("Caught Exception {}, converted to CPI response.", e);
+//		 CPIResponse response = new CPIResponse();
+//		 response.error = e.toString() + "\n" + e.getMessage() + "\n"
+//		 + e.getCause();
+//		 return response;
+//		
+//		 }
 
 		catch (Exception e) {
 			logger.error("Caught Exception {}, converted to CPI response.", e);
