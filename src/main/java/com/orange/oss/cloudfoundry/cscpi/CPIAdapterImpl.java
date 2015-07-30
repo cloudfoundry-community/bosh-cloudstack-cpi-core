@@ -1,6 +1,9 @@
 package com.orange.oss.cloudfoundry.cscpi;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -16,6 +19,7 @@ public class CPIAdapterImpl implements CPIAdapter {
 
 	@Autowired
 	private CPI cpi;
+
 
 	@Override
 	public CPIResponse execute(JsonNode json) {
@@ -40,7 +44,8 @@ public class CPIAdapterImpl implements CPIAdapter {
 
 			if (method.equals("create_disk")) {
 				Integer size=args.next().asInt();
-				String diskId=this.cpi.create_disk(size, null);
+				Map<String, String> cloud_properties=new HashMap<String, String>();
+				String diskId=this.cpi.create_disk(size,cloud_properties);
 				response.result.add(diskId);
 
 			} else if (method.equals("delete_disk")) {
@@ -59,7 +64,20 @@ public class CPIAdapterImpl implements CPIAdapter {
 				this.cpi.detach_disk(vm_id, disk_id);
 
 			} else if (method.equals("create_vm")) {
+
 				//FIXME: TODO
+				String agent_id=args.next().asText();;
+				String stemcell_id=args.next().asText();;
+				JsonNode resource_pool=args.next();
+				JsonNode networks=args.next();
+				
+				List<String> disk_locality=new ArrayList<String>();				
+				Map<String, String> env=new HashMap<String, String>();
+
+				String vmId=this.cpi.create_vm(agent_id, stemcell_id, resource_pool, networks, disk_locality, env);
+				response.result.add(vmId);
+				
+				
 			} else if (method.equals("reboot_vm")) {
 				String vm_id=args.next().asText();
 				this.cpi.reboot_vm(vm_id);
@@ -68,6 +86,15 @@ public class CPIAdapterImpl implements CPIAdapter {
 				String vm_id=args.next().asText();
 				Map<String, String> metadata=null;
 				//TODO: parse map
+				JsonNode jsonMap=args.next();
+				
+				Iterator<JsonNode> it=jsonMap.elements();
+				while (it.hasNext()){
+					JsonNode keyValue=it.next();
+					String keyValueString=keyValue.toString();
+					
+				}
+				
 				this.cpi.set_vm_metadata(vm_id, metadata);
 				
 			} else if (method.equals("delete_vm")) {
@@ -75,7 +102,10 @@ public class CPIAdapterImpl implements CPIAdapter {
 				this.cpi.delete_vm(vm_id);
 
 			} else if (method.equals("create_stemcell")) {
-				//FIXME: TODO
+				String image_path=args.next().asText();				
+				Map<String, String> cloud_properties=new HashMap<String, String>();
+				//TODO: map params
+				String stemcell=this.cpi.create_stemcell(image_path, cloud_properties);
 
 			} else
 				throw new IllegalArgumentException("Unknown method :" + method);

@@ -70,7 +70,12 @@ public class CPIImpl implements CPI{
 	@Value("${cloudstack.default_zone}")	
 	String  default_zone;
 
-	
+	@Value("${cpi.ephemeral_disk_offering}")
+    String ephemeralDiskServiceOfferingName="ephemeral_volume";
+
+	//initial preexisting template (to mock stemcell upload before template generation)
+	@Value("${cpi.existing_template_name}")
+	String existingTemplateName;	
 	
 	protected Predicate<String> jobComplete;
 
@@ -116,8 +121,7 @@ public class CPIImpl implements CPI{
 		this.vmCreation(stemcell_id, instance_type, network_name, vmName);
 
 		
-		//FIXME: add bosh id / cloustack id association to bosh registry
-		//see :  
+		//FIXME: add bosh id / cloustack id association to bosh registry ??
 		
         return vmName;
     }
@@ -129,6 +133,8 @@ public class CPIImpl implements CPI{
 		Set<Template> matchingTemplates=api.getTemplateApi().listTemplates(ListTemplatesOptions.Builder.name(stemcell_id));
 		
 		Template stemCellTemplate=matchingTemplates.iterator().next();
+		//FIXME: assert template found
+		
 		String csTemplateId=stemCellTemplate.getId();
 		logger.info("found cloudstack template {} matching name / stemcell_id {}",csTemplateId,stemcell_id );
         
@@ -155,7 +161,8 @@ public class CPIImpl implements CPI{
         String userData="testdata=zzz";
         
         //FIXME : need to create an ephemeral disk !!
-        
+        //on predrod, service offering is ephemeral_volume, size is 2Go (not settable)
+
         
 		DeployVirtualMachineOptions options=DeployVirtualMachineOptions.Builder
 					.name(vmName)
@@ -186,6 +193,7 @@ public class CPIImpl implements CPI{
 	}
 
 	@Override
+	@Deprecated
 	public String current_vm_id() {
 		logger.info("current_vm_id");
 		//FIXME : strange API ? must keep state in CPI with latest changed / created vm ?? Or find current vm running cpi ? by IP / hostname ?
@@ -211,7 +219,7 @@ public class CPIImpl implements CPI{
 		
 		
 		//FIXME: change with template generation, for now use existing cloustack template
-		String existingTemplateName="Ubuntu Trusty amd64 [2015-06-01]"; //ubuntu precise template
+
 		
 		
 		

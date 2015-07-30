@@ -25,8 +25,10 @@ import org.springframework.web.client.RestTemplate;
 
 import com.orange.oss.cloudfoundry.cscpi.BoshCloudstackCpiCoreApplication;
 import com.orange.oss.cloudfoundry.cscpi.CPI;
+import com.orange.oss.cloudfoundry.cscpi.restapi.JsonMappingTest.TestData;
 /**
  * Rest integration tests.
+ * Tests end to end to the running tomcat instance. Checks the rest api, POST verb, correct content-type and accept http headers
  * see  http://docs.spring.io/spring-boot/docs/current/reference/html/boot-features-testing.html#boot-features-testing-spring-boot-applications
  * @author pierre
  *
@@ -46,7 +48,7 @@ public class RestApiTest {
 	
 	//inject the dynamic http port of the embedded container
 	@Value("${local.server.port}")
-    int port=8081;
+    int port;
 	
 	@Autowired
 	RestTemplate client;
@@ -55,72 +57,17 @@ public class RestApiTest {
 	@Autowired
 	CPI cpi;
 	
-	@Test
-	public void testLoadJsonFromClasspath() throws IOException{
-		String test="create_vm";
-		loadData(test);
-	}
 	
 	
-	@Test
-	public void testCreateVM() throws IOException{
-		TestData data=this.loadData("create_vm");
-		
-		
-		Map<String, String> env=new HashMap<String, String>();
-		List<String> disk_locality=new ArrayList<String>();
-		verify(cpi).create_vm("agen", "stemcell", null, null, disk_locality, env);		
-		
-		String response = postRequest(data);		
-		assertEquals(data.response,response);
-		}
-
-
-	
-	@Test
-	public void testAttachDisk() throws IOException{
-		TestData data=this.loadData("attach_disk");
-		String response = postRequest(data);		
-		assertEquals(data.response,response);
-		}
-
 	@Test
 	public void testCreateDisk() throws IOException{
 		
 		TestData data=this.loadData("create_disk");
 
-		
-		verify(cpi).create_disk(32384, new HashMap<String, String>());
-
-		String response = postRequest(data);		
+		String response = postRequest(data);
+		verify(cpi).create_disk(32384, new HashMap<String, String>());		
 		assertEquals(data.response,response);
 		}
-	
-	
-	@Test
-	public void testDeleteDisk() throws IOException{
-		TestData data=this.loadData("delete_disk");
-		
-		verify(cpi).delete_disk("xxx");
-		
-		String response = postRequest(data);		
-		assertEquals(data.response,response);
-		}
-	
-	
-
-	@Test
-	public void testSetVMMetadata() throws IOException{
-		TestData data=this.loadData("set_vm_metadata");
-		
-		Map<String, String> metadata=new HashMap<String, String>();
-		verify(cpi).set_vm_metadata("vm", metadata);
-		
-		String response = postRequest(data);		
-		assertEquals(data.response,response);
-		}
-	
-	
 
 	/**
 	 * util class to load test data + expected data from classpath files
