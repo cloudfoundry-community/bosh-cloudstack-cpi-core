@@ -8,6 +8,7 @@ public class ResourcePool {
 
 	public String compute_offering;
 	public int disk;
+	public String ephemeral_disk_offering;
 	
 	
     public boolean equals(Object obj) {

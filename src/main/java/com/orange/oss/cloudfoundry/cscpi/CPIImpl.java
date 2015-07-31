@@ -43,7 +43,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.Assert;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Predicate;
 import com.orange.oss.cloudfoundry.cscpi.domain.Networks;
 import com.orange.oss.cloudfoundry.cscpi.domain.ResourcePool;
@@ -72,18 +71,20 @@ public class CPIImpl implements CPI{
 	@Value("${cloudstack.default_zone}")	
 	String  default_zone;
 
-	@Value("${cpi.ephemeral_disk_offering}")
-    String ephemeralDiskServiceOfferingName="ephemeral_volume";
+
+
 
 	//initial preexisting template (to mock stemcell upload before template generation)
 	@Value("${cpi.existing_template_name}")
 	String existingTemplateName;	
 	
-	protected Predicate<String> jobComplete;
+	
+	
+	
+	private  Predicate<String> jobComplete;
 
 	@Autowired
 	private CloudStackApi api;
-
 	
 	
 	/**
@@ -121,7 +122,9 @@ public class CPIImpl implements CPI{
 
 		
 		//TODO: create ephemeral disk, read the disk size from properties, attach it to the vm.
-		
+	    String ephemeralDiskServiceOfferingName=resource_pool.ephemeral_disk_offering;
+	    
+	    
 		
 		//FIXME: add bosh id / cloustack id association to bosh registry ??
 		
@@ -132,7 +135,7 @@ public class CPIImpl implements CPI{
 
 
 	/**
-     * Cloudstack vm creation
+     * Cloudstack vm creation.
      * @param stemcell_id
      * @param compute_offering
      * @param network_name

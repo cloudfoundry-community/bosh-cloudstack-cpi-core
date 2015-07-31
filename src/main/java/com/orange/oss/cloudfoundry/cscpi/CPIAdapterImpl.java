@@ -1,5 +1,8 @@
 package com.orange.oss.cloudfoundry.cscpi;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -9,6 +12,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.Assert;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -70,8 +74,6 @@ public class CPIAdapterImpl implements CPIAdapter {
 				this.cpi.detach_disk(vm_id, disk_id);
 
 			} else if (method.equals("create_vm")) {
-
-				//FIXME: TODO
 				String agent_id=args.next().asText();;
 				String stemcell_id=args.next().asText();;
 				ResourcePool resource_pool=this.parseResourcePool(args.next());
@@ -111,9 +113,9 @@ public class CPIAdapterImpl implements CPIAdapter {
 			return response;
 
 		}
-//		 catch (CPIException e) {
+		 
+//		catch (CPIException e) {
 //		 logger.error("Caught Exception {}, converted to CPI response.", e);
-//		 CPIResponse response = new CPIResponse();
 //		 response.error = e.toString() + "\n" + e.getMessage() + "\n"
 //		 + e.getCause();
 //		 return response;
@@ -123,6 +125,11 @@ public class CPIAdapterImpl implements CPIAdapter {
 		catch (Exception e) {
 			logger.error("Caught Exception {}, converted to CPI response.", e);
 			response.error = e.toString() + "\n" + e.getMessage() + "\n" + e.getCause();
+			Writer result = new StringWriter();
+		    PrintWriter printWriter = new PrintWriter(result);
+		    e.printStackTrace(printWriter);
+		    response.log=result.toString();
+			
 			return response;
 		}
 
@@ -158,6 +165,30 @@ public class CPIAdapterImpl implements CPIAdapter {
     		JsonNode n=it.next();
     		nets.networks.put("xx",mapper.convertValue(n, Network.class));
     	}
+    	
+    	//consistency check
+    	for (Network n:nets.networks.values()){
+
+    		Assert.notNull(n.cloud_properties.get("name"),"A name for the target network is required in cloud_properties");
+    		
+    		switch (n.type){
+			case vip:
+    		case dynamic:
+				Assert.isNull(n.ip,"must not provide ip / gateway / netmask with dynamic/vip network");
+				Assert.isNull(n.gateway,"must not provide ip / gateway / netmask with dynamic/vip network");
+				Assert.isNull(n.netmask,"must not provide ip / gateway / netmask with dynamic/vip network");
+				break;
+			case manual:
+				Assert.notNull(n.ip,"must provide ip  with manual (static) network");
+				Assert.notNull(n.gateway,"must provide gateway  with manual (static) network");
+				Assert.notNull(n.netmask,"must provide netmask with manual (static) network");
+				break;
+			default:
+				break;
+    		}
+    	}
+
+    	
 
 		return nets;
 	}

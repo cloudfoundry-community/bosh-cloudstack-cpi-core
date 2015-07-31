@@ -10,13 +10,12 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
 
 
 
 @JsonIgnoreProperties(ignoreUnknown=true)
 public class Network {
-	    public String type;
+	    public NetworkType type;
 		public String ip;
 	    public String netmask;
 	    public Map<String,String> cloud_properties=new HashMap<String, String>();
