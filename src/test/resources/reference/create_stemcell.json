@@ -1,0 +1,22 @@
+{
+   "method":"create_stemcell",
+   "arguments":[
+      "/var/vcap/data/tmp/director/stemcell20150731-6669-1s29owb/image",
+      {
+         "name":"bosh-vcloud-esxi-ubuntu-trusty-go_agent",
+         "version":"3016",
+         "infrastructure":"vcloud",
+         "hypervisor":"esxi",
+         "disk":3072,
+         "disk_format":"ovf",
+         "container_format":"bare",
+         "os_type":"linux",
+         "os_distro":"ubuntu",
+         "architecture":"x86_64",
+         "root_device_name":"/dev/sda1"
+      }
+   ],
+   "context":{
+      "director_uuid":"e7ab8b02-a5e2-48e4-a9d8-5d2048ab4ab4"
+   }
+}
