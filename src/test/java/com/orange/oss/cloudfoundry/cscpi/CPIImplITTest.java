@@ -33,10 +33,11 @@ public class CPIImplITTest {
 	@Test
 	public void testCreate_vm() {
 		//should be template Id
-		String agent_id="xxxxx";
+		String agent_id="123456789";
 		
 		//TODO: add stemcell generation step = template creation
-		String stemcell_id="Ubuntu Trusty amd64 [2015-06-01]"; //ubuntu precise template";
+		//String stemcell_id="Ubuntu Trusty amd64 [2015-06-01]"; //ubuntu precise template";
+		String stemcell_id="cpitemplate-601";
 		
 		
 		JsonNode resource_pool=null;

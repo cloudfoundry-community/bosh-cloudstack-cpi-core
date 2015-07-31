@@ -1,4 +1,4 @@
-package com.orange.oss.cloudfoundry.cscpi;
+package com.orange.oss.cloudfoundry.cscpi.config;
 
 
 import java.util.Properties;

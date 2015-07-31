@@ -45,6 +45,7 @@ import org.springframework.util.Assert;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Predicate;
+import com.orange.oss.cloudfoundry.cscpi.domain.Networks;
 
 /**
  * Implementation of the CPI API, translating to CloudStack jclouds API calls
@@ -112,10 +113,13 @@ public class CPIImpl implements CPI{
 
         //TODO parse from resource pool
 		//String instance_type="Ultra Tiny";
-		String instance_type="CO1 - Small STD";
+        
+        String compute_offering=this.parseResourcePool(resource_pool);
+
 		
 		
 		//TODO parse from networks
+        Networks nets=this.parseNetwork(networks);
 		
 		//String network_name="elpaaso-network";
 		//String network_name="DefaultIsolatedNetworkOfferingWithSourceNat";
@@ -124,7 +128,7 @@ public class CPIImpl implements CPI{
 
         String vmName="cpivm-"+UUID.randomUUID().toString();
 		
-		this.vmCreation(stemcell_id, instance_type, network_name, vmName);
+		this.vmCreation(stemcell_id, compute_offering, network_name, vmName);
 
 		
 		//TODO: create ephemeral disk, read the disk size from properties, attach it to the vm.
@@ -136,7 +140,16 @@ public class CPIImpl implements CPI{
     }
 
 
-	private void vmCreation(String stemcell_id, String instance_type,
+
+
+	/**
+     * Cloudstack vm creation
+     * @param stemcell_id
+     * @param compute_offering
+     * @param network_name
+     * @param vmName
+     */
+	private void vmCreation(String stemcell_id, String compute_offering,
 			String network_name, String vmName) {
 		
 		Set<Template> matchingTemplates=api.getTemplateApi().listTemplates(ListTemplatesOptions.Builder.name(stemcell_id));
@@ -150,7 +163,7 @@ public class CPIImpl implements CPI{
 		String csZoneId = findZoneId();
 		
 		//find compute offering
-		Set<ServiceOffering> s = api.getOfferingApi().listServiceOfferings(ListServiceOfferingsOptions.Builder.name(instance_type));
+		Set<ServiceOffering> s = api.getOfferingApi().listServiceOfferings(ListServiceOfferingsOptions.Builder.name(compute_offering));
 		//FIXME assert a single offering
 		ServiceOffering so=s.iterator().next();
 		
@@ -171,6 +184,7 @@ public class CPIImpl implements CPI{
         
         //FIXME : need to create an ephemeral disk !!
         //on predrod, service offering is ephemeral_volume, size is 2Go (not settable)
+        //optional size in 
 
         
 		DeployVirtualMachineOptions options=DeployVirtualMachineOptions.Builder
@@ -222,8 +236,6 @@ public class CPIImpl implements CPI{
 		
 		
 		//FIXME: change with template generation, for now use existing cloustack template
-
-		
 		
 		
 		//String instance_type="Ultra Tiny";
@@ -253,7 +265,7 @@ public class CPIImpl implements CPI{
 		
 		//FIXME : template name limited to 32 chars, UUID is longer. use Random
 		Random randomGenerator=new Random();
-		String stemcellId="cpitemplate-"+randomGenerator.nextInt(1000);
+		String stemcellId="cpitemplate-"+randomGenerator.nextInt(100000);
 		
 		//FIXME: find correct os type (PVM 64 bits)
 		OSType osType=null;
@@ -367,8 +379,6 @@ public class CPIImpl implements CPI{
 		throw new com.orange.oss.cloudfoundry.cscpi.exceptions.NotSupportedException("no support for modifying network yet");
 		
 	}
-	
-	
 	
 
 	@Override
@@ -491,6 +501,28 @@ public class CPIImpl implements CPI{
 		return zoneId;
 	}
 
-    
+
+	
+	/**
+	 * Utility to parse JSON resource pool
+	 * @param resource_pool
+	 * @return
+	 */
+	private String parseResourcePool(JsonNode resource_pool) {
+		String compute_offering="CO1 - Small STD";
+		return compute_offering;
+	}
+	
+	/**
+	 * Utility to parse JSON network 
+	 * @param networks
+	 * @return
+	 */
+    private Networks parseNetwork(JsonNode networks) {
+    	ObjectMapper mapper=new ObjectMapper();
+    	Networks nets=mapper.convertValue(networks, Networks.class);
+		return nets;
+	}
+	
     
 }

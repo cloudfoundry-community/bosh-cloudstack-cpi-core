@@ -5,6 +5,12 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 
+
+/**
+ * Base JSON mapping for CPI response to CPI
+ * @author pierre
+ *
+ */
 @JsonAutoDetect
 public class CPIResponse {
 

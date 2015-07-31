@@ -2,23 +2,22 @@
   "method": "create_vm",
   "arguments": [
     "ad7d4219-d512-496f-8bbb-c3899ab45159",
-    "urn:vcloud:catalogitem:01507592-3a59-4767-ae6b-d630b81bfdef",
+    "cpitemplate-601",
     {
-      "ram": 1024,
-      "disk": 8192,
-      "cpu": 1
+      "compute_offering":"CO1 - Small STD",
+      "disk": 8192
     },
     {
       "default": {
         "ip": "10.203.7.0",
         "netmask": "255.255.254.0",
-        "cloud_properties": {"name": "NET_APPS_SERV"},
+        "cloud_properties": {"name": "3113 - prod - back"},
         "default": [
           "dns",
           "gateway"
         ],
         "dns": ["10.203.6.105"],
-        "gateway": "10.203.7.254"
+        "gateway": "10.234.229.1"
       }
     },
     null,
