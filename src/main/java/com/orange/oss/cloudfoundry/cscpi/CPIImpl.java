@@ -85,7 +85,13 @@ public class CPIImpl implements CPI{
 	
 	
 	/**
-	 * creates a vm
+	 * creates a vm.
+	 * take the stemcell_id as cloudstack template name.
+	 * create the vm on the correct network configuration
+	 * 	static
+	 * 	vip
+	 * 	floating
+	 * create an "ephemeral disk" and attach it the the vm
 	 * 
 	 * @param agent_id
 	 * @param stemcell_id
@@ -120,6 +126,9 @@ public class CPIImpl implements CPI{
 		
 		this.vmCreation(stemcell_id, instance_type, network_name, vmName);
 
+		
+		//TODO: create ephemeral disk, read the disk size from properties, attach it to the vm.
+		
 		
 		//FIXME: add bosh id / cloustack id association to bosh registry ??
 		
@@ -185,12 +194,6 @@ public class CPIImpl implements CPI{
 		logger.info("vm creation completed, now running ! {}");
 	}
 
-
-	@Override
-	public void initialize(Map<String, String> options) {
-		logger.info("",options);
-		
-	}
 
 	@Override
 	@Deprecated

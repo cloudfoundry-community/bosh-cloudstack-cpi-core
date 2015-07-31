@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.orange.oss.cloudfoundry.cscpi.domain.CPIResponse;
 
 public class CPIAdapterImpl implements CPIAdapter {
@@ -24,6 +25,8 @@ public class CPIAdapterImpl implements CPIAdapter {
 	@Override
 	public CPIResponse execute(JsonNode json) {
 
+		
+		ObjectMapper mapper=new ObjectMapper();
 		//prepare response
 		CPIResponse response = new CPIResponse();
 		
@@ -32,10 +35,10 @@ public class CPIAdapterImpl implements CPIAdapter {
 			String method = json.get("method").asText();
 			logger.info("method : {}", method);
 
-			String arguments = json.get("arguments").asText();
+			String arguments = json.get("arguments").textValue();
 			logger.info("arguments : {}", arguments);
 
-			String context = json.get("context").asText();
+			String context = json.get("context").textValue();
 			logger.info("context : {}", context);
 			
 			Iterator<JsonNode> args=json.get("arguments").elements();
@@ -84,17 +87,7 @@ public class CPIAdapterImpl implements CPIAdapter {
 
 			} else if (method.equals("set_vm_metadata")) {
 				String vm_id=args.next().asText();
-				Map<String, String> metadata=null;
-				//TODO: parse map
-				JsonNode jsonMap=args.next();
-				
-				Iterator<JsonNode> it=jsonMap.elements();
-				while (it.hasNext()){
-					JsonNode keyValue=it.next();
-					String keyValueString=keyValue.toString();
-					
-				}
-				
+				Map<String, String> metadata=mapper.convertValue(args.next(), HashMap.class);
 				this.cpi.set_vm_metadata(vm_id, metadata);
 				
 			} else if (method.equals("delete_vm")) {
@@ -103,9 +96,10 @@ public class CPIAdapterImpl implements CPIAdapter {
 
 			} else if (method.equals("create_stemcell")) {
 				String image_path=args.next().asText();				
-				Map<String, String> cloud_properties=new HashMap<String, String>();
-				//TODO: map params
+				Map<String, String> cloud_properties=mapper.convertValue(args.next(), HashMap.class);
+				
 				String stemcell=this.cpi.create_stemcell(image_path, cloud_properties);
+				response.result.add(stemcell);
 
 			} else
 				throw new IllegalArgumentException("Unknown method :" + method);

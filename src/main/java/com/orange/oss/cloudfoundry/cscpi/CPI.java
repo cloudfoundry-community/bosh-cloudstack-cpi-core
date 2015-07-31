@@ -78,12 +78,6 @@ public interface CPI {
 			List<String> disk_locality, Map<String, String> env);
 	
 	
-
-	/**
-	 * Cloud initialization
-	 * @param [Hash] options cloud options  
-	 */
-	void initialize(Map<String,String> options);
 	
 	
 	/**

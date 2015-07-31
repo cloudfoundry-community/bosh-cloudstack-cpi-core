@@ -51,6 +51,18 @@ public class JsonMappingTest {
 	
 	
 	@Test
+	public void testCreateStemcell() throws IOException{
+		TestData data=this.loadData("create_stemcell");
+		
+		String response = postRequest(data);
+		
+		Map<String, String> cloud_properties=new HashMap<String, String>();
+		String image_path="/home/xx.gz";
+		verify(cpi).create_stemcell(image_path, cloud_properties);		
+		assertEquals(data.response,response);
+		}
+	
+	@Test
 	public void testCreateVM() throws IOException{
 		TestData data=this.loadData("create_vm");
 		
@@ -98,9 +110,13 @@ public class JsonMappingTest {
 		TestData data=this.loadData("set_vm_metadata");
 		
 		Map<String, String> metadata=new HashMap<String, String>();
+		metadata.put("director","my-bosh");
+		metadata.put("deployment","bosh-cloudstack");
+		
+		
 		String response = postRequest(data);
 		
-		verify(cpi).set_vm_metadata("vm", metadata);
+		verify(cpi).set_vm_metadata("urn:vcloud:vm:b068ad18-2903-407d-aeba-c6ff8b721749", metadata);
 		assertEquals(data.response,response);
 		}
 	

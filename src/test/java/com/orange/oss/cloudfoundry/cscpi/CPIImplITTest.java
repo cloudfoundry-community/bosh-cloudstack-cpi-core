@@ -51,10 +51,6 @@ public class CPIImplITTest {
 		cpi.delete_vm(vm_id);
 	}
 
-	@Test
-	public void testInitialize() {
-		fail("Not yet implemented");
-	}
 
 	@Test
 	public void testCurrent_vm_id() {
