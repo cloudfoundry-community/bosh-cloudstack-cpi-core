@@ -61,4 +61,7 @@ cloudstack:
   state_timeout_volume: 600
   stemcell_public_visibility: true
   default_zone: ZONE
+cpi:
+  ephemeral_disk_offering: ephemeral_volume
+  existing_template_name: "Ubuntu Precise amd64 [2015-06-01]"
     
