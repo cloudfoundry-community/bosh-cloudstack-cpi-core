@@ -15,6 +15,9 @@ import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.orange.oss.cloudfoundry.cscpi.domain.Network;
+import com.orange.oss.cloudfoundry.cscpi.domain.Networks;
+import com.orange.oss.cloudfoundry.cscpi.domain.ResourcePool;
 
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -39,9 +42,17 @@ public class CPIImplITTest {
 		//String stemcell_id="Ubuntu Trusty amd64 [2015-06-01]"; //ubuntu precise template";
 		String stemcell_id="cpitemplate-601";
 		
+		ResourcePool resource_pool=new ResourcePool();
+		resource_pool.compute_offering="CO1 - Small STD";
+		resource_pool.disk=8192;
 		
-		JsonNode resource_pool=null;
-		JsonNode networks=null;		
+		Networks networks=new Networks();
+		Network net=new Network();
+		networks.networks.put("default", net);		
+		net.ip="192.168.0.1";
+		net.gateway="192.168.0.254";
+		net.netmask="255.255.255.0";
+		net.cloud_properties.put("", "");
 		List<String> disk_locality=new ArrayList<String>();
 		Map<String, String> env=new HashMap<String, String>();
 		

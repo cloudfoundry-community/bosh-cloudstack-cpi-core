@@ -1,18 +1,14 @@
 package com.orange.oss.cloudfoundry.cscpi.domain;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
-/**
- *
- */
-public class Networks {
+public class ResourcePool {
 
-	public Map<String,Network> networks=new HashMap<String,Network>();
+	public String compute_offering;
+	public int disk;
+	
 	
     public boolean equals(Object obj) {
         return EqualsBuilder.reflectionEquals(this, obj);

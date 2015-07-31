@@ -1,0 +1,48 @@
+
+{
+   "agent_id":"2a4a1375-2a01-4f9d-94c8-497daf8b9b00",
+   "blobstore":{
+      "provider":"dav",
+      "options":{
+         "endpoint":"http://10.100.0.30:25251",
+         "password":"dydotchumboxes",
+         "user":"agent"
+      }
+   },
+   "disks":{
+      "system":"/dev/sda",
+      "ephemeral":"",
+      "persistent":{
+
+      }
+   },
+   "env":{
+      "bosh":{
+         "password":"$6$4gDD3aV0rdqlrKC$2axHCxGKIObs6tAmMTqYCspcdvQXh3JJcvWOY2WGb4SrdXtnCyNaWlrf3WEqvYR2MYizEGp3kMmbpwBC6jsHt0"
+      }
+   },
+   "networks":{
+      "cf1":{
+         "type":"",
+         "ip":"10.100.0.42",
+         "netmask":"255.255.255.0",
+         "gateway":"10.100.0.1",
+         "resolved":false,
+         "default":[
+            "dns",
+            "gateway"
+         ],
+         "dns":[
+            "10.100.0.31"
+         ],
+         "mac":""
+      }
+   },
+   "ntp":[
+      "10.236.40.68"
+   ],
+   "mbus":"nats://nats:feofaykdeetbibzai@10.100.0.31:4222",
+   "vm":{
+      "name":"vm-0bd4f449-dfac-418b-9834-3cb285c4f088"
+   }
+}

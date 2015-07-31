@@ -6,7 +6,9 @@ import java.util.List;
 import java.util.Map;
 
 import org.junit.Test;
+
 import static org.junit.Assert.*;
+
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -14,6 +16,9 @@ import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.orange.oss.cloudfoundry.cscpi.domain.Network;
+import com.orange.oss.cloudfoundry.cscpi.domain.Networks;
+import com.orange.oss.cloudfoundry.cscpi.domain.ResourcePool;
 
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -39,8 +44,18 @@ public class CPIFlowTest {
 		String stemcell_id=cpi.create_stemcell(image_path, cloud_properties);
 
 		
-		JsonNode resource_pool=null;
-		JsonNode networks=null;		
+		ResourcePool resource_pool=new ResourcePool();
+		resource_pool.compute_offering="CO1 - Small STD";
+		resource_pool.disk=8192;
+		
+		Networks networks=new Networks();
+		Network net=new Network();
+		networks.networks.put("default", net);		
+		net.ip="192.168.0.1";
+		net.gateway="192.168.0.254";
+		net.netmask="255.255.255.0";
+		net.cloud_properties.put("", "");
+
 		List<String> disk_locality=new ArrayList<String>();
 		Map<String, String> env=new HashMap<String, String>();
 

@@ -46,6 +46,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Predicate;
 import com.orange.oss.cloudfoundry.cscpi.domain.Networks;
+import com.orange.oss.cloudfoundry.cscpi.domain.ResourcePool;
 
 /**
  * Implementation of the CPI API, translating to CloudStack jclouds API calls
@@ -104,27 +105,15 @@ public class CPIImpl implements CPI{
 	 */
     public String create_vm(String agent_id,
                             String stemcell_id,
-                            JsonNode resource_pool,
-                            JsonNode networks,
+                            ResourcePool resource_pool,
+                            Networks networks,
                             List<String> disk_locality,
                             Map<String,String> env) {
-
-        ObjectMapper mapper = new ObjectMapper();
-
-        //TODO parse from resource pool
-		//String instance_type="Ultra Tiny";
         
-        String compute_offering=this.parseResourcePool(resource_pool);
-
+        String compute_offering=resource_pool.compute_offering;
 		
-		
-		//TODO parse from networks
-        Networks nets=this.parseNetwork(networks);
-		
-		//String network_name="elpaaso-network";
 		//String network_name="DefaultIsolatedNetworkOfferingWithSourceNat";
 		String network_name="DefaultIsolatedNetworkOffering";
-		
 
         String vmName="cpivm-"+UUID.randomUUID().toString();
 		
@@ -172,6 +161,8 @@ public class CPIImpl implements CPI{
 		//TODO: endusers choose offering or indicate precise network id ??
 		Set<NetworkOffering> listNetworkOfferings = api.getOfferingApi().listNetworkOfferings(ListNetworkOfferingsOptions.Builder.zoneId(csZoneId).name(network_name));		
 		NetworkOffering networkOffering=listNetworkOfferings.iterator().next();
+		
+		
 		
 		Network network=api.getNetworkApi().listNetworks(ListNetworksOptions.Builder.zoneId(csZoneId)).iterator().next();
 
@@ -503,26 +494,6 @@ public class CPIImpl implements CPI{
 
 
 	
-	/**
-	 * Utility to parse JSON resource pool
-	 * @param resource_pool
-	 * @return
-	 */
-	private String parseResourcePool(JsonNode resource_pool) {
-		String compute_offering="CO1 - Small STD";
-		return compute_offering;
-	}
-	
-	/**
-	 * Utility to parse JSON network 
-	 * @param networks
-	 * @return
-	 */
-    private Networks parseNetwork(JsonNode networks) {
-    	ObjectMapper mapper=new ObjectMapper();
-    	Networks nets=mapper.convertValue(networks, Networks.class);
-		return nets;
-	}
 	
     
 }

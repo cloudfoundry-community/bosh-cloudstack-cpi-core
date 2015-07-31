@@ -13,6 +13,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.orange.oss.cloudfoundry.cscpi.domain.CPIResponse;
+import com.orange.oss.cloudfoundry.cscpi.domain.Network;
+import com.orange.oss.cloudfoundry.cscpi.domain.Networks;
+import com.orange.oss.cloudfoundry.cscpi.domain.ResourcePool;
 
 public class CPIAdapterImpl implements CPIAdapter {
 
@@ -71,8 +74,8 @@ public class CPIAdapterImpl implements CPIAdapter {
 				//FIXME: TODO
 				String agent_id=args.next().asText();;
 				String stemcell_id=args.next().asText();;
-				JsonNode resource_pool=args.next();
-				JsonNode networks=args.next();
+				ResourcePool resource_pool=this.parseResourcePool(args.next());
+				Networks networks=this.parseNetwork(args.next());
 				
 				List<String> disk_locality=new ArrayList<String>();				
 				Map<String, String> env=new HashMap<String, String>();
@@ -124,4 +127,39 @@ public class CPIAdapterImpl implements CPIAdapter {
 		}
 
 	}
+	
+	
+	
+	/**
+	 * Utility to parse JSON resource pool
+	 * @param resource_pool
+	 * @return
+	 */
+	private ResourcePool parseResourcePool(JsonNode resource_pool) {
+    	ObjectMapper mapper=new ObjectMapper();
+    	ResourcePool rp=mapper.convertValue(resource_pool, ResourcePool.class);
+    	return rp;
+	}
+	
+	/**
+	 * Utility to parse JSON network list
+	 * @param networks
+	 * @return
+	 */
+    private Networks parseNetwork(JsonNode networks) {
+    	ObjectMapper mapper=new ObjectMapper();
+    	
+    	Networks nets=new Networks();
+    	Iterator<JsonNode> it=networks.elements();
+    	
+    	//FIXME :cant parse the bosh network name (unused anyway but ...)
+    	
+    	while (it.hasNext()){
+    		JsonNode n=it.next();
+    		nets.networks.put("xx",mapper.convertValue(n, Network.class));
+    	}
+
+		return nets;
+	}
+	
 }

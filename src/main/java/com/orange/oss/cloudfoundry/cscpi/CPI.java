@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Map;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.orange.oss.cloudfoundry.cscpi.domain.Networks;
+import com.orange.oss.cloudfoundry.cscpi.domain.ResourcePool;
 import com.orange.oss.cloudfoundry.cscpi.exceptions.NotSupportedException;
 
 /**
@@ -74,7 +76,7 @@ public interface CPI {
 	 * @return
 	 */
 	String create_vm(String agent_id, String stemcell_id,
-			JsonNode resource_pool, JsonNode networks,
+			ResourcePool resource_pool, Networks networks,
 			List<String> disk_locality, Map<String, String> env);
 	
 	
