@@ -6,13 +6,13 @@
     {
       "compute_offering":"CO1 - Small STD",
       "disk": 8192,
-      "ephemeral_disk_offering": "ephemeral"
+      "ephemeral_disk_offering": "ephemeral_volume"
     },
     {
       "network-1": {
         "type": "manual",
-        "ip": "10.203.7.0",
-        "netmask": "255.255.254.0",
+        "ip": "10.234.229.50",
+        "netmask": "255.255.255.192",
         "cloud_properties": {"name": "3113 - prod - back"},
         "default": [
           "dns",

@@ -17,6 +17,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.orange.oss.cloudfoundry.cscpi.domain.Network;
+import com.orange.oss.cloudfoundry.cscpi.domain.NetworkType;
 import com.orange.oss.cloudfoundry.cscpi.domain.Networks;
 import com.orange.oss.cloudfoundry.cscpi.domain.ResourcePool;
 
@@ -47,14 +48,16 @@ public class CPIFlowTest {
 		ResourcePool resource_pool=new ResourcePool();
 		resource_pool.compute_offering="CO1 - Small STD";
 		resource_pool.disk=8192;
+		resource_pool.ephemeral_disk_offering="ephemeral_volume";
 		
 		Networks networks=new Networks();
 		Network net=new Network();
-		networks.networks.put("default", net);		
-		net.ip="192.168.0.1";
-		net.gateway="192.168.0.254";
-		net.netmask="255.255.255.0";
-		net.cloud_properties.put("", "");
+		networks.networks.put("default", net);
+		net.type=NetworkType.manual;
+		net.ip="10.234.229.30";
+		net.gateway="10.234.229.1";
+		net.netmask="255.255.255.192";
+		net.cloud_properties.put("name", "3113 - prod - back");
 
 		List<String> disk_locality=new ArrayList<String>();
 		Map<String, String> env=new HashMap<String, String>();
@@ -75,15 +78,15 @@ public class CPIFlowTest {
 		
 		//delete flow
 
-		//disk include root disk, so 2 disks		
+		//disk include root disk, so 2 disks + 1 ephemeral disk : 3		
 		List<String >disks=cpi.get_disks(vm_id);
-		assertEquals(2, disks.size());
+		assertEquals(3, disks.size());
 
 		
 		cpi.detach_disk(vm_id, disk_id);
 
 		disks=cpi.get_disks(vm_id);
-		assertEquals(1, disks.size());		
+		assertEquals(2, disks.size());		
 		
 		
 		//TODO assert hasVM

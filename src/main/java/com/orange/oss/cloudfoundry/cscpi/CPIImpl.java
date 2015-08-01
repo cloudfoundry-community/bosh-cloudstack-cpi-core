@@ -13,6 +13,7 @@ import java.util.UUID;
 
 import org.jclouds.cloudstack.CloudStackApi;
 import org.jclouds.cloudstack.domain.AsyncCreateResponse;
+import org.jclouds.cloudstack.domain.DiskOffering;
 import org.jclouds.cloudstack.domain.Network;
 import org.jclouds.cloudstack.domain.NetworkOffering;
 import org.jclouds.cloudstack.domain.OSType;
@@ -44,6 +45,7 @@ import org.springframework.util.Assert;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.base.Predicate;
+import com.orange.oss.cloudfoundry.cscpi.domain.NetworkType;
 import com.orange.oss.cloudfoundry.cscpi.domain.Networks;
 import com.orange.oss.cloudfoundry.cscpi.domain.ResourcePool;
 
@@ -113,18 +115,27 @@ public class CPIImpl implements CPI{
         
         String compute_offering=resource_pool.compute_offering;
 		
-		//String network_name="DefaultIsolatedNetworkOfferingWithSourceNat";
-		String network_name="DefaultIsolatedNetworkOffering";
-
+		
+		
+		
+		
         String vmName="cpivm-"+UUID.randomUUID().toString();
 		
-		this.vmCreation(stemcell_id, compute_offering, network_name, vmName);
+		
 
 		
 		//TODO: create ephemeral disk, read the disk size from properties, attach it to the vm.
+        //on predrod, service offering is ephemeral_volume, size is 2Go (not settable)		
 	    String ephemeralDiskServiceOfferingName=resource_pool.ephemeral_disk_offering;
+	    logger.debug("ephemeral disk offering is {}",ephemeralDiskServiceOfferingName);
+		String ephemeralDiskName=this.diskCreate(ephemeralDiskServiceOfferingName);
+		
+		
+		
+		this.vmCreation(stemcell_id, compute_offering, networks, vmName);
 	    
-	    
+	    //NOW attache the ephemeral disk to the vm (need reboot ?)
+		this.attach_disk(vmName, ephemeralDiskName);
 		
 		//FIXME: add bosh id / cloustack id association to bosh registry ??
 		
@@ -134,20 +145,26 @@ public class CPIImpl implements CPI{
 
 
 
-	/**
+    /**
      * Cloudstack vm creation.
      * @param stemcell_id
      * @param compute_offering
-     * @param network_name
+     * @param networks
      * @param vmName
      */
 	private void vmCreation(String stemcell_id, String compute_offering,
-			String network_name, String vmName) {
+			Networks networks, String vmName) {
+	
+		
+		//set options
+        long dataDiskSize=100;
+ 
+		
 		
 		Set<Template> matchingTemplates=api.getTemplateApi().listTemplates(ListTemplatesOptions.Builder.name(stemcell_id));
-		
+		Assert.isTrue(matchingTemplates.size()==1,"Did not find a single template with name "+stemcell_id);
 		Template stemCellTemplate=matchingTemplates.iterator().next();
-		//FIXME: assert template found
+		
 		
 		String csTemplateId=stemCellTemplate.getId();
 		logger.info("found cloudstack template {} matching name / stemcell_id {}",csTemplateId,stemcell_id );
@@ -161,33 +178,69 @@ public class CPIImpl implements CPI{
 		
 		
 		//find network offering
-		//TODO: endusers choose offering or indicate precise network id ??
-		Set<NetworkOffering> listNetworkOfferings = api.getOfferingApi().listNetworkOfferings(ListNetworkOfferingsOptions.Builder.zoneId(csZoneId).name(network_name));		
+		//FIXEME: endusers choose offering or indicate precise network id ?? related to static / vip / floating ?
+		//String networkOfferingName="DefaultIsolatedNetworkOfferingWithSourceNat";
+		
+		String networkOfferingName="DefaultIsolatedNetworkOffering";
+
+
+		Set<NetworkOffering> listNetworkOfferings = api.getOfferingApi().listNetworkOfferings(ListNetworkOfferingsOptions.Builder.zoneId(csZoneId).name(networkOfferingName));		
 		NetworkOffering networkOffering=listNetworkOfferings.iterator().next();
 		
-		
-		
-		Network network=api.getNetworkApi().listNetworks(ListNetworksOptions.Builder.zoneId(csZoneId)).iterator().next();
 
-		//set options
-        long dataDiskSize=100;
-        
+
+		//parse network from cloud_properties
+		Assert.isTrue(networks.networks.size()==1, "CPI currenly only support 1 network / nic per VM");
+		String directorNetworkName=networks.networks.keySet().iterator().next();
+		com.orange.oss.cloudfoundry.cscpi.domain.Network directorNetwork=networks.networks.values().iterator().next();
+		
+		String network_name=directorNetwork.cloud_properties.get("name");
+		
+		
+		//find the network with the provided name
+		Network network=null;		
+		Set<Network> listNetworks = api.getNetworkApi().listNetworks(ListNetworksOptions.Builder.zoneId(csZoneId));
+		for (Network n:listNetworks){
+			if (n.getName().equals(network_name)){
+				network=n;
+			}
+		}
+		Assert.notNull(network,"Could not find network "+network_name);
+
+       
         
         //FIXME: base encode 64 for server name / network spec. for cloud-init OR vm startup config
         String userData="testdata=zzz";
         
-        //FIXME : need to create an ephemeral disk !!
-        //on predrod, service offering is ephemeral_volume, size is 2Go (not settable)
-        //optional size in 
+        NetworkType netType=directorNetwork.type;
+        DeployVirtualMachineOptions options=null;
+        switch (netType) 
+        {
+		case vip:
+        case dynamic:
+			options=DeployVirtualMachineOptions.Builder
+			.name(vmName)
+			.networkId(network.getId())
+			.userData(userData.getBytes())
+			.dataDiskSize(dataDiskSize)
+			;
+			break;
+		case manual:
+			options=DeployVirtualMachineOptions.Builder
+			.name(vmName)
+			.networkId(network.getId())
+			.userData(userData.getBytes())
+			.dataDiskSize(dataDiskSize)
+			.ipOnDefaultNetwork(directorNetwork.ip)
+			;
+			break;
+			
+        }
+        	
 
         
-		DeployVirtualMachineOptions options=DeployVirtualMachineOptions.Builder
-					.name(vmName)
-					.networkId(network.getId())
-					.userData(userData.getBytes())
-        			.dataDiskSize(dataDiskSize)
-        			//.ipOnDefaultNetwork(ip)
-        			;
+        
+        
 		
 
 		AsyncCreateResponse job = api.getVirtualMachineApi().deployVirtualMachineInZone(csZoneId, so.getId(), csTemplateId, options);
@@ -236,14 +289,23 @@ public class CPIImpl implements CPI{
 		String instance_type="CO1 - Small STD";
 		
 		//FIXME : should parameter the network offering
-		//String network_name="DefaultIsolatedNetworkOfferingWithSourceNat";
 		String network_name="DefaultIsolatedNetworkOfferingWithSourceNatService";	
 		
 		
 		logger.info("CREATING work vm for template generation");
 		//map stemcell to cloudstack template concept.
 		String workVmName="cpi-stemcell-work-"+UUID.randomUUID();
-		this.vmCreation(existingTemplateName, instance_type, network_name, workVmName);
+		
+		
+		//FIXME : temporay network config (dynamic)
+		Networks fakeDirectorNetworks=new Networks();
+		com.orange.oss.cloudfoundry.cscpi.domain.Network net=new com.orange.oss.cloudfoundry.cscpi.domain.Network();
+		net.type=NetworkType.dynamic;
+		net.cloud_properties.put("name", "3113 - prod - back");		
+		fakeDirectorNetworks.networks.put("default",net);
+		
+		
+		this.vmCreation(existingTemplateName, instance_type, fakeDirectorNetworks, workVmName);
 		VirtualMachine m=api.getVirtualMachineApi().listVirtualMachines(ListVirtualMachinesOptions.Builder.name(workVmName)).iterator().next();
 		
 		logger.info("STOPPING work vm for template generation");
@@ -299,6 +361,7 @@ public class CPIImpl implements CPI{
 	public void delete_stemcell(String stemcell_id) {
 		logger.info("delete_stemcell");
 		
+		throw new IllegalArgumentException("not yet implemented");
 		//FIXME : implement
 		
 	}
@@ -314,6 +377,8 @@ public class CPIImpl implements CPI{
 		jobComplete = retry(new JobComplete(api), 1200, 3, 5, SECONDS);
 		jobComplete.apply(jobId);
 
+		//FIXME: delete ephemeral disk ?!!
+		
 		
 		logger.info("deleted successfully vm {}",vm_id);
 	}
@@ -377,19 +442,29 @@ public class CPIImpl implements CPI{
 
 	@Override
 	public String create_disk(Integer size, Map<String, String> cloud_properties) {
-		logger.info("create_disk");
+
+		//FIXME see disk offering (cloud properties specificy?). How do we use Size ??
+		String diskOfferingName = "DO1 - Small STD";
 		
-		//FIXME see disk offering (cloud properties specificy?)
-		
+		return this.diskCreate(diskOfferingName);
+
+	}
+
+
+
+
+	/**
+	 * @param diskOfferingName
+	 * @return
+	 */
+	private String diskCreate(String diskOfferingName) {
 		String name="cpidisk-"+UUID.randomUUID().toString();
+		logger.info("create_disk {} on offering {}",name,diskOfferingName);
 		
 		//find disk offering
-		
-		//TODO: Custom disk offering possible, custom size ? how to manage size ?
-		//String diskOfferingName = "Custom";
-		String diskOfferingName = "DO1 - Small STD";
-		String diskOfferingId=api.getOfferingApi().listDiskOfferings(ListDiskOfferingsOptions.Builder.name(diskOfferingName)).iterator().next().getId();
-		//FIXME assert a single offering found
+		Set<DiskOffering> listDiskOfferings = api.getOfferingApi().listDiskOfferings(ListDiskOfferingsOptions.Builder.name(diskOfferingName));
+		Assert.isTrue(listDiskOfferings.size()>0, "Unknown Service Offering !");
+		String diskOfferingId=listDiskOfferings.iterator().next().getId();
 		
 		
 		String zoneId=this.findZoneId();
@@ -401,7 +476,6 @@ public class CPIImpl implements CPI{
 		logger.info("disk {} successfully created ",name);
 		
 		return name;
-
 	}
 
 	@Override
@@ -486,12 +560,15 @@ public class CPIImpl implements CPI{
 	 * @return
 	 */
 	private String findZoneId() {
-		//find zone
+		//TODO: select the exact zone if multiple available
         ListZonesOptions zoneOptions=ListZonesOptions.Builder.available(true);
 		Set<Zone> zones = api.getZoneApi().listZones(zoneOptions);
-		//FIXME: assert a single zone matching
+		Assert.notEmpty(zones, "No Zone available");
 		Zone zone=zones.iterator().next();
 		String zoneId = zone.getId();
+		
+		Assert.isTrue(zone.getName().equals(this.default_zone));
+		
 		return zoneId;
 	}
 
