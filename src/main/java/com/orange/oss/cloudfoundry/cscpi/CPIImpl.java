@@ -27,6 +27,7 @@ import org.jclouds.cloudstack.domain.Zone;
 import org.jclouds.cloudstack.features.VolumeApi;
 import org.jclouds.cloudstack.options.CreateSnapshotOptions;
 import org.jclouds.cloudstack.options.CreateTemplateOptions;
+import org.jclouds.cloudstack.options.DeleteTemplateOptions;
 import org.jclouds.cloudstack.options.DeployVirtualMachineOptions;
 import org.jclouds.cloudstack.options.ListDiskOfferingsOptions;
 import org.jclouds.cloudstack.options.ListNetworkOfferingsOptions;
@@ -361,9 +362,13 @@ public class CPIImpl implements CPI{
 	public void delete_stemcell(String stemcell_id) {
 		logger.info("delete_stemcell");
 		
-		throw new IllegalArgumentException("not yet implemented");
-		//FIXME : implement
+		String zoneId=findZoneId();
+		DeleteTemplateOptions options=DeleteTemplateOptions.Builder.zoneId(zoneId);
+		AsyncCreateResponse asyncTemplateDeleteJob =api.getTemplateApi().deleteTemplate(stemcell_id, options);
+		jobComplete = retry(new JobComplete(api), 1200, 3, 5, SECONDS);
+		jobComplete.apply(asyncTemplateDeleteJob.getJobId());
 		
+		logger.info("stemcell {} successfully deleted",stemcell_id);
 	}
 
 	@Override
