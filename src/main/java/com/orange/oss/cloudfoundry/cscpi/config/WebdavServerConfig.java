@@ -18,7 +18,7 @@ import org.springframework.context.annotation.Configuration;
 public class WebdavServerConfig {
 	
 	
-	@Value("{cpi.webdav_directory}")
+	@Value("${cpi.webdav_directory}")
 	String webDavDirectory;
 	
 	//add a WebDavServlet for cloudstack template http exposition (webdav exposes a local filesystem in http protocol. 
