@@ -79,7 +79,7 @@ public class CloudStackConfiguration {
         overrides.setProperty(Constants.PROPERTY_TRUST_ALL_CERTS, "true");
 
         //see https://raw.githubusercontent.com/abayer/cloudcat/master/src/groovy/cloudstack/reporting/JCloudsConnection.groovy
-        overrides.setProperty(Constants.PROPERTY_CONNECTION_TIMEOUT, "360000");
+        overrides.setProperty(Constants.PROPERTY_CONNECTION_TIMEOUT, "5000");
         overrides.setProperty(Constants.PROPERTY_TIMEOUTS_PREFIX + "VirtualMachineClient", "360000");
         overrides.setProperty(Constants.PROPERTY_TIMEOUTS_PREFIX + "TemplateClient", "360000");
         overrides.setProperty(Constants.PROPERTY_TIMEOUTS_PREFIX + "GlobalHostClient", "360000");
