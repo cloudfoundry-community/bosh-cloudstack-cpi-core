@@ -32,7 +32,7 @@ public class WebdavServerConfig {
 		srb.addInitParameter("ResourceHandlerImplementation", "net.sf.webdav.LocalFileSystemStore");
 		
 		//local fs exposition
-		srb.addInitParameter("rootpath", "/tmp");
+		srb.addInitParameter("rootpath", webDavDirectory);
 		
 		//Overriding RFC 2518, the folders of resources being created, can be created too if they do not exist.
 		srb.addInitParameter("lazyFolderCreationOnPut", "0");
