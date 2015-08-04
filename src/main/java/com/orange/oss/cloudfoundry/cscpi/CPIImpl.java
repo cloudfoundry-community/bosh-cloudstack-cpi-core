@@ -3,6 +3,9 @@ package com.orange.oss.cloudfoundry.cscpi;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.jclouds.util.Predicates2.retry;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -14,6 +17,7 @@ import java.util.UUID;
 import org.jclouds.cloudstack.CloudStackApi;
 import org.jclouds.cloudstack.domain.AsyncCreateResponse;
 import org.jclouds.cloudstack.domain.DiskOffering;
+import org.jclouds.cloudstack.domain.NIC;
 import org.jclouds.cloudstack.domain.Network;
 import org.jclouds.cloudstack.domain.NetworkOffering;
 import org.jclouds.cloudstack.domain.OSType;
@@ -37,6 +41,7 @@ import org.jclouds.cloudstack.options.ListTemplatesOptions;
 import org.jclouds.cloudstack.options.ListVirtualMachinesOptions;
 import org.jclouds.cloudstack.options.ListVolumesOptions;
 import org.jclouds.cloudstack.options.ListZonesOptions;
+import org.jclouds.cloudstack.options.RegisterTemplateOptions;
 import org.jclouds.cloudstack.predicates.JobComplete;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,6 +54,7 @@ import com.google.common.base.Predicate;
 import com.orange.oss.cloudfoundry.cscpi.domain.NetworkType;
 import com.orange.oss.cloudfoundry.cscpi.domain.Networks;
 import com.orange.oss.cloudfoundry.cscpi.domain.ResourcePool;
+import com.orange.oss.cloudfoundry.cscpi.webdav.WebdavServerAdapter;
 
 /**
  * Implementation of the CPI API, translating to CloudStack jclouds API calls
@@ -74,8 +80,8 @@ public class CPIImpl implements CPI{
 	@Value("${cloudstack.default_zone}")	
 	String  default_zone;
 
-
-
+	@Value("${cpi.mock_create_stemcell}")
+	boolean mockCreateStemcell;
 
 	//initial preexisting template (to mock stemcell upload before template generation)
 	@Value("${cpi.existing_template_name}")
@@ -88,6 +94,13 @@ public class CPIImpl implements CPI{
 
 	@Autowired
 	private CloudStackApi api;
+	
+	
+	@Autowired
+	UserDataGenerator userDataGenerator;
+	
+	@Autowired
+	private WebdavServerAdapter webdav;
 	
 	
 	/**
@@ -116,22 +129,13 @@ public class CPIImpl implements CPI{
         
         String compute_offering=resource_pool.compute_offering;
 		
-		
-		
-		
-		
         String vmName="cpivm-"+UUID.randomUUID().toString();
-		
-		
-
 		
 		//TODO: create ephemeral disk, read the disk size from properties, attach it to the vm.
         //on predrod, service offering is ephemeral_volume, size is 2Go (not settable)		
 	    String ephemeralDiskServiceOfferingName=resource_pool.ephemeral_disk_offering;
 	    logger.debug("ephemeral disk offering is {}",ephemeralDiskServiceOfferingName);
-		String ephemeralDiskName=this.diskCreate(ephemeralDiskServiceOfferingName);
-		
-		
+		String ephemeralDiskName=this.diskCreate(2000,ephemeralDiskServiceOfferingName);
 		
 		this.vmCreation(stemcell_id, compute_offering, networks, vmName);
 	    
@@ -159,8 +163,6 @@ public class CPIImpl implements CPI{
 		
 		//set options
         long dataDiskSize=100;
- 
-		
 		
 		Set<Template> matchingTemplates=api.getTemplateApi().listTemplates(ListTemplatesOptions.Builder.name(stemcell_id));
 		Assert.isTrue(matchingTemplates.size()==1,"Did not find a single template with name "+stemcell_id);
@@ -179,12 +181,12 @@ public class CPIImpl implements CPI{
 		
 		
 		//find network offering
-		//FIXEME: endusers choose offering or indicate precise network id ?? related to static / vip / floating ?
 		//String networkOfferingName="DefaultIsolatedNetworkOfferingWithSourceNat";
-		
 		String networkOfferingName="DefaultIsolatedNetworkOffering";
 
-
+		//Requirements
+		// service offering need dhcp (if same bootstrap as openstack)
+		// 					need metadata service for userData
 		Set<NetworkOffering> listNetworkOfferings = api.getOfferingApi().listNetworkOfferings(ListNetworkOfferingsOptions.Builder.zoneId(csZoneId).name(networkOfferingName));		
 		NetworkOffering networkOffering=listNetworkOfferings.iterator().next();
 		
@@ -211,7 +213,7 @@ public class CPIImpl implements CPI{
        
         
         //FIXME: base encode 64 for server name / network spec. for cloud-init OR vm startup config
-        String userData="testdata=zzz";
+        String userData=this.userDataGenerator.vmMetaData();
         
         NetworkType netType=directorNetwork.type;
         DeployVirtualMachineOptions options=null;
@@ -237,11 +239,6 @@ public class CPIImpl implements CPI{
 			break;
 			
         }
-        	
-
-        
-        
-        
 		
 
 		AsyncCreateResponse job = api.getVirtualMachineApi().deployVirtualMachineInZone(csZoneId, so.getId(), csTemplateId, options);
@@ -252,6 +249,10 @@ public class CPIImpl implements CPI{
 		if (! vm.getState().equals(State.RUNNING)) {
 			throw new RuntimeException("Not in expectedrunning:" + vm.getState());
 		}
+		
+		//list NICS, check macs.
+		NIC nic=vm.getNICs().iterator().next();
+		logger.info("generated NIC : "+nic.toString());
 
 		logger.info("vm creation completed, now running ! {}");
 	}
@@ -285,7 +286,78 @@ public class CPIImpl implements CPI{
 		
 		//FIXME: change with template generation, for now use existing cloustack template
 		
+		if (this.mockCreateStemcell){
+			logger.warn("USING MOCK STEMCELL TRANSFORMATION TO CLOUDSTAK TEMPLATE)");
+			String stemcellId = mockTemplateGeneration();
+			return stemcellId;
+
+		}
+
+		//FIXME : template name limited to 32 chars, UUID is longer. use Random
+		Random randomGenerator=new Random();
+		String stemcellId="cpitemplate-"+randomGenerator.nextInt(100000);
+
+		logger.info("Starting to upload stemcell to webdav");
 		
+		Assert.isTrue(image_path!=null,"Image Path must not be Null");
+		File f=new File(image_path);
+		
+		Assert.isTrue(f.exists(), "Image Path does not exist :"+image_path);
+		Assert.isTrue(f.isFile(), "Image Path exist but is not a file :"+image_path);
+		
+		String webDavUrl=null;
+		try {
+			webDavUrl=this.webdav.pushFile(new FileInputStream(f), stemcellId);
+			
+		} catch (FileNotFoundException e) {
+			logger.error("Unable to read file");
+			throw new RuntimeException("Unable to read file",e);
+		}
+		logger.debug("template pushed to webdav, url {}",webDavUrl);
+
+		//FIXME: find correct os type (PVM 64 bits)
+		OSType osType=null;
+		for (OSType ost:api.getGuestOSApi().listOSTypes()){
+			if (ost.getDescription().equals("Other PV (64-bit)")) osType=ost;
+		}
+		
+		Assert.notNull(osType, "Unable to find OsType");
+		
+		TemplateMetadata templateMetadata=TemplateMetadata.builder()
+				.name(stemcellId)
+				.osTypeId(osType.getId())
+				.displayText("cpi stemcell template (webdav)")
+				.build();
+		
+		RegisterTemplateOptions options=RegisterTemplateOptions.Builder
+				.isPublic(true)
+				.isFeatured(true)
+				;
+		
+		String hypervisor="xen";
+		String format="vhd";
+		Set<Template> registredTemplates = api.getTemplateApi().registerTemplate(templateMetadata, format, hypervisor, webDavUrl, findZoneId(), options);
+		for (Template t: registredTemplates){
+			logger.debug("registred template "+t.toString());
+		}
+		//FIXME: wait for the template to be ready
+		
+		
+		logger.info("Template successfully registred ! {} - {}",stemcellId);
+
+	
+		
+		logger.info("done registering cloudstack template for stemcell {}",stemcellId);
+		return stemcellId;
+	}
+
+
+
+
+	/**
+	 * @return
+	 */
+	private String mockTemplateGeneration() {
 		//String instance_type="Ultra Tiny";
 		String instance_type="CO1 - Small STD";
 		
@@ -302,7 +374,7 @@ public class CPIImpl implements CPI{
 		Networks fakeDirectorNetworks=new Networks();
 		com.orange.oss.cloudfoundry.cscpi.domain.Network net=new com.orange.oss.cloudfoundry.cscpi.domain.Network();
 		net.type=NetworkType.dynamic;
-		net.cloud_properties.put("name", "3113 - prod - back");		
+		net.cloud_properties.put("name", "3112 - prod - back");		
 		fakeDirectorNetworks.networks.put("default",net);
 		
 		
@@ -351,7 +423,6 @@ public class CPIImpl implements CPI{
 		
 		logger.info("now cleaning work vm");
 		this.delete_vm(workVmName);
-		
 		return stemcellId;
 	}
 
@@ -449,9 +520,9 @@ public class CPIImpl implements CPI{
 	public String create_disk(Integer size, Map<String, String> cloud_properties) {
 
 		//FIXME see disk offering (cloud properties specificy?). How do we use Size ??
-		String diskOfferingName = "DO1 - Small STD";
+		String diskOfferingName = "custom_size_disk_offering";
 		
-		return this.diskCreate(diskOfferingName);
+		return this.diskCreate(size,diskOfferingName);
 
 	}
 
@@ -462,7 +533,7 @@ public class CPIImpl implements CPI{
 	 * @param diskOfferingName
 	 * @return
 	 */
-	private String diskCreate(String diskOfferingName) {
+	private String diskCreate(int size,String diskOfferingName) {
 		String name="cpidisk-"+UUID.randomUUID().toString();
 		logger.info("create_disk {} on offering {}",name,diskOfferingName);
 		
@@ -473,8 +544,8 @@ public class CPIImpl implements CPI{
 		
 		
 		String zoneId=this.findZoneId();
-		//api.getVolumeApi().createVolumeFromCustomDiskOfferingInZone(diskOfferingName, diskOfferingId, zoneId, size);
-		AsyncCreateResponse resp=api.getVolumeApi().createVolumeFromDiskOfferingInZone(name, diskOfferingId, zoneId);
+		AsyncCreateResponse resp=api.getVolumeApi().createVolumeFromCustomDiskOfferingInZone(diskOfferingName, diskOfferingId, zoneId, size);
+		//AsyncCreateResponse resp=api.getVolumeApi().createVolumeFromDiskOfferingInZone(name, diskOfferingId, zoneId);
 		jobComplete = retry(new JobComplete(api), 1200, 3, 5, SECONDS);
 		jobComplete.apply(resp.getJobId());
 		

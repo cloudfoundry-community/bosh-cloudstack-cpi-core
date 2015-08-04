@@ -73,7 +73,7 @@ public class CPIImplITTest {
 	public void testCreate_stemcell() {
 		
 		Map<String, String> cloud_properties=new HashMap<String, String>();
-		String image_path="/tmp/";
+		String image_path="/tmp/image.vhd";
 		String stemcell=this.cpi.create_stemcell(image_path, cloud_properties);
 		//TODO: clean stemcell
 	}

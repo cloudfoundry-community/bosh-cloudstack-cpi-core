@@ -1,21 +1,20 @@
 package com.orange.oss.cloudfoundry.cscpi;
 
+import static org.junit.Assert.assertEquals;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.junit.Test;
-
-import static org.junit.Assert.*;
-
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.boot.test.WebIntegrationTest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.orange.oss.cloudfoundry.cscpi.domain.Network;
 import com.orange.oss.cloudfoundry.cscpi.domain.NetworkType;
 import com.orange.oss.cloudfoundry.cscpi.domain.Networks;
@@ -24,6 +23,7 @@ import com.orange.oss.cloudfoundry.cscpi.domain.ResourcePool;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = BoshCloudstackCpiCoreApplication.class)
+@WebIntegrationTest
 @ConfigurationProperties
 public class CPIFlowTest {
 	
@@ -40,7 +40,7 @@ public class CPIFlowTest {
 		//provided by bosh ?
 		String agent_id="xxxxx";
 		
-		String image_path="/tmp";
+		String image_path="/tmp/image.vhd";
 		Map<String, String> cloud_properties=new HashMap<String, String>();
 		String stemcell_id=cpi.create_stemcell(image_path, cloud_properties);
 
@@ -48,7 +48,7 @@ public class CPIFlowTest {
 		ResourcePool resource_pool=new ResourcePool();
 		resource_pool.compute_offering="CO1 - Small STD";
 		resource_pool.disk=8192;
-		resource_pool.ephemeral_disk_offering="ephemeral_volume";
+		resource_pool.ephemeral_disk_offering="custom_size_disk_offering";
 		
 		Networks networks=new Networks();
 		Network net=new Network();
