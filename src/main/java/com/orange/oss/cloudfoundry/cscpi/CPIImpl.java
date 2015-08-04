@@ -132,10 +132,11 @@ public class CPIImpl implements CPI{
         String vmName="cpivm-"+UUID.randomUUID().toString();
 		
 		//TODO: create ephemeral disk, read the disk size from properties, attach it to the vm.
-        //on predrod, service offering is ephemeral_volume, size is 2Go (not settable)		
 	    String ephemeralDiskServiceOfferingName=resource_pool.ephemeral_disk_offering;
 	    logger.debug("ephemeral disk offering is {}",ephemeralDiskServiceOfferingName);
-		String ephemeralDiskName=this.diskCreate(2000,ephemeralDiskServiceOfferingName);
+
+	    int ephemeralDiskSize=resource_pool.disk/1024; //cloudstack size api is Go
+		String ephemeralDiskName=this.diskCreate(ephemeralDiskSize,ephemeralDiskServiceOfferingName);
 		
 		this.vmCreation(stemcell_id, compute_offering, networks, vmName);
 	    
@@ -558,6 +559,8 @@ public class CPIImpl implements CPI{
 	public void delete_disk(String disk_id) {
 		logger.info("delete_disk");
 		
+		//FIXME; check disk exists
+		
 		String csDiskId=api.getVolumeApi().listVolumes(ListVolumesOptions.Builder.name(disk_id)).iterator().next().getId();
 		api.getVolumeApi().deleteVolume(csDiskId);
 	}
@@ -565,6 +568,9 @@ public class CPIImpl implements CPI{
 	@Override
 	public void attach_disk(String vm_id, String disk_id) {
 		logger.info("attach disk");
+		
+		//FIXME; check disk exists
+		//FIXME: check vm exists
 		String csDiskId=api.getVolumeApi().listVolumes(ListVolumesOptions.Builder.name(disk_id)).iterator().next().getId();
 		String csVmId=api.getVirtualMachineApi().listVirtualMachines(ListVirtualMachinesOptions.Builder.name(vm_id)).iterator().next().getId();
 		
