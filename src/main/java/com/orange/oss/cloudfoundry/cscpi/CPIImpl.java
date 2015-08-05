@@ -331,11 +331,11 @@ public class CPIImpl implements CPI{
 				.build();
 		
 		RegisterTemplateOptions options=RegisterTemplateOptions.Builder
-				.isPublic(true)
-				.isFeatured(true)
+				.isPublic(false) //true is KO
+				.isFeatured(false)
 				;
 		
-		String hypervisor="xen";
+		String hypervisor="XenServer";
 		String format="vhd";
 		Set<Template> registredTemplates = api.getTemplateApi().registerTemplate(templateMetadata, format, hypervisor, webDavUrl, findZoneId(), options);
 		for (Template t: registredTemplates){
