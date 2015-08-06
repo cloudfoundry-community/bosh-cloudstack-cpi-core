@@ -135,12 +135,16 @@ public class CPIImpl implements CPI{
 	    String ephemeralDiskServiceOfferingName=resource_pool.ephemeral_disk_offering;
 	    logger.debug("ephemeral disk offering is {}",ephemeralDiskServiceOfferingName);
 
+	    
+	    logger.info("now creating ephemeral disk");
 	    int ephemeralDiskSize=resource_pool.disk/1024; //cloudstack size api is Go
 		String ephemeralDiskName=this.diskCreate(ephemeralDiskSize,ephemeralDiskServiceOfferingName);
 		
+		logger.info("now creating cloudstack vm");
 		this.vmCreation(stemcell_id, compute_offering, networks, vmName);
 	    
 	    //NOW attache the ephemeral disk to the vm (need reboot ?)
+		logger.info("now attaching ephemaral disk {} to cloudstack vm {}",ephemeralDiskName,vmName);		
 		this.attach_disk(vmName, ephemeralDiskName);
 		
 		//FIXME: add bosh id / cloustack id association to bosh registry ??
@@ -181,16 +185,6 @@ public class CPIImpl implements CPI{
 		ServiceOffering so=s.iterator().next();
 		
 		
-		//find network offering
-		//String networkOfferingName="DefaultIsolatedNetworkOfferingWithSourceNat";
-		String networkOfferingName="DefaultIsolatedNetworkOffering";
-
-		//Requirements, check the provided network, must have a correct prerequisite in offering
-		// service offering need dhcp (if same bootstrap as openstack)
-		// 					need metadata service for userData
-		//					need dns ?
-		Set<NetworkOffering> listNetworkOfferings = api.getOfferingApi().listNetworkOfferings(ListNetworkOfferingsOptions.Builder.zoneId(csZoneId).name(networkOfferingName));		
-		NetworkOffering networkOffering=listNetworkOfferings.iterator().next();
 		
 
 
@@ -212,8 +206,18 @@ public class CPIImpl implements CPI{
 		}
 		Assert.notNull(network,"Could not find network "+network_name);
 
-       
-        
+
+		Set<NetworkOffering> listNetworkOfferings = api.getOfferingApi().listNetworkOfferings(ListNetworkOfferingsOptions.Builder.zoneId(csZoneId).id(network.getNetworkOfferingId()));		
+		NetworkOffering networkOffering=listNetworkOfferings.iterator().next();
+
+		//Requirements, check the provided network, must have a correct prerequisite in offering
+		// service offering need dhcp (if same bootstrap as openstack)
+		// 					need metadata service for userData
+		//					need dns ?
+		
+		
+		logger.info("associated Network Offering is {}", networkOffering.getName());
+		
         //FIXME: base encode 64 for server name / network spec. for cloud-init OR vm startup config
         String userData=this.userDataGenerator.vmMetaData();
         
@@ -223,6 +227,7 @@ public class CPIImpl implements CPI{
         {
 		case vip:
         case dynamic:
+        	logger.debug("dynamic ip vm creation");
 			options=DeployVirtualMachineOptions.Builder
 			.name(vmName)
 			.networkId(network.getId())
@@ -231,6 +236,7 @@ public class CPIImpl implements CPI{
 			;
 			break;
 		case manual:
+        	logger.debug("static / manual ip vm creation");			
 			options=DeployVirtualMachineOptions.Builder
 			.name(vmName)
 			.networkId(network.getId())
@@ -249,7 +255,7 @@ public class CPIImpl implements CPI{
 		
 		VirtualMachine vm = api.getVirtualMachineApi().listVirtualMachines(ListVirtualMachinesOptions.Builder.name(vmName)).iterator().next();
 		if (! vm.getState().equals(State.RUNNING)) {
-			throw new RuntimeException("Not in expectedrunning:" + vm.getState());
+			throw new RuntimeException("Not in expected running state:" + vm.getState());
 		}
 		
 		//list NICS, check macs.
@@ -376,7 +382,7 @@ public class CPIImpl implements CPI{
 		Networks fakeDirectorNetworks=new Networks();
 		com.orange.oss.cloudfoundry.cscpi.domain.Network net=new com.orange.oss.cloudfoundry.cscpi.domain.Network();
 		net.type=NetworkType.dynamic;
-		net.cloud_properties.put("name", "3112 - prod - back");		
+		net.cloud_properties.put("name", "3113 - prod - back");		
 		fakeDirectorNetworks.networks.put("default",net);
 		
 		
@@ -521,8 +527,8 @@ public class CPIImpl implements CPI{
 	@Override
 	public String create_disk(Integer size, Map<String, String> cloud_properties) {
 
-		//FIXME see disk offering (cloud properties specificy?). How do we use Size ??
-		String diskOfferingName = "custom_size_disk_offering";
+		//FIXME see disk offering (cloud properties specificy?)
+		String diskOfferingName = "custom_size_disk_offering2";
 		
 		return this.diskCreate(size,diskOfferingName);
 
@@ -546,7 +552,7 @@ public class CPIImpl implements CPI{
 		
 		
 		String zoneId=this.findZoneId();
-		AsyncCreateResponse resp=api.getVolumeApi().createVolumeFromCustomDiskOfferingInZone(diskOfferingName, diskOfferingId, zoneId, size);
+		AsyncCreateResponse resp=api.getVolumeApi().createVolumeFromCustomDiskOfferingInZone(name, diskOfferingId, zoneId, size);
 		//AsyncCreateResponse resp=api.getVolumeApi().createVolumeFromDiskOfferingInZone(name, diskOfferingId, zoneId);
 		jobComplete = retry(new JobComplete(api), 1200, 3, 5, SECONDS);
 		jobComplete.apply(resp.getJobId());
@@ -572,17 +578,22 @@ public class CPIImpl implements CPI{
 		
 		//FIXME; check disk exists
 		//FIXME: check vm exists
-		String csDiskId=api.getVolumeApi().listVolumes(ListVolumesOptions.Builder.name(disk_id)).iterator().next().getId();
-		String csVmId=api.getVirtualMachineApi().listVirtualMachines(ListVirtualMachinesOptions.Builder.name(vm_id)).iterator().next().getId();
+		Set<Volume> volumes = api.getVolumeApi().listVolumes(ListVolumesOptions.Builder.name(disk_id));
+		Assert.isTrue(volumes.size()==1,"Unable to find volume "+disk_id);
+		String csDiskId=volumes.iterator().next().getId();
+		
+		
+		Set<VirtualMachine> vms = api.getVirtualMachineApi().listVirtualMachines(ListVirtualMachinesOptions.Builder.name(vm_id));
+		Assert.isTrue(vms.size()==1, "Unable to find vm "+vm_id);
+		String csVmId=vms.iterator().next().getId();
 		
 		VolumeApi vol = this.api.getVolumeApi();
 		AsyncCreateResponse resp=vol.attachVolume(csDiskId, csVmId);
 		//TODO:  need to restart vm ?
 		jobComplete = retry(new JobComplete(api), 1200, 3, 5, SECONDS);
 		jobComplete.apply(resp.getJobId());
-
 		
-		logger.info("==> detach disk successfull");
+		logger.info("==> attach disk successfull");
 	}
 
 	@Override

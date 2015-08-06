@@ -48,12 +48,12 @@ public class CPIFlowTest {
 		ResourcePool resource_pool=new ResourcePool();
 		resource_pool.compute_offering="CO1 - Small STD";
 		resource_pool.disk=8192;
-		resource_pool.ephemeral_disk_offering="custom_size_disk_offering";
+		resource_pool.ephemeral_disk_offering="custom_size_disk_offering2"; //shared is ko, use local disk offering
 		
 		Networks networks=new Networks();
 		Network net=new Network();
 		networks.networks.put("default", net);
-		net.type=NetworkType.manual;
+		net.type=NetworkType.dynamic; //static
 		net.ip="10.234.229.30";
 		net.gateway="10.234.229.1";
 		net.netmask="255.255.255.192";
