@@ -8,6 +8,7 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 
 /**
@@ -16,6 +17,7 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect;
  *
  */
 @JsonAutoDetect
+@JsonPropertyOrder({"result", "error","log"})
 public class CPIResponse {
 
   public List <String> result=new ArrayList<String>();
