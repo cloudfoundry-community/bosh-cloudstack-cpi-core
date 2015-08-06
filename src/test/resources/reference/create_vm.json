@@ -13,7 +13,7 @@
         "type": "manual",
         "ip": "10.234.229.50",
         "netmask": "255.255.255.192",
-        "cloud_properties": {"name": "3112 - prod - back"},
+        "cloud_properties": {"name": "3113 - prod - back"},
         "default": [
           "dns",
           "gateway"
