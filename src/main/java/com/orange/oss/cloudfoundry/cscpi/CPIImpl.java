@@ -185,9 +185,10 @@ public class CPIImpl implements CPI{
 		//String networkOfferingName="DefaultIsolatedNetworkOfferingWithSourceNat";
 		String networkOfferingName="DefaultIsolatedNetworkOffering";
 
-		//Requirements
+		//Requirements, check the provided network, must have a correct prerequisite in offering
 		// service offering need dhcp (if same bootstrap as openstack)
 		// 					need metadata service for userData
+		//					need dns ?
 		Set<NetworkOffering> listNetworkOfferings = api.getOfferingApi().listNetworkOfferings(ListNetworkOfferingsOptions.Builder.zoneId(csZoneId).name(networkOfferingName));		
 		NetworkOffering networkOffering=listNetworkOfferings.iterator().next();
 		
