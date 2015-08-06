@@ -27,7 +27,10 @@ public class CPIRestController {
 	@RequestMapping(method=RequestMethod.POST,produces="application/json")
 	public @ResponseBody CPIResponse execute(@RequestBody JsonNode  request) {
 		logger.info("==> received \n {}",request);
-		return this.cpiAdaper.execute(request);
+		CPIResponse response=this.cpiAdaper.execute(request);
+		
+		logger.info("cpi-core response : {}",response);
+		return response;
 
 	}
 

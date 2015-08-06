@@ -68,6 +68,32 @@ public class RestApiTest {
 		verify(cpi).create_disk(32384, new HashMap<String, String>());		
 		assertEquals(data.response,response);
 		}
+	
+	@Test
+	public void testCreateStemcell() throws IOException{
+		
+		TestData data=this.loadData("create_stemcell");
+
+		HashMap<String, String> cloud_properties=new HashMap<>();
+		cloud_properties.put("disk","3072");
+		cloud_properties.put("root_device_name","/dev/sda1");
+		cloud_properties.put("infrastructure","vcloud");		
+		cloud_properties.put("hypervisor","esxi");
+		cloud_properties.put("os_type","linux");
+		cloud_properties.put("name","bosh-vcloud-esxi-ubuntu-trusty-go_agent");
+		cloud_properties.put("disk_format","ovf");				
+		cloud_properties.put("os_distro","ubuntu");
+		cloud_properties.put("version","3016");
+		cloud_properties.put("container_format","bare");				
+		cloud_properties.put("architecture","x86_64");
+				
+		String response = postRequest(data);
+		verify(cpi).create_stemcell("/var/vcap/data/tmp/director/stemcell20150731-6669-1s29owb/image", cloud_properties);		
+		assertEquals(data.response,response);
+		}
+	
+	
+	
 
 	/**
 	 * util class to load test data + expected data from classpath files
