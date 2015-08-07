@@ -24,7 +24,7 @@ import com.orange.oss.cloudfoundry.cscpi.domain.ResourcePool;
 @SpringApplicationConfiguration(classes = BoshCloudstackCpiCoreApplication.class)
 @ConfigurationProperties
 
-public class CPIImplITTest {
+public class CPIImplIT {
 
 	
 	@Autowired

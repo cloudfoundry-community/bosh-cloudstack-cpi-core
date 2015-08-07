@@ -15,7 +15,7 @@
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
 		<version>1.2.4.RELEASE</version>
-		<relativePath/> <!-- lookup parent from repository -->
+		<relativePath /> <!-- lookup parent from repository -->
 	</parent>
 
 	<properties>
@@ -25,7 +25,7 @@
 	</properties>
 
 	<dependencies>
-		
+
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
@@ -41,18 +41,18 @@
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
-		
-			
-		
+
+
+
 		<dependency>
-		    <groupId>com.fasterxml.jackson.core</groupId>
-		    <artifactId>jackson-databind</artifactId>
-		</dependency>	
-		
-		
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-databind</artifactId>
+		</dependency>
+
+
 		<dependency>
-		    <groupId>org.apache.jclouds.api</groupId>
-		    <artifactId>cloudstack</artifactId>
+			<groupId>org.apache.jclouds.api</groupId>
+			<artifactId>cloudstack</artifactId>
 			<version>${jclouds.version}</version>
 		</dependency>
 
@@ -63,11 +63,11 @@
 		</dependency>
 
 		<dependency>
-		    <groupId>org.apache.jclouds.driver</groupId>
-		    <artifactId>jclouds-slf4j</artifactId>
-		    <version>${jclouds.version}</version>
+			<groupId>org.apache.jclouds.driver</groupId>
+			<artifactId>jclouds-slf4j</artifactId>
+			<version>${jclouds.version}</version>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
@@ -100,9 +100,9 @@
 		</dependency>
 
 		<dependency>
-		  <groupId>com.github.lookfirst</groupId>
-		  <artifactId>sardine</artifactId>
-		  <version>5.4</version>
+			<groupId>com.github.lookfirst</groupId>
+			<artifactId>sardine</artifactId>
+			<version>5.4</version>
 		</dependency>
 
 		<dependency>
@@ -111,25 +111,39 @@
 			<version>1.4</version>
 			<scope>test</scope>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>commons-io</groupId>
 			<artifactId>commons-io</artifactId>
 			<version>2.4</version>
-			<scope>test</scope> 
+			<scope>test</scope>
 		</dependency>
-		
-		
-		
+
+
+
 
 	</dependencies>
-	
+
 	<build>
 		<plugins>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-failsafe-plugin</artifactId>
+				<configuration>
+					<!-- cette option est utilisee par le goal verify -->
+					<testFailureIgnore>true</testFailureIgnore>
+					<!-- enlever le commentaire pour debugger les tests surefire dans Eclipse, 
+						l'adresse 4000 doit correspondre au port de la connexion de la Remote java 
+						application dans le menu Open Debug Dialog -->
+					<!-- <argLine>-Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,address=4000,server=y,suspend=y</argLine> -->
+				</configuration>
+			</plugin>
+
 		</plugins>
 	</build>
 

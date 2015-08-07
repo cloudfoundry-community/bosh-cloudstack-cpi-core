@@ -17,9 +17,9 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = BoshCloudstackCpiCoreApplication.class)
 @ConfigurationProperties
-public class CloudStackTest {
+public class CloudStackIT {
 
-	private static Logger logger=LoggerFactory.getLogger(CloudStackTest.class);
+	private static Logger logger=LoggerFactory.getLogger(CloudStackIT.class);
 	
 	@Autowired
 	CloudStackApi api;
