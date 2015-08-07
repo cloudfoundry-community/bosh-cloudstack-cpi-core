@@ -1,11 +1,7 @@
 {  
    "method":"create_disk",
    "arguments":[  
-      32384,
-      {  
-
-      },
-      "urn:vcloud:vm:4f9ad217-3953-4718-a0f7-f7d05d1f80da"
+      32384
    ],
    "context":{  
       "director_uuid":"9b66130e-77e6-4c54-b292-564e4668b4ce"

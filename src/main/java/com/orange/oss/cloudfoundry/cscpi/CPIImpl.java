@@ -22,6 +22,7 @@ import org.jclouds.cloudstack.domain.Network;
 import org.jclouds.cloudstack.domain.NetworkOffering;
 import org.jclouds.cloudstack.domain.OSType;
 import org.jclouds.cloudstack.domain.ServiceOffering;
+import org.jclouds.cloudstack.domain.Tag;
 import org.jclouds.cloudstack.domain.Template;
 import org.jclouds.cloudstack.domain.TemplateMetadata;
 import org.jclouds.cloudstack.domain.VirtualMachine;
@@ -30,6 +31,7 @@ import org.jclouds.cloudstack.domain.Volume;
 import org.jclouds.cloudstack.domain.Zone;
 import org.jclouds.cloudstack.features.VolumeApi;
 import org.jclouds.cloudstack.options.CreateSnapshotOptions;
+import org.jclouds.cloudstack.options.CreateTagsOptions;
 import org.jclouds.cloudstack.options.CreateTemplateOptions;
 import org.jclouds.cloudstack.options.DeleteTemplateOptions;
 import org.jclouds.cloudstack.options.DeployVirtualMachineOptions;
@@ -51,6 +53,7 @@ import org.springframework.util.Assert;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.base.Predicate;
+import com.google.common.collect.ImmutableMap;
 import com.orange.oss.cloudfoundry.cscpi.domain.NetworkType;
 import com.orange.oss.cloudfoundry.cscpi.domain.Networks;
 import com.orange.oss.cloudfoundry.cscpi.domain.ResourcePool;
@@ -185,13 +188,12 @@ public class CPIImpl implements CPI{
 		//FIXME assert a single offering
 		ServiceOffering so=s.iterator().next();
 		
-		
-		
-
 
 		//parse network from cloud_properties
 		Assert.isTrue(networks.networks.size()==1, "CPI currenly only support 1 network / nic per VM");
 		String directorNetworkName=networks.networks.keySet().iterator().next();
+		//NB: directorName must be usefull for userData provisioning ?
+		
 		com.orange.oss.cloudfoundry.cscpi.domain.Network directorNetwork=networks.networks.values().iterator().next();
 		
 		String network_name=directorNetwork.cloud_properties.get("name");
@@ -383,7 +385,7 @@ public class CPIImpl implements CPI{
 		Networks fakeDirectorNetworks=new Networks();
 		com.orange.oss.cloudfoundry.cscpi.domain.Network net=new com.orange.oss.cloudfoundry.cscpi.domain.Network();
 		net.type=NetworkType.dynamic;
-		net.cloud_properties.put("name", "3112 - prod - back");		
+		net.cloud_properties.put("name", "3112 - preprod - back");		
 		fakeDirectorNetworks.networks.put("default",net);
 		
 		
@@ -512,9 +514,45 @@ public class CPIImpl implements CPI{
 	@Override
 	public void set_vm_metadata(String vm_id, Map<String, String> metadata) {
 		logger.info("set vm metadata");
+		VirtualMachine vm=api.getVirtualMachineApi().listVirtualMachines(ListVirtualMachinesOptions.Builder.name(vm_id)).iterator().next();
+
+
 		
-		//FIXME: set the metadata key /value list.
+		setVmMetada(vm_id, metadata, vm);
 		
+	}
+
+
+
+
+	/**
+	 * 
+	 * adapter method to cloudstack User Tag API
+	 * @param vm_id cloudstack vm id
+	 * @param metadata map of tag name / value
+	 * @param vm cloudstack VirtualMachine
+	 */
+	private void setVmMetada(String vm_id, Map<String, String> metadata,
+			VirtualMachine vm) {
+
+//		 builder.putAll(template.getOptions().getUserMetadata());
+//		 for (String tag : template.getOptions().getTags())
+//		 builder.put(tag, "jclouds-empty-tag-placeholder");
+//		if (!common.isEmpty()) {
+		
+		
+		//TODO: check if must merge with preexisting user tags
+		ImmutableMap.Builder<String, String> builder = ImmutableMap.builder();		
+		Map<String, String> tags = builder.putAll(metadata).build();
+		
+		logger.debug(">> adding tags %s to virtualmachine(%s)", tags, vm.getId());
+		CreateTagsOptions tagOptions = CreateTagsOptions.Builder.resourceIds(vm.getId()).resourceType(Tag.ResourceType.USER_VM).tags(tags);
+		AsyncCreateResponse tagJob = api.getTagApi().createTags(tagOptions);				
+		 		
+		jobComplete = retry(new JobComplete(api), 1200, 3, 5, SECONDS);
+		jobComplete.apply(tagJob.getJobId());
+		
+		logger.info("done settings metadata on vm ",vm_id);
 	}
 
 	/**
@@ -525,7 +563,7 @@ public class CPIImpl implements CPI{
 	@Override
 	public void configure_networks(String vm_id, JsonNode networks) throws com.orange.oss.cloudfoundry.cscpi.exceptions.NotSupportedException {
 		logger.info("configure network");
-		throw new com.orange.oss.cloudfoundry.cscpi.exceptions.NotSupportedException("no support for modifying network yet");
+		throw new com.orange.oss.cloudfoundry.cscpi.exceptions.NotSupportedException("CPI does not support modifying network yet");
 		
 	}
 	
