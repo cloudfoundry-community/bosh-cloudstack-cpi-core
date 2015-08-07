@@ -144,8 +144,9 @@ public class CPIImpl implements CPI{
 		this.vmCreation(stemcell_id, compute_offering, networks, vmName);
 	    
 	    //NOW attache the ephemeral disk to the vm (need reboot ?)
-		logger.info("now attaching ephemaral disk {} to cloudstack vm {}",ephemeralDiskName,vmName);		
-		this.attach_disk(vmName, ephemeralDiskName);
+		//FIXME : placement constraint local disk offering / vm
+//		logger.info("now attaching ephemaral disk {} to cloudstack vm {}",ephemeralDiskName,vmName);		
+//		this.attach_disk(vmName, ephemeralDiskName);
 		
 		//FIXME: add bosh id / cloustack id association to bosh registry ??
 		
@@ -307,11 +308,11 @@ public class CPIImpl implements CPI{
 
 		logger.info("Starting to upload stemcell to webdav");
 		
-		Assert.isTrue(image_path!=null,"Image Path must not be Null");
+		Assert.isTrue(image_path!=null,"create_stemcell: Image Path must not be Null");
 		File f=new File(image_path);
 		
-		Assert.isTrue(f.exists(), "Image Path does not exist :"+image_path);
-		Assert.isTrue(f.isFile(), "Image Path exist but is not a file :"+image_path);
+		Assert.isTrue(f.exists(), "create_stemcell: Image Path does not exist :"+image_path);
+		Assert.isTrue(f.isFile(), "create_stemcell: Image Path exist but is not a file :"+image_path);
 		
 		String webDavUrl=null;
 		try {
@@ -382,7 +383,7 @@ public class CPIImpl implements CPI{
 		Networks fakeDirectorNetworks=new Networks();
 		com.orange.oss.cloudfoundry.cscpi.domain.Network net=new com.orange.oss.cloudfoundry.cscpi.domain.Network();
 		net.type=NetworkType.dynamic;
-		net.cloud_properties.put("name", "3113 - prod - back");		
+		net.cloud_properties.put("name", "3112 - prod - back");		
 		fakeDirectorNetworks.networks.put("default",net);
 		
 		
@@ -441,6 +442,7 @@ public class CPIImpl implements CPI{
 	public void delete_stemcell(String stemcell_id) {
 		logger.info("delete_stemcell");
 		
+		//FIXME: assert stemcell_id template exists and is unique
 		String zoneId=findZoneId();
 		DeleteTemplateOptions options=DeleteTemplateOptions.Builder.zoneId(zoneId);
 		AsyncCreateResponse asyncTemplateDeleteJob =api.getTemplateApi().deleteTemplate(stemcell_id, options);
@@ -454,8 +456,12 @@ public class CPIImpl implements CPI{
 	public void delete_vm(String vm_id) {
 		logger.info("delete_vm");
 		
-		//FIXME : check vm is existing
-		String csVmId=api.getVirtualMachineApi().listVirtualMachines(ListVirtualMachinesOptions.Builder.name(vm_id)).iterator().next().getId();
+		Set<VirtualMachine> vms = api.getVirtualMachineApi().listVirtualMachines(ListVirtualMachinesOptions.Builder.name(vm_id));
+		
+		Assert.isTrue(vms.size()>0, "delete_vm : Could not find any VM with name "+vm_id);
+		Assert.isTrue(vms.size()==1, "delete_vm : Found multiple VMs with name "+vm_id);		
+		
+		String csVmId=vms.iterator().next().getId();
 		String jobId=api.getVirtualMachineApi().destroyVirtualMachine(csVmId);
 		
 		jobComplete = retry(new JobComplete(api), 1200, 3, 5, SECONDS);
@@ -470,7 +476,7 @@ public class CPIImpl implements CPI{
 	@Override
 	public boolean has_vm(String vm_id) {
 		logger.info("has_vm ?");
-		VirtualMachine vm=api.getVirtualMachineApi().listVirtualMachines(ListVirtualMachinesOptions.Builder.name("vm_id")).iterator().next();
+		VirtualMachine vm=api.getVirtualMachineApi().listVirtualMachines(ListVirtualMachinesOptions.Builder.name(vm_id)).iterator().next();
 
 		if (vm==null) return false;
 		return true;
@@ -579,12 +585,12 @@ public class CPIImpl implements CPI{
 		//FIXME; check disk exists
 		//FIXME: check vm exists
 		Set<Volume> volumes = api.getVolumeApi().listVolumes(ListVolumesOptions.Builder.name(disk_id));
-		Assert.isTrue(volumes.size()==1,"Unable to find volume "+disk_id);
+		Assert.isTrue(volumes.size()==1,"attach_disk: Unable to find volume "+disk_id);
 		String csDiskId=volumes.iterator().next().getId();
 		
 		
 		Set<VirtualMachine> vms = api.getVirtualMachineApi().listVirtualMachines(ListVirtualMachinesOptions.Builder.name(vm_id));
-		Assert.isTrue(vms.size()==1, "Unable to find vm "+vm_id);
+		Assert.isTrue(vms.size()==1, "attach_disk: Unable to find vm "+vm_id);
 		String csVmId=vms.iterator().next().getId();
 		
 		VolumeApi vol = this.api.getVolumeApi();
@@ -638,6 +644,8 @@ public class CPIImpl implements CPI{
 		VolumeApi vol = this.api.getVolumeApi();
 		Set<Volume> vols=vol.listVolumes(ListVolumesOptions.Builder.virtualMachineId(vm.getId()));
 
+		//FIXME : dont give ROOT disk, just type= ? dont give ephemeral disk ?
+		
 		ArrayList<String> disks = new ArrayList<String>();
 		Iterator<Volume> it=vols.iterator();
 		while (it.hasNext()){

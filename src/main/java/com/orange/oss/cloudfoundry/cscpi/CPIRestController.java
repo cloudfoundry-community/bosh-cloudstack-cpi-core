@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.orange.oss.cloudfoundry.cscpi.domain.CPIResponse;
 
 
@@ -25,12 +27,24 @@ public class CPIRestController {
 	
 	
 	@RequestMapping(method=RequestMethod.POST,produces="application/json")
-	public @ResponseBody CPIResponse execute(@RequestBody JsonNode  request) {
+	public @ResponseBody JsonNode execute(@RequestBody JsonNode  request) {
 		logger.info("==> received \n {}",request);
 		CPIResponse response=this.cpiAdaper.execute(request);
-		
 		logger.info("cpi-core response : {}",response);
-		return response;
+		
+		
+		JsonNodeFactory nodeFactory = new JsonNodeFactory() {
+		};
+
+		ObjectNode node = nodeFactory.objectNode();
+		ObjectNode child = nodeFactory.objectNode(); // the child
+		child.put("result", response.result.get(0));
+		child.put("error", response.error);
+		child.put("log", response.log);
+		
+		logger.info("generated json response payload {}",node.asText());
+		
+		return node;
 
 	}
 
