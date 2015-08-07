@@ -131,11 +131,13 @@ public class CPIImpl implements CPI{
                             Map<String,String> env) {
         
         String compute_offering=resource_pool.compute_offering;
+        Assert.isTrue(compute_offering!=null,"Must provide compute offering in vm ressource pool");
 		
         String vmName="cpivm-"+UUID.randomUUID().toString();
 		
 		//TODO: create ephemeral disk, read the disk size from properties, attach it to the vm.
 	    String ephemeralDiskServiceOfferingName=resource_pool.ephemeral_disk_offering;
+	    Assert.isTrue(ephemeralDiskServiceOfferingName!=null,"create_vm: must specify ephemeral_disk_offering attribute in cloud properties");
 	    logger.debug("ephemeral disk offering is {}",ephemeralDiskServiceOfferingName);
 
 	    
@@ -184,9 +186,10 @@ public class CPIImpl implements CPI{
 		String csZoneId = findZoneId();
 		
 		//find compute offering
-		Set<ServiceOffering> s = api.getOfferingApi().listServiceOfferings(ListServiceOfferingsOptions.Builder.name(compute_offering));
-		//FIXME assert a single offering
-		ServiceOffering so=s.iterator().next();
+		Set<ServiceOffering> computeOfferings = api.getOfferingApi().listServiceOfferings(ListServiceOfferingsOptions.Builder.name(compute_offering));
+		
+		Assert.isTrue(computeOfferings.size()>0, "Unable to find compute offering "+compute_offering);
+		ServiceOffering so=computeOfferings.iterator().next();
 		
 
 		//parse network from cloud_properties
