@@ -99,6 +99,10 @@ public class CPIAdapterImpl implements CPIAdapter {
 			} else if (method.equals("delete_vm")) {
 				String vm_id=args.next().asText();
 				this.cpi.delete_vm(vm_id);
+			} else if (method.equals("has_vm")) {
+				String vm_id=args.next().asText();
+				boolean hasVm=this.cpi.has_vm(vm_id);
+				response.result.add(Boolean.toString(hasVm));
 
 			} else if (method.equals("create_stemcell")) {
 				String image_path=args.next().asText();				
@@ -173,19 +177,20 @@ public class CPIAdapterImpl implements CPIAdapter {
     		Assert.notNull(n.cloud_properties.get("name"),"A name for the target network is required in cloud_properties");
     		
     		switch (n.type){
-			case vip:
-    		case dynamic:
-				Assert.isNull(n.ip,"must not provide ip / gateway / netmask with dynamic/vip network");
-				Assert.isNull(n.gateway,"must not provide ip / gateway / netmask with dynamic/vip network");
-				Assert.isNull(n.netmask,"must not provide ip / gateway / netmask with dynamic/vip network");
-				break;
 			case manual:
 				Assert.notNull(n.ip,"must provide ip  with manual (static) network");
 				Assert.notNull(n.gateway,"must provide gateway  with manual (static) network");
 				Assert.notNull(n.netmask,"must provide netmask with manual (static) network");
 				break;
-			default:
+
+    		case vip:
+    		case dynamic:
+				Assert.isNull(n.ip,"must not provide ip / gateway / netmask with dynamic/vip network");
+				Assert.isNull(n.gateway,"must not provide ip / gateway / netmask with dynamic/vip network");
+				Assert.isNull(n.netmask,"must not provide ip / gateway / netmask with dynamic/vip network");
 				break;
+    		default:
+    			logger.warn("network type not specified for {}",n.toString());
     		}
     	}
 
