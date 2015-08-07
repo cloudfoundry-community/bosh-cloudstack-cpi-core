@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.orange.oss.cloudfoundry.cscpi.domain.CPIResponse;
 
@@ -34,12 +33,19 @@ public class CPIRestController {
 		logger.info("cpi-core response : {}",response);
 		
 		
-		
-		
 		ObjectMapper mapper = new ObjectMapper();
-		JsonNode rootNode = mapper.createObjectNode(); // will be of type ObjectNode
-		//((ObjectNode) rootNode).put("name", "Tatu");
-		((ObjectNode) rootNode).put("result", response.result.get(0));
+		JsonNode rootNode = mapper.createObjectNode(); // will be of type  ObjectNode
+
+		if ((response.result.size() == 1) && (response.result.get(0) instanceof Boolean)) {
+			((ObjectNode) rootNode).put("result", (Boolean) response.result.get(0));
+		} else if (response.result.size() == 1) {
+			((ObjectNode) rootNode).put("result",(String) response.result.get(0));
+		} else if (response.result.size() == 0) {
+			((ObjectNode) rootNode).put("result","[]");} 
+		else {
+				throw new RuntimeException("NOT IMPLEMENTED : multiple response for "+request.textValue());
+		}	
+		
 		((ObjectNode) rootNode).put("error", response.error);
 		((ObjectNode) rootNode).put("log", response.log);
 		

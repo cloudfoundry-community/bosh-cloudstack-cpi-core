@@ -20,7 +20,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 @JsonPropertyOrder({"result", "error","log"})
 public class CPIResponse {
 
-  public List <String> result=new ArrayList<String>();
+  public List <Object> result=new ArrayList<Object>();
 	
   public String error=null;
 	

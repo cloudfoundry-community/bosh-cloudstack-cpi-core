@@ -102,8 +102,13 @@ public class CPIAdapterImpl implements CPIAdapter {
 			} else if (method.equals("has_vm")) {
 				String vm_id=args.next().asText();
 				boolean hasVm=this.cpi.has_vm(vm_id);
-				response.result.add(Boolean.toString(hasVm));
+				response.result.add(new Boolean(hasVm));
 
+			}  else if (method.equals("has_disk")) {
+				String disk_id=args.next().asText();
+				boolean hasDisk=this.cpi.has_disk(disk_id);
+				response.result.add(new Boolean(hasDisk));
+			
 			} else if (method.equals("create_stemcell")) {
 				String image_path=args.next().asText();				
 				Map<String, String> cloud_properties=mapper.convertValue(args.next(), HashMap.class);
