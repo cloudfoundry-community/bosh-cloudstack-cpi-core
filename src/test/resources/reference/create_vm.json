@@ -2,7 +2,7 @@
   "method": "create_vm",
   "arguments": [
     "ad7d4219-d512-496f-8bbb-c3899ab45159",
-    "cpitemplate-601",
+    "bosh-stemcell-3033-cloudstack-ubuntu-trusty.vhd.bz2",
     {
       "compute_offering":"CO1 - Small STD",
       "disk": 8192,
@@ -13,7 +13,7 @@
         "type": "manual",
         "ip": "10.234.229.50",
         "netmask": "255.255.255.192",
-        "cloud_properties": {"name": "3113 - prod - back"},
+        "cloud_properties": {"name": "3112 - prod - back"},
         "default": [
           "dns",
           "gateway"

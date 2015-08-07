@@ -57,7 +57,7 @@ public class CPIFlowTest {
 		net.ip="10.234.229.30";
 		net.gateway="10.234.229.1";
 		net.netmask="255.255.255.192";
-		net.cloud_properties.put("name", "3113 - prod - back");
+		net.cloud_properties.put("name", "3112 - prod - back");
 
 		List<String> disk_locality=new ArrayList<String>();
 		Map<String, String> env=new HashMap<String, String>();
