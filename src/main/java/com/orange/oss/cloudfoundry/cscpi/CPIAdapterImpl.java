@@ -42,11 +42,11 @@ public class CPIAdapterImpl implements CPIAdapter {
 			String method = json.get("method").asText();
 			logger.info("method : {}", method);
 
-			String arguments = json.get("arguments").textValue();
-			logger.info("arguments : {}", arguments);
-
-			String context = json.get("context").textValue();
-			logger.info("context : {}", context);
+//			String arguments = json.get("arguments").textValue();
+//			logger.info("arguments : {}", arguments);
+//
+//			String context = json.get("context").textValue();
+//			logger.info("context : {}", context);
 			
 			Iterator<JsonNode> args=json.get("arguments").elements();
 			
@@ -55,6 +55,7 @@ public class CPIAdapterImpl implements CPIAdapter {
 			if (method.equals("create_disk")) {
 				Integer size=args.next().asInt();
 				Map<String, String> cloud_properties=new HashMap<String, String>();
+				//TODO map props ?
 				String diskId=this.cpi.create_disk(size,cloud_properties);
 				response.result.add(diskId);
 

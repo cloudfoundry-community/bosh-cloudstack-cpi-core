@@ -23,13 +23,13 @@ public class CPIRestController {
 	private static Logger logger=LoggerFactory.getLogger(CPIRestController.class.getName());
 	
 	@Autowired
-	private CPIAdapter cpiAdaper;
+	private CPIAdapter cpiAdapter;
 	
 	
 	@RequestMapping(method=RequestMethod.POST,produces="application/json")
 	public @ResponseBody JsonNode execute(@RequestBody JsonNode  request) {
 		logger.info("==> received \n {}",request);
-		CPIResponse response=this.cpiAdaper.execute(request);
+		CPIResponse response=this.cpiAdapter.execute(request);
 		logger.info("cpi-core response : {}",response);
 		
 		

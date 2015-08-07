@@ -1,7 +1,7 @@
 package com.orange.oss.cloudfoundry.cscpi.restapi;
 
 import static junit.framework.Assert.assertEquals;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -65,7 +65,8 @@ public class RestApiTest {
 		TestData data=this.loadData("create_disk");
 
 		String response = postRequest(data);
-		verify(cpi).create_disk(32384, new HashMap<String, String>());		
+		when(cpi.create_disk(anyInt(),any(Map.class))).thenReturn("diskid");
+		//verify(cpi).create_disk(32384, new HashMap<String, String>());		
 		assertEquals(data.response,response);
 		}
 	
