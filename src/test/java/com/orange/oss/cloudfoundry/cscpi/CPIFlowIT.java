@@ -54,15 +54,18 @@ public class CPIFlowIT {
 		Network net=new Network();
 		networks.networks.put("default", net);
 		net.type=NetworkType.dynamic; //static
-		net.ip="10.234.229.30";
+		net.ip="10.234.228.146";
 		net.gateway="10.234.229.1";
 		net.netmask="255.255.255.192";
-		net.cloud_properties.put("name", "3112 - prod - back");
+		net.cloud_properties.put("name", "3112 - preprod - back");
 
 		List<String> disk_locality=new ArrayList<String>();
 		Map<String, String> env=new HashMap<String, String>();
 
 		String vm_id=cpi.create_vm(agent_id, stemcell_id, resource_pool, networks, disk_locality, env);
+		
+		boolean hasVM=cpi.has_vm(vm_id);
+		
 		
 		Integer size=new Integer(10);		
 		Map<String, String> diskcloud_properties=new HashMap<String, String>();
