@@ -116,6 +116,9 @@ public class CPIAdapterImpl implements CPIAdapter {
 				String stemcell=this.cpi.create_stemcell(image_path, cloud_properties);
 				response.result.add(stemcell);
 
+			} else if (method.equals("delete_stemcell")) {
+				String stemcell_id=args.next().asText();				
+				this.cpi.delete_stemcell(stemcell_id);
 			} else
 				throw new IllegalArgumentException("Unknown method :" + method);
 
