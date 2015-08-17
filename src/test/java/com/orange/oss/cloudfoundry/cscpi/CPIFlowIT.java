@@ -106,6 +106,9 @@ public class CPIFlowIT {
 		cpi.delete_vm(vm_id);
 		cpi.delete_disk(disk_id);
 		
+		
+		cpi.delete_stemcell(stemcell_id);
+		
 	}
 
 }
