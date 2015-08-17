@@ -346,10 +346,12 @@ public class CPIImpl implements CPI{
 		RegisterTemplateOptions options=RegisterTemplateOptions.Builder
 				.isPublic(false) //true is KO
 				.isFeatured(false)
+				.isExtractable(true)
+				//.domainId(domainId) 
 				;
-		
+		//TODO: get from cloud properties ie  from stemcell MANIFEST file ?
 		String hypervisor="XenServer";
-		String format="vhd";
+		String format="VHD"; // QCOW2, RAW, and VHD.
 		Set<Template> registredTemplates = api.getTemplateApi().registerTemplate(templateMetadata, format, hypervisor, webDavUrl, findZoneId(), options);
 		for (Template t: registredTemplates){
 			logger.debug("registred template "+t.toString());
@@ -358,17 +360,14 @@ public class CPIImpl implements CPI{
 		
 		
 		logger.info("Template successfully registred ! {} - {}",stemcellId);
-
-	
 		
 		logger.info("done registering cloudstack template for stemcell {}",stemcellId);
 		return stemcellId;
 	}
 
-
-
-
 	/**
+	 * Mocktemplate generation : use existing template and copy it as another
+	 * 
 	 * @return
 	 */
 	private String mockTemplateGeneration() {
@@ -448,9 +447,19 @@ public class CPIImpl implements CPI{
 		logger.info("delete_stemcell");
 		
 		//FIXME: assert stemcell_id template exists and is unique
+		
+		
+		
+		
+		Set<Template> listTemplates = api.getTemplateApi().listTemplates(ListTemplatesOptions.Builder.name(stemcell_id));
+		Assert.isTrue(listTemplates.size()>0,"Could not find any CloudStack Template matching stemcell id "+stemcell_id);
+		Assert.isTrue(listTemplates.size()==1,"Found multiple CloudStack templates matching stemcell_id "+stemcell_id);		
+		
+		String csTemplateId=listTemplates.iterator().next().getId();
+		
 		String zoneId=findZoneId();
 		DeleteTemplateOptions options=DeleteTemplateOptions.Builder.zoneId(zoneId);
-		AsyncCreateResponse asyncTemplateDeleteJob =api.getTemplateApi().deleteTemplate(stemcell_id, options);
+		AsyncCreateResponse asyncTemplateDeleteJob =api.getTemplateApi().deleteTemplate(csTemplateId, options);
 		jobComplete = retry(new JobComplete(api), 1200, 3, 5, SECONDS);
 		jobComplete.apply(asyncTemplateDeleteJob.getJobId());
 		
