@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.orange.oss.cloudfoundry.cscpi.domain.Networks;
 import com.orange.oss.cloudfoundry.cscpi.domain.ResourcePool;
 import com.orange.oss.cloudfoundry.cscpi.exceptions.NotSupportedException;
+import com.orange.oss.cloudfoundry.cscpi.exceptions.VMCreationFailedException;
 
 /**
  *
@@ -74,10 +75,11 @@ public interface CPI {
 	 * @param disk_locality
 	 * @param env
 	 * @return
+	 * @throws VMCreationFailedException 
 	 */
 	String create_vm(String agent_id, String stemcell_id,
 			ResourcePool resource_pool, Networks networks,
-			List<String> disk_locality, Map<String, String> env);
+			List<String> disk_locality, Map<String, String> env) throws VMCreationFailedException;
 	
 	
 	

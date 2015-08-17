@@ -23,6 +23,7 @@ import com.orange.oss.cloudfoundry.cscpi.BoshCloudstackCpiCoreApplication;
 import com.orange.oss.cloudfoundry.cscpi.CPI;
 import com.orange.oss.cloudfoundry.cscpi.CPIAdapter;
 import com.orange.oss.cloudfoundry.cscpi.domain.CPIResponse;
+import com.orange.oss.cloudfoundry.cscpi.exceptions.VMCreationFailedException;
 /**
  * json cpi mapping tests. Tests the json => CPI class parameter parsing
  * @author pierre
@@ -63,7 +64,7 @@ public class JsonMappingTest {
 		}
 	
 	@Test
-	public void testCreateVM() throws IOException{
+	public void testCreateVM() throws IOException, VMCreationFailedException{
 		TestData data=this.loadData("create_vm");
 		
 		Map<String, String> env=new HashMap<String, String>();

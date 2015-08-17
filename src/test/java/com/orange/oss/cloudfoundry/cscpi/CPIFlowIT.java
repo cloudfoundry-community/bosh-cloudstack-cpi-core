@@ -19,6 +19,7 @@ import com.orange.oss.cloudfoundry.cscpi.domain.Network;
 import com.orange.oss.cloudfoundry.cscpi.domain.NetworkType;
 import com.orange.oss.cloudfoundry.cscpi.domain.Networks;
 import com.orange.oss.cloudfoundry.cscpi.domain.ResourcePool;
+import com.orange.oss.cloudfoundry.cscpi.exceptions.VMCreationFailedException;
 
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -33,10 +34,11 @@ public class CPIFlowIT {
 	
 	/**
 	 * see reference doc
+	 * @throws VMCreationFailedException 
 	 * @see https://github.com/cloudfoundry/bosh-init/blob/master/docs/architecture.md
 	 */
 	@Test
-	public void testCompleteFlow(){
+	public void testCompleteFlow() throws VMCreationFailedException{
 		//provided by bosh ?
 		String agent_id="xxxxx";
 		
@@ -53,9 +55,10 @@ public class CPIFlowIT {
 		Networks networks=new Networks();
 		Network net=new Network();
 		networks.networks.put("default", net);
-		net.type=NetworkType.dynamic; //static
-		net.ip="10.234.228.146";
-		net.gateway="10.234.229.1";
+		//net.type=NetworkType.dynamic;
+		net.type=NetworkType.manual;
+		net.ip="10.234.228.158";
+		net.gateway="10.234.228.129";
 		net.netmask="255.255.255.192";
 		net.cloud_properties.put("name", "3112 - preprod - back");
 

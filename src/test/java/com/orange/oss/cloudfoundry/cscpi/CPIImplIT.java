@@ -18,6 +18,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.orange.oss.cloudfoundry.cscpi.domain.Network;
 import com.orange.oss.cloudfoundry.cscpi.domain.Networks;
 import com.orange.oss.cloudfoundry.cscpi.domain.ResourcePool;
+import com.orange.oss.cloudfoundry.cscpi.exceptions.VMCreationFailedException;
 
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -34,7 +35,7 @@ public class CPIImplIT {
 	
 	
 	@Test
-	public void testCreate_vm() {
+	public void testCreate_vm() throws VMCreationFailedException {
 		//should be template Id
 		String agent_id="123456789";
 		
