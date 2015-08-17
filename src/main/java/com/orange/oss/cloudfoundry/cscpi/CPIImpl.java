@@ -45,6 +45,7 @@ import org.jclouds.cloudstack.options.ListVolumesOptions;
 import org.jclouds.cloudstack.options.ListZonesOptions;
 import org.jclouds.cloudstack.options.RegisterTemplateOptions;
 import org.jclouds.cloudstack.predicates.JobComplete;
+import org.jclouds.http.HttpResponseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,6 +58,8 @@ import com.google.common.collect.ImmutableMap;
 import com.orange.oss.cloudfoundry.cscpi.domain.NetworkType;
 import com.orange.oss.cloudfoundry.cscpi.domain.Networks;
 import com.orange.oss.cloudfoundry.cscpi.domain.ResourcePool;
+import com.orange.oss.cloudfoundry.cscpi.exceptions.CPIException;
+import com.orange.oss.cloudfoundry.cscpi.exceptions.VMCreationFailedException;
 import com.orange.oss.cloudfoundry.cscpi.webdav.WebdavServerAdapter;
 
 /**
@@ -122,13 +125,14 @@ public class CPIImpl implements CPI{
 	 * @param disk_locality
 	 * @param env
 	 * @return
+	 * @throws VMCreationFailedException 
 	 */
     public String create_vm(String agent_id,
                             String stemcell_id,
                             ResourcePool resource_pool,
                             Networks networks,
                             List<String> disk_locality,
-                            Map<String,String> env) {
+                            Map<String,String> env) throws VMCreationFailedException {
         
         String compute_offering=resource_pool.compute_offering;
         Assert.isTrue(compute_offering!=null,"Must provide compute offering in vm ressource pool");
@@ -167,9 +171,10 @@ public class CPIImpl implements CPI{
      * @param compute_offering
      * @param networks
      * @param vmName
+     * @throws VMCreationFailedException 
      */
 	private void vmCreation(String stemcell_id, String compute_offering,
-			Networks networks, String vmName) {
+			Networks networks, String vmName) throws VMCreationFailedException {
 	
 		
 		//set options
@@ -249,15 +254,22 @@ public class CPIImpl implements CPI{
 			.userData(userData.getBytes())
 			.dataDiskSize(dataDiskSize)
 			.ipOnDefaultNetwork(directorNetwork.ip)
+		
 			;
 			break;
 			
         }
 		
-
-		AsyncCreateResponse job = api.getVirtualMachineApi().deployVirtualMachineInZone(csZoneId, so.getId(), csTemplateId, options);
-		jobComplete = retry(new JobComplete(api), 1200, 3, 5, SECONDS);
-		jobComplete.apply(job.getJobId());
+        try {
+        	AsyncCreateResponse job = api.getVirtualMachineApi().deployVirtualMachineInZone(csZoneId, so.getId(), csTemplateId, options);
+        	jobComplete = retry(new JobComplete(api), 1200, 3, 5, SECONDS);
+        	jobComplete.apply(job.getJobId());
+        } catch (HttpResponseException hjce){
+        	int statusCode=hjce.getResponse().getStatusCode();
+        	String message=hjce.getResponse().getMessage();
+        	logger.error("Error while creating vm. Status code {}, Message : {} ",statusCode,message);
+        	throw new VMCreationFailedException("Error while creating vm",hjce);
+        }
 		
 		VirtualMachine vm = api.getVirtualMachineApi().listVirtualMachines(ListVirtualMachinesOptions.Builder.name(vmName)).iterator().next();
 		if (! vm.getState().equals(State.RUNNING)) {
@@ -302,7 +314,12 @@ public class CPIImpl implements CPI{
 		
 		if (this.mockCreateStemcell){
 			logger.warn("USING MOCK STEMCELL TRANSFORMATION TO CLOUDSTAK TEMPLATE)");
-			String stemcellId = mockTemplateGeneration();
+			String stemcellId;
+			try {
+				stemcellId = mockTemplateGeneration();
+			} catch (VMCreationFailedException e) {
+				throw new RuntimeException(e);
+			}
 			return stemcellId;
 
 		}
@@ -370,7 +387,7 @@ public class CPIImpl implements CPI{
 	 * 
 	 * @return
 	 */
-	private String mockTemplateGeneration() {
+	private String mockTemplateGeneration() throws VMCreationFailedException {
 		//String instance_type="Ultra Tiny";
 		String instance_type="CO1 - Small STD";
 		
