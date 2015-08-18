@@ -21,6 +21,13 @@
 	userData json format ?
 	requirement for a registry ? (current registry has only openstack and aws plugins)
 	ssh tunnel requirement ?
+	see cloudstack aws compatibility wrt metadata
+		http://mail-archives.apache.org/mod_mbox/cloudstack-dev/201508.mbox/%3CD1E842D5.6319F%25chiradeep.vittal@citrix.com%3E
+	
+	NB: registry and ssh tunnels should be removed in few months by bosh team
+	https://github.com/cloudfoundry/bosh/blob/master/bosh_openstack_cpi/lib/cloud/openstack/cloud.rb#L684-L697
+	
+	
 	
 - ephemeral disk
 	need custom size (created a dedicated offering)
