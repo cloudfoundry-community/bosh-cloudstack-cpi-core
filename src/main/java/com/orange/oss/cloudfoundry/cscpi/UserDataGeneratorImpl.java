@@ -33,24 +33,24 @@ public class UserDataGeneratorImpl implements UserDataGenerator {
 	 */
 	public static class Server {
 		Server(String name){
-			this.Name=name;
+			this.name=name;
 		}
-		public String Name;
+		public String name;
 	}
 	
 	public static class Registry {
 		Registry(String endpoint){
-			this.Endpoint=endpoint;
+			this.endpoint=endpoint;
 		}
 		
-		public String Endpoint;
+		public String endpoint;
 	}
 	
 	public static class DNS {
 		DNS(String nameServer){
-			this.NameServer=nameServer;
+			this.nameserver=nameServer;
 		}
-		public String NameServer;
+		public String nameserver;
 	}
 	
 	
@@ -66,16 +66,21 @@ public class UserDataGeneratorImpl implements UserDataGenerator {
 		
 		UserData datas=new UserData();
 		//compose the user data from cpi create vm call
-		datas.server=new Server("nomduserver");
+		
 		
 		try {
 			URL url=new URL(this.endpoint);
 		} catch (MalformedURLException e) {
 			logger.error("Registry endpoint is malformed {} : {}",this.endpoint,e.getMessage());
-			throw new IllegalArgumentException("Reigstry Endpoint is incorrect : "+this.endpoint, e);
+			throw new IllegalArgumentException("Registry Endpoint is incorrect : "+this.endpoint, e);
 		}
 		
 		datas.registry=new Registry(this.endpoint);
+		
+		
+		
+		//FIXME : get DNS from cloud properties, and serverName from ?
+		datas.server=new Server("nomduserver");
 		datas.dns=new DNS("10.0.0.1");
 		
 		//serialize to json
@@ -89,12 +94,7 @@ public class UserDataGeneratorImpl implements UserDataGenerator {
 		}
 		
 		logger.info("generated user data : \n{}",userData);
-		
-		//base64 encore resulting String
-        final byte[] bytes = userData.getBytes(StandardCharsets.UTF_8);
-        final String encoded = Base64.getEncoder().encodeToString(bytes);
-        logger.debug(userData + " => " + encoded);
-		return encoded;
+		return userData;
 	}
 	
 }
