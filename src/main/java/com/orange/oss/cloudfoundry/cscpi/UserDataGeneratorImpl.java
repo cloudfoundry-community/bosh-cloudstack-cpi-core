@@ -1,12 +1,14 @@
 package com.orange.oss.cloudfoundry.cscpi;
 
-import java.io.ByteArrayOutputStream;
-import java.io.OutputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.util.Assert;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
@@ -16,6 +18,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class UserDataGeneratorImpl implements UserDataGenerator {
 
 	private static Logger logger=LoggerFactory.getLogger(UserDataGeneratorImpl.class.getName());
+
+	
+	@Value("${registry.endpoint}")
+	String endpoint;
+	
+	
 	
 	/**
 	 * see https://github.com/cloudfoundry/bosh-agent/blob/585d2cc3a47129aa875738f09a26101ec6e0b1d1/infrastructure/http_metadata_service.go
@@ -59,7 +67,15 @@ public class UserDataGeneratorImpl implements UserDataGenerator {
 		UserData datas=new UserData();
 		//compose the user data from cpi create vm call
 		datas.server=new Server("nomduserver");
-		datas.registry=new Registry("http://xx.xx.xx:8080");
+		
+		try {
+			URL url=new URL(this.endpoint);
+		} catch (MalformedURLException e) {
+			logger.error("Registry endpoint is malformed {} : {}",this.endpoint,e.getMessage());
+			throw new IllegalArgumentException("Reigstry Endpoint is incorrect : "+this.endpoint, e);
+		}
+		
+		datas.registry=new Registry(this.endpoint);
 		datas.dns=new DNS("10.0.0.1");
 		
 		//serialize to json
