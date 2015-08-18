@@ -2,18 +2,17 @@ package com.orange.oss.cloudfoundry.cscpi;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.nio.charset.StandardCharsets;
-import java.util.Base64;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.util.Assert;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.orange.oss.cloudfoundry.cscpi.domain.Networks;
 
 public class UserDataGeneratorImpl implements UserDataGenerator {
 
@@ -62,7 +61,7 @@ public class UserDataGeneratorImpl implements UserDataGenerator {
 	
 	
 	@Override
-	public String vmMetaData(){
+	public String vmMetaData(Networks networks){
 		
 		UserData datas=new UserData();
 		//compose the user data from cpi create vm call
@@ -79,9 +78,16 @@ public class UserDataGeneratorImpl implements UserDataGenerator {
 		
 		
 		
-		//FIXME : get DNS from cloud properties, and serverName from ?
+		//FIXME : get  serverName from ?
 		datas.server=new Server("nomduserver");
-		datas.dns=new DNS("10.0.0.1");
+		
+		List<String> dnsServer=networks.networks.values().iterator().next().dns; //Only 1  network managed
+		if (dnsServer.size()==0){
+			logger.warn("No DNS configured for vm creation ?");
+		} else {
+			logger.info("set userData with the following Dns {}",dnsServer.toString() );
+		}
+		datas.dns=new DNS(dnsServer.get(0)); //FIXME: only set a single DNS server
 		
 		//serialize to json
 		ObjectMapper mapper = new ObjectMapper();

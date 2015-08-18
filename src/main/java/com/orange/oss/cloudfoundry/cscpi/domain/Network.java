@@ -24,7 +24,6 @@ public class Network {
 	    //FIXME parse default services ?
 	    //public List<String> default=new ArrayList<String>();
 	    
-	    
 	    public List<String> dns=new ArrayList<String>();
 	    public String gateway;
 
