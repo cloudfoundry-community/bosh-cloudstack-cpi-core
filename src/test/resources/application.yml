@@ -30,8 +30,6 @@ cloudstack:
 
   api_key: Jfy8RHP1-BddKb0qTBfGJxTm8FQreLjSQvej7nF5XZOnmNzUMA9f9qhbFzBwwsny-XId8Eo56CnYTs-Ws-OoeQ
   secret_access_key: ZZ0lguo0uk2QM5NFncdTQANAm6eyaMemTwyO4xI5j8tQIVzv7zOctNDx81Y7vSfeRb2OY7CGIzv_w6KR4l4AbQ
-#  api_key: Pfq9J0ySWcFWEee_TcK3FzsjtUcquPcVWmmFO_66O_GUARi2HSdJjm6-kpz3ksedwfO2ZO_nxi53jRroBqYXIQ
-#  secret_access_key: d4wPT3TgOt1dhubBJSm7fZtEfM-_9fcUbxg1V7TP_tq6QXQQTAw1y4n1qDLou833baFK4gEAU3tNHgfiOgiD6g
 
   default_key_name: xx
   private_key: zz
@@ -45,19 +43,15 @@ cloudstack:
 spring:
   profiles: qa    
 cloudstack:
-  endpoint:  http://host:8080/client/api
+  endpoint:  http://xx.xx.xx:8080/client/api
   
-  proxy_host: 10.0.0.1
+  proxy_host: yy.yy.yy
   proxy_port: 8080
-  proxy_user: www
+  proxy_user: ww
   proxy_password: zz
   
-  
-#  api_key: --C8gcna3iCsNks6LnO0znUTKbDkGj9LJYGGfzj4_b54XhrL98gKA_5AKUplyLgEjhRKHNUDHyYpkt5sZsh2lQ
-#  secret_access_key: fzrs_XvshoKslX2rZd04pSr1wlLSGUcfdk4JqrgfMIQPIJYbAEiBm0_GxtTtzhDvMipuVP-codDzkM_Z_U9wDg
-  
-  api_key: xx
-  secret_access_key: yy
+  api_key: TKVNrMEIx2lHMjwavyb2Y68c7D3FP1xzQ54Fnvdlzt8ZNKe2Bcf9qF8_-VGSQ_-0qVuXXJ2KiNcMxQPbWWB93Q
+  secret_access_key: aaaaaaaaaaaaaaaaa
 
   default_key_name: xx
   private_key: zz
@@ -72,7 +66,13 @@ cpi:
 # existing_template_name: "Ubuntu Trusty amd64 [2015-06-01]"
   existing_template_name: "bosh-stemcell-3033-cloudstack-ubuntu-trusty.vhd.bz2"
 
-  webdav_host: 10.0.2.15
+  webdav_host: 127.0.0.1
   webdav_port: 8080
   webdav_directory: "/tmp"
+      
+registry:
+  endpoint: http://admin:admin@127.0.0.1:25889
+  user: admin
+  password: admin
+      
       
