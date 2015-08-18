@@ -1,4 +1,48 @@
+17/08
 
+- globals
+	harden Exception mangement
+	map spring boot /error to an intelligible CPI rest payload / stdout
+	update json reference files for unit tests
+
+- check template publication
+	from cpi-core webdav, only public template possible ?
+	validate publication state (instant OK for registering, need to wait for the ssvm (secondary storage vm) to copy the template
+	add a garbarge collection mechanism to the webdav server	
+	
+
+- provision ssh keys
+	generate keypair with cloudstack API (no support on portail)
+	use keypair name + private key in bosh.yml
+	see http://cloudstack-administration.readthedocs.org/en/latest/virtual_machines.html?highlight=ssh%20keypair
+
+
+- Design stemcell generation and bootstrap strategy
+	userData json format ?
+	requirement for a registry ? (current registry has only openstack and aws plugins)
+	ssh tunnel requirement ?
+	
+- ephemeral disk
+	need custom size (created a dedicated offering)
+	unable to attach custom disk size => placement constraints due to local storage in ou cloudstack ?
+
+- attach disk
+	check if its possible on the fly, or if a vm reboot is required
+
+- bosh-init compatibility
+	must currently launch manually cpi-core before using bosh init
+	can we launch the cpi-core on the fly around each cpi call when used from bosh-init? (overhead is 5 s)
+	
+
+- prioritize current limitations
+	only advanced zone
+	no security group management
+	no multi-nic vms
+	leverage cloudstack affinity features
+	xen only (cloudstack kvm ? cloudstack vsphere ?)
+	only one OStype : Other PV (64-bit)
+
+01/07
 External CPI CC contract:
 - validate CPI contract
     - w.r.t. cloud properties injection:

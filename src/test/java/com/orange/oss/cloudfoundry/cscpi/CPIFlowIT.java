@@ -61,7 +61,9 @@ public class CPIFlowIT {
 		net.gateway="10.234.228.129";
 		net.netmask="255.255.255.192";
 		net.cloud_properties.put("name", "3112 - preprod - back");
-
+		net.dns.add("10.234.50.180");
+		net.dns.add("10.234.71.124");
+		
 		List<String> disk_locality=new ArrayList<String>();
 		Map<String, String> env=new HashMap<String, String>();
 

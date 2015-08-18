@@ -59,7 +59,6 @@ import com.orange.oss.cloudfoundry.cscpi.boshregistry.BoshRegistryClient;
 import com.orange.oss.cloudfoundry.cscpi.domain.NetworkType;
 import com.orange.oss.cloudfoundry.cscpi.domain.Networks;
 import com.orange.oss.cloudfoundry.cscpi.domain.ResourcePool;
-import com.orange.oss.cloudfoundry.cscpi.exceptions.CPIException;
 import com.orange.oss.cloudfoundry.cscpi.exceptions.VMCreationFailedException;
 import com.orange.oss.cloudfoundry.cscpi.webdav.WebdavServerAdapter;
 
@@ -87,6 +86,12 @@ public class CPIImpl implements CPI{
 	@Value("${cloudstack.default_zone}")	
 	String  default_zone;
 
+	
+	
+	
+	
+	
+	
 	@Value("${cpi.mock_create_stemcell}")
 	boolean mockCreateStemcell;
 
@@ -143,20 +148,22 @@ public class CPIImpl implements CPI{
 		
         String vmName="cpivm-"+UUID.randomUUID().toString();
 		
-		//TODO: create ephemeral disk, read the disk size from properties, attach it to the vm.
-	    String ephemeralDiskServiceOfferingName=resource_pool.ephemeral_disk_offering;
-	    Assert.isTrue(ephemeralDiskServiceOfferingName!=null,"create_vm: must specify ephemeral_disk_offering attribute in cloud properties");
-	    logger.debug("ephemeral disk offering is {}",ephemeralDiskServiceOfferingName);
-
-	    
-	    logger.info("now creating ephemeral disk");
-	    int ephemeralDiskSize=resource_pool.disk/1024; //cloudstack size api is Go
-		String ephemeralDiskName=this.diskCreate(ephemeralDiskSize,ephemeralDiskServiceOfferingName);
-		
 		logger.info("now creating cloudstack vm");
 		this.vmCreation(stemcell_id, compute_offering, networks, vmName);
-	    
-	    //NOW attache the ephemeral disk to the vm (need reboot ?)
+
+		
+		//TODO: create ephemeral disk, read the disk size from properties, attach it to the vm.
+		//NB: if base ROOT disk is large enough, bosh agent can use it to hold swap / ephemeral data ??
+//	    String ephemeralDiskServiceOfferingName=resource_pool.ephemeral_disk_offering;
+//	    Assert.isTrue(ephemeralDiskServiceOfferingName!=null,"create_vm: must specify ephemeral_disk_offering attribute in cloud properties");
+//	    logger.debug("ephemeral disk offering is {}",ephemeralDiskServiceOfferingName);
+//		
+//
+//	    logger.info("now creating ephemeral disk");
+//	    int ephemeralDiskSize=resource_pool.disk/1024; //cloudstack size api is Go
+//		String ephemeralDiskName=this.diskCreate(ephemeralDiskSize,ephemeralDiskServiceOfferingName);
+//		
+		//NOW attache the ephemeral disk to the vm (need reboot ?)
 		//FIXME : placement constraint local disk offering / vm
 //		logger.info("now attaching ephemaral disk {} to cloudstack vm {}",ephemeralDiskName,vmName);		
 //		this.attach_disk(vmName, ephemeralDiskName);
@@ -233,8 +240,8 @@ public class CPIImpl implements CPI{
 		
 		logger.info("associated Network Offering is {}", networkOffering.getName());
 		
-        //FIXME: base encode 64 for server name / network spec. for cloud-init OR vm startup config
-        String userData=this.userDataGenerator.vmMetaData();
+        //cloudstack userdata generation for bootstrap
+        String userData=this.userDataGenerator.vmMetaData(networks);
         
         NetworkType netType=directorNetwork.type;
         DeployVirtualMachineOptions options=null;
@@ -314,7 +321,7 @@ public class CPIImpl implements CPI{
 		logger.info("create_stemcell");
 		
 		
-		//FIXME: change with template generation, for now use existing cloustack template
+		//mock mode enables tests with an existing template (copied as a new template)
 		
 		if (this.mockCreateStemcell){
 			logger.warn("USING MOCK STEMCELL TRANSFORMATION TO CLOUDSTAK TEMPLATE)");
@@ -328,7 +335,7 @@ public class CPIImpl implements CPI{
 
 		}
 
-		//FIXME : template name limited to 32 chars, UUID is longer. use Random
+		//TODO : template name limited to 32 chars, UUID is longer. use Random for now
 		Random randomGenerator=new Random();
 		String stemcellId="cpitemplate-"+randomGenerator.nextInt(100000);
 
@@ -408,7 +415,10 @@ public class CPIImpl implements CPI{
 		Networks fakeDirectorNetworks=new Networks();
 		com.orange.oss.cloudfoundry.cscpi.domain.Network net=new com.orange.oss.cloudfoundry.cscpi.domain.Network();
 		net.type=NetworkType.dynamic;
-		net.cloud_properties.put("name", "3112 - preprod - back");		
+		net.cloud_properties.put("name", "3112 - preprod - back");
+		net.dns.add("10.234.50.180");
+		net.dns.add("10.234.71.124");
+		
 		fakeDirectorNetworks.networks.put("default",net);
 		
 		
@@ -504,6 +514,7 @@ public class CPIImpl implements CPI{
 
 		//FIXME: delete ephemeral disk ?!!
 		
+		//FIXME: remove  bosh id / cloustack id association from bosh registry ??		
 		
 		logger.info("deleted successfully vm {}",vm_id);
 	}
