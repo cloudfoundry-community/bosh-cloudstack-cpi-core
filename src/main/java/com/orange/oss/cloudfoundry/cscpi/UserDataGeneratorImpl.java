@@ -1,5 +1,10 @@
 package com.orange.oss.cloudfoundry.cscpi;
 
+import java.io.ByteArrayOutputStream;
+import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -69,11 +74,11 @@ public class UserDataGeneratorImpl implements UserDataGenerator {
 		
 		logger.info("generated user data : \n{}",userData);
 		
-		//uuencode resulting String
-		
-		
-		
-		return userData;
+		//base64 encore resulting String
+        final byte[] bytes = userData.getBytes(StandardCharsets.UTF_8);
+        final String encoded = Base64.getEncoder().encodeToString(bytes);
+        logger.debug(userData + " => " + encoded);
+		return encoded;
 	}
 	
 }
