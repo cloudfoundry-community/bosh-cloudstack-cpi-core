@@ -55,6 +55,7 @@ import org.springframework.util.Assert;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableMap;
+import com.orange.oss.cloudfoundry.cscpi.boshregistry.BoshRegistryClient;
 import com.orange.oss.cloudfoundry.cscpi.domain.NetworkType;
 import com.orange.oss.cloudfoundry.cscpi.domain.Networks;
 import com.orange.oss.cloudfoundry.cscpi.domain.ResourcePool;
@@ -107,6 +108,9 @@ public class CPIImpl implements CPI{
 	
 	@Autowired
 	private WebdavServerAdapter webdav;
+	
+	@Autowired
+	private BoshRegistryClient boshRegistry;
 	
 	
 	/**
