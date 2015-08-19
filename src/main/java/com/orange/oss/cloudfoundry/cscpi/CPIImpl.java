@@ -211,7 +211,7 @@ public class CPIImpl implements CPI{
 		//parse network from cloud_properties
 		Assert.isTrue(networks.networks.size()==1, "CPI currenly only support 1 network / nic per VM");
 		String directorNetworkName=networks.networks.keySet().iterator().next();
-		//NB: directorName must be usefull for userData provisioning ?
+		//NB: directorName must be usefull for vm provisioning ?
 		
 		com.orange.oss.cloudfoundry.cscpi.domain.Network directorNetwork=networks.networks.values().iterator().next();
 		
@@ -241,7 +241,7 @@ public class CPIImpl implements CPI{
 		logger.info("associated Network Offering is {}", networkOffering.getName());
 		
         //cloudstack userdata generation for bootstrap
-        String userData=this.userDataGenerator.vmMetaData(networks);
+        String userData=this.userDataGenerator.vmMetaData(vmName,networks);
         
         NetworkType netType=directorNetwork.type;
         DeployVirtualMachineOptions options=null;
