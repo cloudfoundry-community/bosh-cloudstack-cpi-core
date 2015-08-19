@@ -9,6 +9,8 @@ import com.orange.oss.cloudfoundry.cscpi.CPIAdapterImpl;
 import com.orange.oss.cloudfoundry.cscpi.CPIImpl;
 import com.orange.oss.cloudfoundry.cscpi.UserDataGenerator;
 import com.orange.oss.cloudfoundry.cscpi.UserDataGeneratorImpl;
+import com.orange.oss.cloudfoundry.cscpi.VmSettingGenerator;
+import com.orange.oss.cloudfoundry.cscpi.VmSettingGeneratorImpl;
 
 
 @Configuration
@@ -28,5 +30,11 @@ public class CPIConfig {
 	 @Bean UserDataGenerator userDataGenerator(){
 		 return new UserDataGeneratorImpl();
 	 }
+	 
+	 @Bean VmSettingGenerator vmSettingGenerator(){
+		 return new VmSettingGeneratorImpl();
+	 }
+	 
+	 
 	
 }
