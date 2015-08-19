@@ -57,15 +57,6 @@ public class WebdavServerAdapterTest {
 		assertEquals(content,retrievedContent);
 		
 	}
-	
-	
-	
-	@Test
-	public void testPushBigFile() throws FileNotFoundException{
-		File f=new File ("/tmp/bosh-lite-virtualbox-ubuntu-trusty-9000.38.0.box");
-		BufferedInputStream is=new BufferedInputStream(new FileInputStream(f));
-		String targetUrl=this.adapter.pushFile(is, "bosh-lite");		
-	}
 
 	
 }
