@@ -85,12 +85,6 @@ public class CPIImpl implements CPI{
 
 	@Value("${cloudstack.default_zone}")	
 	String  default_zone;
-
-	
-	
-	
-	
-	
 	
 	@Value("${cpi.mock_create_stemcell}")
 	boolean mockCreateStemcell;
@@ -98,9 +92,6 @@ public class CPIImpl implements CPI{
 	//initial preexisting template (to mock stemcell upload before template generation)
 	@Value("${cpi.existing_template_name}")
 	String existingTemplateName;	
-	
-	
-	
 	
 	private  Predicate<String> jobComplete;
 
@@ -110,6 +101,9 @@ public class CPIImpl implements CPI{
 	
 	@Autowired
 	UserDataGenerator userDataGenerator;
+	
+	@Autowired
+	VmSettingGenerator vmSettingGenerator;
 	
 	@Autowired
 	private WebdavServerAdapter webdav;
@@ -293,7 +287,8 @@ public class CPIImpl implements CPI{
 
 		
 		//populate bosh registry
-		String settings="";
+		logger.info("add vm {} to registry", vmName );
+		String settings=this.vmSettingGenerator.settingFor(vmName,vm,networks);
 		this.boshRegistry.put(vmName, settings);
 		
 		
@@ -521,6 +516,7 @@ public class CPIImpl implements CPI{
 		//FIXME: delete ephemeral disk ?!!
 		
 		//remove  bosh id / cloustack id association from bosh registry		
+		logger.info("remove vm {} from registry", vm_id );
 		this.boshRegistry.delete(vm_id);
 		
 		
@@ -566,14 +562,9 @@ public class CPIImpl implements CPI{
 	public void set_vm_metadata(String vm_id, Map<String, String> metadata) {
 		logger.info("set vm metadata");
 		VirtualMachine vm=api.getVirtualMachineApi().listVirtualMachines(ListVirtualMachinesOptions.Builder.name(vm_id)).iterator().next();
-
-
 		
 		setVmMetada(vm_id, metadata, vm);
-		
 	}
-
-
 
 
 	/**
@@ -622,9 +613,6 @@ public class CPIImpl implements CPI{
 		return this.diskCreate(size,diskOfferingName);
 
 	}
-
-
-
 
 	/**
 	 * @param diskOfferingName
