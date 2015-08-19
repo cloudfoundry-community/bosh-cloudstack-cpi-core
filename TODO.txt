@@ -26,6 +26,13 @@
 	
 	NB: registry and ssh tunnels should be removed in few months by bosh team
 	https://github.com/cloudfoundry/bosh/blob/master/bosh_openstack_cpi/lib/cloud/openstack/cloud.rb#L684-L697
+
+
+	stemcell_builder
+	https://libraries.io/rubygems/stemcell_builder
+	
+	conversion qcow2 => vhd
+	http://blogs.citrix.com/2012/10/04/convert-a-raw-image-to-xenserver-vhd/
 	
 	
 	

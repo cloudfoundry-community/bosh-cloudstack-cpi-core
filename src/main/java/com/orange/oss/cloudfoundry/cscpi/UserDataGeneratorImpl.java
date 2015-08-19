@@ -2,6 +2,7 @@ package com.orange.oss.cloudfoundry.cscpi;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -26,8 +27,9 @@ public class UserDataGeneratorImpl implements UserDataGenerator {
 	
 	/**
 	 * see https://github.com/cloudfoundry/bosh-agent/blob/585d2cc3a47129aa875738f09a26101ec6e0b1d1/infrastructure/http_metadata_service.go
+	 * see https://github.com/cloudfoundry/bosh/blob/master/bosh_openstack_cpi/lib/cloud/openstack/cloud.rb#L684-L697
 	 * for bosh agent http user data expectations
-	 * @author pierre
+	 * @author poblin
 	 *
 	 */
 	public static class Server {
@@ -47,9 +49,10 @@ public class UserDataGeneratorImpl implements UserDataGenerator {
 	
 	public static class DNS {
 		DNS(String nameServer){
-			this.nameserver=nameServer;
+			this.nameserver=new ArrayList<String>();
+			this.nameserver.add(nameServer);
 		}
-		public String nameserver;
+		public List<String> nameserver;
 	}
 	
 	
@@ -61,7 +64,7 @@ public class UserDataGeneratorImpl implements UserDataGenerator {
 	
 	
 	@Override
-	public String vmMetaData(Networks networks){
+	public String vmMetaData(String vmName,Networks networks){
 		
 		UserData datas=new UserData();
 		//compose the user data from cpi create vm call
@@ -76,10 +79,8 @@ public class UserDataGeneratorImpl implements UserDataGenerator {
 		
 		datas.registry=new Registry(this.endpoint);
 		
-		
-		
-		//FIXME : get  serverName from ?
-		datas.server=new Server("nomduserver");
+
+		datas.server=new Server(vmName);
 		
 		List<String> dnsServer=networks.networks.values().iterator().next().dns; //Only 1  network managed
 		if (dnsServer.size()==0){
