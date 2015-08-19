@@ -29,7 +29,7 @@ public class BoshRegistryClientImpl implements BoshRegistryClient {
 	@Override
 	public void put(String vm_id, String settings) {
 
-		String uri = "http://localhost:8080/instances/" + vm_id;
+		String uri = this.endpoint+"/instances/" + vm_id;
 		RestTemplate restTemplate = new RestTemplate();
 		restTemplate.postForObject(uri, settings, String.class);
 
@@ -37,7 +37,7 @@ public class BoshRegistryClientImpl implements BoshRegistryClient {
 
 	@Override
 	public String get(String vm_id) {
-		String uri = "http://localhost:8080/instances/" + vm_id + "/settings";
+		String uri = this.endpoint+"/instances/" + vm_id + "/settings";
 		RestTemplate restTemplate = new RestTemplate();
 		String result = restTemplate.getForObject(uri, String.class);
 		return result;
@@ -45,7 +45,7 @@ public class BoshRegistryClientImpl implements BoshRegistryClient {
 
 	@Override
 	public void delete(String vm_id) {
-		String uri = "http://localhost:8080/instances/" + vm_id;
+		String uri = this.endpoint+"instances/" + vm_id;
 		RestTemplate restTemplate = new RestTemplate();
 		restTemplate.delete(uri);
 		

@@ -1,6 +1,8 @@
 package com.orange.oss.cloudfoundry.cscpi.boshregistry;
 
 
+import javax.transaction.Transactional;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,6 +41,7 @@ public class BoshRegistryRestControler {
 	http://10.234.228.154:8080/instances/cpivm-ffce8e11-4496-494f-802d-a6df17285b5a/settings
 	**/
 	
+	@Transactional
 	@RequestMapping(method=RequestMethod.GET,value = "/{vm_id}/settings",produces="application/json")
 	@ResponseBody
 	public String getSettingForVmId(@PathVariable String vm_id) {
@@ -59,7 +62,7 @@ public class BoshRegistryRestControler {
 	
 	@RequestMapping(method=RequestMethod.POST,value = "/{vm_id}")
 	public void setSettingForVmId(@PathVariable String vm_id,@RequestBody String settings) {
-		logger.info("set registry setting request for {} ",vm_id);
+		logger.info("set registry setting request for {} with setting :\n{}",vm_id,settings);
 		RegistryInstance registryInstance=new RegistryInstance(vm_id,settings);
 		this.repository.save(registryInstance);
 	}
@@ -73,8 +76,8 @@ public class BoshRegistryRestControler {
 		
 		RegistryInstance instance=repository.findOne(vm_id);
 		if (instance==null){
-			logger.warn("instance not found with vm_id {}",vm_id);
-			throw new InstanceNotFoundException();
+			logger.warn("instance not found with vm_id {}. cant delete ...",vm_id);
+			throw new InstanceNotFoundException(); //FIXME: should we fail or just warn ?
 		}
 		
 		repository.delete(instance);
