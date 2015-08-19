@@ -15,6 +15,7 @@
 	generate keypair with cloudstack API (no support on portail)
 	use keypair name + private key in bosh.yml
 	see http://cloudstack-administration.readthedocs.org/en/latest/virtual_machines.html?highlight=ssh%20keypair
+	see http://chriskleban-internet.blogspot.fr/2012/03/build-cloud-cloudstack-instance.html
 
 
 - Design stemcell generation and bootstrap strategy
@@ -42,6 +43,7 @@
 
 - attach disk
 	check if its possible on the fly, or if a vm reboot is required
+	director lifecycle should manage this aspect.
 
 - bosh-init compatibility
 	must currently launch manually cpi-core before using bosh init
