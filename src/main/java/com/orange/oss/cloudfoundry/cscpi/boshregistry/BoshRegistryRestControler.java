@@ -65,4 +65,23 @@ public class BoshRegistryRestControler {
 	}
 
 
+	@RequestMapping(method=RequestMethod.DELETE,value = "/{vm_id}")
+	@ResponseBody
+	public void deleteSettingForVmId(@PathVariable String vm_id) {
+		logger.info("registry setting delete for {}",vm_id);
+		
+		
+		RegistryInstance instance=repository.findOne(vm_id);
+		if (instance==null){
+			logger.warn("instance not found with vm_id {}",vm_id);
+			throw new InstanceNotFoundException();
+		}
+		
+		repository.delete(instance);
+		
+		logger.info("deleted settings for vm {}\n{}",vm_id);
+	}
+	
+	
+	
 }

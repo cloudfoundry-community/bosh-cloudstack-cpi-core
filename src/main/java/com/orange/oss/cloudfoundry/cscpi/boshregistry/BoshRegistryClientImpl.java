@@ -43,4 +43,13 @@ public class BoshRegistryClientImpl implements BoshRegistryClient {
 		return result;
 	}
 
+	@Override
+	public void delete(String vm_id) {
+		String uri = "http://localhost:8080/instances/" + vm_id;
+		RestTemplate restTemplate = new RestTemplate();
+		restTemplate.delete(uri);
+		
+		
+	}
+
 }
