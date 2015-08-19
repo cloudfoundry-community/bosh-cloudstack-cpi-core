@@ -1,4 +1,4 @@
-package boshregistry;
+package com.orange.oss.cloudfoundry.cscpi.boshregistry;
 
 import junit.framework.Assert;
 
@@ -28,6 +28,7 @@ public class BoshRegistryRestTest {
 		String  vm_id="xxxx";	
 		String settings="zzzz";
 		client.put(vm_id,settings);
+		client.delete(vm_id);
 		
 		String foundSetting=client.get(vm_id);
 		Assert.assertEquals(settings, foundSetting);

@@ -4,4 +4,5 @@ public interface BoshRegistryClient {
 
 	void put(String vm_id, String settings);
 	String get(String vm_id);
+	void delete(String vm_id);
 }
