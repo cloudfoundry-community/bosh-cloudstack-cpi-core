@@ -291,6 +291,12 @@ public class CPIImpl implements CPI{
 		NIC nic=vm.getNICs().iterator().next();
 		logger.info("generated NIC : "+nic.toString());
 
+		
+		//populate bosh registry
+		String settings="";
+		this.boshRegistry.put(vmName, settings);
+		
+		
 		logger.info("vm creation completed, now running ! {}");
 	}
 
@@ -514,7 +520,9 @@ public class CPIImpl implements CPI{
 
 		//FIXME: delete ephemeral disk ?!!
 		
-		//FIXME: remove  bosh id / cloustack id association from bosh registry ??		
+		//remove  bosh id / cloustack id association from bosh registry		
+		this.boshRegistry.delete(vm_id);
+		
 		
 		logger.info("deleted successfully vm {}",vm_id);
 	}
@@ -577,12 +585,6 @@ public class CPIImpl implements CPI{
 	 */
 	private void setVmMetada(String vm_id, Map<String, String> metadata,
 			VirtualMachine vm) {
-
-//		 builder.putAll(template.getOptions().getUserMetadata());
-//		 for (String tag : template.getOptions().getTags())
-//		 builder.put(tag, "jclouds-empty-tag-placeholder");
-//		if (!common.isEmpty()) {
-		
 		
 		//TODO: check if must merge with preexisting user tags
 		ImmutableMap.Builder<String, String> builder = ImmutableMap.builder();		
