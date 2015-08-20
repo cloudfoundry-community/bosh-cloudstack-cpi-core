@@ -143,7 +143,7 @@ public class CPIImpl implements CPI{
         String vmName="cpivm-"+UUID.randomUUID().toString();
 		
 		logger.info("now creating cloudstack vm");
-		this.vmCreation(stemcell_id, compute_offering, networks, vmName);
+		this.vmCreation(stemcell_id, compute_offering, networks, vmName,agent_id);
 
 		
 		//TODO: create ephemeral disk, read the disk size from properties, attach it to the vm.
@@ -179,7 +179,7 @@ public class CPIImpl implements CPI{
      * @throws VMCreationFailedException 
      */
 	private void vmCreation(String stemcell_id, String compute_offering,
-			Networks networks, String vmName) throws VMCreationFailedException {
+			Networks networks, String vmName,String agent_id) throws VMCreationFailedException {
 	
 		
 		//set options
@@ -288,7 +288,7 @@ public class CPIImpl implements CPI{
 		
 		//populate bosh registry
 		logger.info("add vm {} to registry", vmName );
-		String settings=this.vmSettingGenerator.settingFor(vmName,vm,networks);
+		String settings=this.vmSettingGenerator.settingFor(agent_id,vmName,vm,networks);
 		this.boshRegistry.put(vmName, settings);
 		
 		
@@ -423,7 +423,7 @@ public class CPIImpl implements CPI{
 		fakeDirectorNetworks.networks.put("default",net);
 		
 		
-		this.vmCreation(existingTemplateName, instance_type, fakeDirectorNetworks, workVmName);
+		this.vmCreation(existingTemplateName, instance_type, fakeDirectorNetworks, workVmName,"fakeagent");
 		VirtualMachine m=api.getVirtualMachineApi().listVirtualMachines(ListVirtualMachinesOptions.Builder.name(workVmName)).iterator().next();
 		
 		logger.info("STOPPING work vm for template generation");
