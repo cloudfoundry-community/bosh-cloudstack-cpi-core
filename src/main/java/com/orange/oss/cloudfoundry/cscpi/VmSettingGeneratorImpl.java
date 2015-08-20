@@ -39,13 +39,13 @@ public class VmSettingGeneratorImpl implements VmSettingGenerator {
 		//public NetworksSetting networks=new NetworksSetting();
 		public Map<String,Network> networks;
 		public List<String> ntp=new ArrayList<String>();
-		public String mbus="nats://nats:nats-password@10.203.6.105:4222";
+		public String mbus="https://mbus:mbus-password@0.0.0.0:6868";
 		public VM vm=new VM();
 	}
 	
 	
 	public static class BlobStore {
-		public String provider="dav";
+		public String provider="local"; //dav
 		public BlobStoreOptions options=new BlobStoreOptions();
 	}
 	
@@ -53,8 +53,8 @@ public class VmSettingGeneratorImpl implements VmSettingGenerator {
         String endpoint="http://10.203.6.105:25250";
         String user="agent";
         String password="agent-password";
- 
-	}
+        String blobstore_path="/var/vcap/micro_bosh/data/cache";  
+ 	}
 	
 	public static class Disks {
 		String system="/dev/xvda";
@@ -68,9 +68,6 @@ public class VmSettingGeneratorImpl implements VmSettingGenerator {
 		//public Map<String, String> options=new HashMap<String, String>();
 	}
 	
-	public static class NetworksSetting {
-		
-	}
 	
 	public static class VM {
 		String name;
