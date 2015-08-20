@@ -34,7 +34,7 @@ public class VmSettingGeneratorImpl implements VmSettingGenerator {
 		public String agent_id;
 		public BlobStore blobstore=new BlobStore();
 		public Disks disks=new Disks();
-		public Env env=new Env();
+		public Map<String, String> env=new HashMap<String, String>();
 		//public NetworksSetting networks=new NetworksSetting();
 		public Networks networks;
 		public List<String> ntp=new ArrayList<String>();
