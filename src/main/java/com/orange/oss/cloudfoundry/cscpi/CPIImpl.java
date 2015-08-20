@@ -350,7 +350,7 @@ public class CPIImpl implements CPI{
 		
 		String webDavUrl=null;
 		try {
-			webDavUrl=this.webdav.pushFile(new FileInputStream(f), stemcellId);
+			webDavUrl=this.webdav.pushFile(new FileInputStream(f), stemcellId+".vhd");
 			
 		} catch (FileNotFoundException e) {
 			logger.error("Unable to read file");
@@ -369,13 +369,14 @@ public class CPIImpl implements CPI{
 		TemplateMetadata templateMetadata=TemplateMetadata.builder()
 				.name(stemcellId)
 				.osTypeId(osType.getId())
-				.displayText("cpi stemcell template (webdav)")
+				.displayText(stemcellId+" : cpi stemcell template")
 				.build();
 		
 		RegisterTemplateOptions options=RegisterTemplateOptions.Builder
-				.isPublic(false) //true is KO
-				.isFeatured(false)
-				.isExtractable(true)
+				.bits(64)
+				.isExtractable(true)				
+				//.isPublic(false) //true is KO
+				//.isFeatured(false)
 				//.domainId(domainId) 
 				;
 		//TODO: get from cloud properties ie  from stemcell MANIFEST file ?
