@@ -13,6 +13,7 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.orange.oss.cloudfoundry.cscpi.domain.Network;
 import com.orange.oss.cloudfoundry.cscpi.domain.Networks;
 
 
@@ -36,7 +37,7 @@ public class VmSettingGeneratorImpl implements VmSettingGenerator {
 		public Disks disks=new Disks();
 		public Map<String, String> env=new HashMap<String, String>();
 		//public NetworksSetting networks=new NetworksSetting();
-		public Networks networks;
+		public Map<String,Network> networks;
 		public List<String> ntp=new ArrayList<String>();
 		public String mbus="nats://nats:nats-password@10.203.6.105:4222";
 		public VM vm=new VM();
@@ -89,7 +90,7 @@ public class VmSettingGeneratorImpl implements VmSettingGenerator {
 		//env
 		
 		//networks
-		settingObject.networks=networks;
+		settingObject.networks=networks.networks;
 		
 		
 		//ntp
