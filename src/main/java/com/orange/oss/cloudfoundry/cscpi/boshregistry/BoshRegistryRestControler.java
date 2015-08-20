@@ -77,14 +77,13 @@ public class BoshRegistryRestControler {
 		RegistryInstance instance=repository.findOne(vm_id);
 		if (instance==null){
 			logger.warn("instance not found with vm_id {}. cant delete ...",vm_id);
-			throw new InstanceNotFoundException(); //FIXME: should we fail or just warn ?
+			//throw new InstanceNotFoundException(); //FIXME: should we fail or just warn ?
+		} else {
+			repository.delete(instance);
+			logger.info("deleted settings for vm {}\n{}",vm_id);
+			
 		}
 		
-		repository.delete(instance);
-		
-		logger.info("deleted settings for vm {}\n{}",vm_id);
 	}
-	
-	
 	
 }

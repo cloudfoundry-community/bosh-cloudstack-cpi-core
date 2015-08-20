@@ -20,10 +20,6 @@ public class VmSettingGeneratorImpl implements VmSettingGenerator {
 	
 	private static Logger logger=LoggerFactory.getLogger(VmSettingGeneratorImpl.class.getName());
 	
-	
-	
-	
-	
 	public static class Setting{
 		public String agent_id;
 		public BlobStore blobstore=new BlobStore();
@@ -65,8 +61,6 @@ public class VmSettingGeneratorImpl implements VmSettingGenerator {
 	
 	@Override
 	public String settingFor(String agent,String vmName, VirtualMachine vm, Networks networks) {
-		
-		
 		Setting settingObject=new Setting();
 		settingObject.agent_id=agent;
 		
