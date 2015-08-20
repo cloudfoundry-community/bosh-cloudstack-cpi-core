@@ -53,15 +53,15 @@ public class VmSettingGeneratorImpl implements VmSettingGenerator {
 	
 	public static class BlobStore {
 		public String provider="local"; //dav
-		public BlobStoreOptions options=new BlobStoreOptions();
+		public Map<String,String> options=new HashMap<String, String>();
 	}
 	
-	public static class BlobStoreOptions {
-        String endpoint="http://10.203.6.105:25250";
-        String user="agent";
-        String password="agent-password";
-        String blobstore_path="/var/vcap/micro_bosh/data/cache";  
- 	}
+//	public static class BlobStoreOptions {
+//        String endpoint="http://10.203.6.105:25250";
+//        String user="agent";
+//        String password="agent-password";
+//        String blobstore_path="/var/vcap/micro_bosh/data/cache";  
+// 	}
 	
 	public static class Disks {
 		String system="/dev/xvda";
@@ -87,11 +87,14 @@ public class VmSettingGeneratorImpl implements VmSettingGenerator {
 		settingObject.agent_id=agent;
 		
 		//blobstore
-		
-		//disks
+		settingObject.blobstore.options.put("endpoint","http://10.203.6.105:25250");
+		settingObject.blobstore.options.put("user","agent");
+		settingObject.blobstore.options.put("password","agent-password");
+		settingObject.blobstore.options.put("blobstore_path","/var/vcap/micro_bosh/data/cache");
 		
 		
 		//env
+		
 		
 		//networks
 		settingObject.networks=networks.networks;
