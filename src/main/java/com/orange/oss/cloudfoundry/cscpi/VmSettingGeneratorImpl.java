@@ -9,11 +9,10 @@ import org.jclouds.cloudstack.domain.VirtualMachine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
+import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.orange.oss.cloudfoundry.cscpi.domain.Networks;
 
 
@@ -39,26 +38,33 @@ public class VmSettingGeneratorImpl implements VmSettingGenerator {
 		//public NetworksSetting networks=new NetworksSetting();
 		public Networks networks;
 		public List<String> ntp=new ArrayList<String>();
-		public String mbus;
+		public String mbus="nats://nats:nats-password@10.203.6.105:4222";
 		public VM vm=new VM();
 	}
 	
 	
 	public static class BlobStore {
-		public String provider;
-		public Map<String, String> options=new HashMap<String, String>();
+		public String provider="dav";
+		public BlobStoreOptions options=new BlobStoreOptions();
+	}
+	
+	public static class BlobStoreOptions {
+        String endpoint="http://10.203.6.105:25250";
+        String user="agent";
+        String password="agent-password";
+ 
 	}
 	
 	public static class Disks {
-		String system="/dev/sda";
+		String system="/dev/xvda";
 		String ephemeral="";
-		List<String> persistents=new ArrayList<String>();
+		List<String> persistent=new ArrayList<String>();
 	}
 	
 	
 	public static class Env {
 		//FIXME: describe env properly
-		public Map<String, String> options=new HashMap<String, String>();
+		//public Map<String, String> options=new HashMap<String, String>();
 	}
 	
 	public static class NetworksSetting {
