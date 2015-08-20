@@ -31,6 +31,13 @@ public class VmSettingGeneratorImpl implements VmSettingGenerator {
 	
 	private static Logger logger=LoggerFactory.getLogger(VmSettingGeneratorImpl.class.getName());
 	
+	
+	public static class RegistryReponse {
+		public String status="ok";
+		public String settings;
+	}
+	
+	
 	public static class Setting{
 		public String agent_id;
 		public BlobStore blobstore=new BlobStore();
@@ -108,11 +115,22 @@ public class VmSettingGeneratorImpl implements VmSettingGenerator {
 			throw new IllegalArgumentException("Cant serialize JSON userData", e);
 		}
 		
-		logger.info("generated vm setting : \n{}",setting);
+
+		//the global json setting is wrapped in a 2 field json structure
 		
+		RegistryReponse response=new RegistryReponse();
+		response.settings=setting;
+		String resp=null;
+
+		try {
+			resp = mapper.writeValueAsString(response);
+		} catch (JsonProcessingException e) {
+			throw new IllegalArgumentException("Cant serialize JSON userData", e);
+		}
+
+		logger.info("generated vm setting : \n{}",resp);
 		
-		
-		return setting;
+		return resp;
 	}
 
 }
