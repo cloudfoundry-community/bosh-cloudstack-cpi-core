@@ -2,12 +2,18 @@ package com.orange.oss.cloudfoundry.cscpi;
 
 import static org.junit.Assert.*;
 
+import java.io.IOException;
+
+import org.jclouds.cloudstack.domain.VirtualMachine;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.orange.oss.cloudfoundry.cscpi.domain.Network;
 import com.orange.oss.cloudfoundry.cscpi.domain.NetworkType;
 import com.orange.oss.cloudfoundry.cscpi.domain.Networks;
@@ -16,14 +22,17 @@ import com.orange.oss.cloudfoundry.cscpi.domain.Networks;
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = BoshCloudstackCpiCoreApplication.class)
 
-public class UserDataGeneratorTest {
+public class VmSettingGeneratorTest {
 
 	@Autowired
-	UserDataGenerator generator;
+	VmSettingGenerator generator;
+	
 	
 	@Test
-	public void testUserDataGeneration() {
-
+	public void testSettingFor() throws JsonProcessingException, IOException {
+		
+		
+		//Given
 		Networks networks=new Networks();
 		Network net=new Network();
 		networks.networks.put("default", net);
@@ -35,11 +44,25 @@ public class UserDataGeneratorTest {
 		net.cloud_properties.put("name", "3112 - preprod - back");
 		net.dns.add("10.234.50.180");
 		net.dns.add("10.234.71.124");
+
 		
-		String userData=this.generator.vmMetaData("my-vm",networks);
+		String agent_id="agent-xxxxxx";
+		String vmName="vm-yyyy";
+		VirtualMachine vm=null;
 		
 		
-		//TODO parse json and add assertions
+		//When
+		String setting=this.generator.settingFor(agent_id, vmName, vm, networks);
+		
+		//Then
+	   ObjectMapper mapper = new ObjectMapper();
+	   JsonNode actualObj = mapper.readTree(setting);
+
+	   //network is ok
+	   
+	   //mbus is ok
+	   
+	   //disk is ok
 		
 	}
 

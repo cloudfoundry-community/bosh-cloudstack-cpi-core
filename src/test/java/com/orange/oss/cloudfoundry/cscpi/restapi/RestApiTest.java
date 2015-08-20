@@ -1,13 +1,14 @@
 package com.orange.oss.cloudfoundry.cscpi.restapi;
 
 import static junit.framework.Assert.assertEquals;
-import static org.mockito.Mockito.*;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.io.IOUtils;
@@ -25,7 +26,6 @@ import org.springframework.web.client.RestTemplate;
 
 import com.orange.oss.cloudfoundry.cscpi.BoshCloudstackCpiCoreApplication;
 import com.orange.oss.cloudfoundry.cscpi.CPI;
-import com.orange.oss.cloudfoundry.cscpi.restapi.JsonMappingTest.TestData;
 /**
  * Rest integration tests.
  * Tests end to end to the running tomcat instance. Checks the rest api, POST verb, correct content-type and accept http headers
