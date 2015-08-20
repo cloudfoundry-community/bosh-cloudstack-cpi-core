@@ -15,6 +15,12 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.orange.oss.cloudfoundry.cscpi.domain.Networks;
 
+
+/**
+ * 
+ * @author pierre
+ *
+ */
 public class UserDataGeneratorImpl implements UserDataGenerator {
 
 	private static Logger logger=LoggerFactory.getLogger(UserDataGeneratorImpl.class.getName());
@@ -28,6 +34,7 @@ public class UserDataGeneratorImpl implements UserDataGenerator {
 	/**
 	 * see https://github.com/cloudfoundry/bosh-agent/blob/585d2cc3a47129aa875738f09a26101ec6e0b1d1/infrastructure/http_metadata_service.go
 	 * see https://github.com/cloudfoundry/bosh/blob/master/bosh_openstack_cpi/lib/cloud/openstack/cloud.rb#L684-L697
+	 * see  https://github.com/cloudfoundry/bosh-agent/blob/master/infrastructure/metadata_service_interface.go
 	 * for bosh agent http user data expectations
 	 * @author poblin
 	 *
