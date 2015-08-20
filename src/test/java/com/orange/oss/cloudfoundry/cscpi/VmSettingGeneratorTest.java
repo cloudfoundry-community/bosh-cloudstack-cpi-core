@@ -14,6 +14,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.orange.oss.cloudfoundry.cscpi.domain.Network;
 import com.orange.oss.cloudfoundry.cscpi.domain.NetworkType;
 import com.orange.oss.cloudfoundry.cscpi.domain.Networks;
@@ -55,7 +56,7 @@ public class VmSettingGeneratorTest {
 		String setting=this.generator.settingFor(agent_id, vmName, vm, networks);
 		
 		//Then
-	   ObjectMapper mapper = new ObjectMapper();
+	   ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
 	   JsonNode actualObj = mapper.readTree(setting);
 
 	   //network is ok

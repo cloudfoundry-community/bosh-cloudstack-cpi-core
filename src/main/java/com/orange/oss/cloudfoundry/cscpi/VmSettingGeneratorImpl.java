@@ -13,8 +13,16 @@ import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.orange.oss.cloudfoundry.cscpi.domain.Networks;
 
+
+/**
+ * generates setting yml description to be exposed in bosh registry
+ * NB: yaml not json
+ * @author poblin
+ *
+ */
 public class VmSettingGeneratorImpl implements VmSettingGenerator {
 
 	
@@ -40,7 +48,7 @@ public class VmSettingGeneratorImpl implements VmSettingGenerator {
 	
 	public static class Disks {
 		String system="/dev/sda";
-		String epĥemeral="";
+		String ephemeral="";
 		List<String> persistents=new ArrayList<String>();
 	}
 	
@@ -84,7 +92,7 @@ public class VmSettingGeneratorImpl implements VmSettingGenerator {
 		settingObject.vm.name=vmName;
 		
 		//serialize to json
-		ObjectMapper mapper = new ObjectMapper();
+		ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
 		mapper.setVisibility(PropertyAccessor.FIELD, Visibility.ANY);		
 		String setting;
 		try {
@@ -94,6 +102,8 @@ public class VmSettingGeneratorImpl implements VmSettingGenerator {
 		}
 		
 		logger.info("generated vm setting : \n{}",setting);
+		
+		
 		
 		return setting;
 	}

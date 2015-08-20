@@ -55,7 +55,7 @@ public class BoshRegistryRestControler {
 		}
 		String settings=instance.getSettings();
 		
-		logger.info("found settings for vm {}\n{}",vm_id,settings);
+		logger.debug("found settings for vm {}\n{}",vm_id,settings);
 		
 		return settings;
 	}
