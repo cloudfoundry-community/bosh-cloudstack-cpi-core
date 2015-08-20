@@ -19,6 +19,9 @@ import com.orange.oss.cloudfoundry.cscpi.domain.Networks;
 
 /**
  * generates setting yml description to be exposed in bosh registry
+ * 
+ * see https://github.com/cloudfoundry/bosh-agent/blob/master/settings/settings.go
+ * 
  * NB: yaml not json
  * @author poblin
  *
@@ -92,7 +95,7 @@ public class VmSettingGeneratorImpl implements VmSettingGenerator {
 		settingObject.vm.name=vmName;
 		
 		//serialize to json
-		ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
+		ObjectMapper mapper = new ObjectMapper();
 		mapper.setVisibility(PropertyAccessor.FIELD, Visibility.ANY);		
 		String setting;
 		try {
