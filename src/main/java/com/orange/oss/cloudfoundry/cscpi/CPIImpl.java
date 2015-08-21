@@ -148,19 +148,19 @@ public class CPIImpl implements CPI{
 		
 		//TODO: create ephemeral disk, read the disk size from properties, attach it to the vm.
 		//NB: if base ROOT disk is large enough, bosh agent can use it to hold swap / ephemeral data ??
-//	    String ephemeralDiskServiceOfferingName=resource_pool.ephemeral_disk_offering;
-//	    Assert.isTrue(ephemeralDiskServiceOfferingName!=null,"create_vm: must specify ephemeral_disk_offering attribute in cloud properties");
-//	    logger.debug("ephemeral disk offering is {}",ephemeralDiskServiceOfferingName);
-//		
-//
-//	    logger.info("now creating ephemeral disk");
-//	    int ephemeralDiskSize=resource_pool.disk/1024; //cloudstack size api is Go
-//		String ephemeralDiskName=this.diskCreate(ephemeralDiskSize,ephemeralDiskServiceOfferingName);
-//		
+	    String ephemeralDiskServiceOfferingName=resource_pool.ephemeral_disk_offering;
+	    Assert.isTrue(ephemeralDiskServiceOfferingName!=null,"create_vm: must specify ephemeral_disk_offering attribute in cloud properties");
+	    logger.debug("ephemeral disk offering is {}",ephemeralDiskServiceOfferingName);
+		
+
+	    logger.info("now creating ephemeral disk");
+	    int ephemeralDiskSize=resource_pool.disk/1024; //cloudstack size api is Go
+		String ephemeralDiskName=this.diskCreate(ephemeralDiskSize,ephemeralDiskServiceOfferingName);
+		
 		//NOW attache the ephemeral disk to the vm (need reboot ?)
 		//FIXME : placement constraint local disk offering / vm
-//		logger.info("now attaching ephemaral disk {} to cloudstack vm {}",ephemeralDiskName,vmName);		
-//		this.attach_disk(vmName, ephemeralDiskName);
+		logger.info("now attaching ephemaral disk {} to cloudstack vm {}",ephemeralDiskName,vmName);		
+		this.attach_disk(vmName, ephemeralDiskName);
 		
 		//FIXME: add bosh id / cloustack id association to bosh registry ??
 		

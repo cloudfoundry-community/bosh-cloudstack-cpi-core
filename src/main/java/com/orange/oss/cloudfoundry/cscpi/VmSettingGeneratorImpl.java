@@ -66,7 +66,7 @@ public class VmSettingGeneratorImpl implements VmSettingGenerator {
 	
 	public static class Disks {
 		String system="/dev/xvda";
-		String ephemeral="";
+		String ephemeral="/dev/xvdb";
 		Map<String,String> persistent=new HashMap<String, String>();
 	}
 	
