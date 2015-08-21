@@ -8,7 +8,10 @@
 - check template publication
 	from cpi-core webdav, only public template possible ?
 	validate publication state (instant OK for registering, need to wait for the ssvm (secondary storage vm) to copy the template
-	add a garbarge collection mechanism to the webdav server	
+	connectivity issue when cloudstack tries asynchronously to copy template
+	(workaround: mock template mode in cpi. copies an existing template and use it as a stemcell image)
+	
+	add a garbarge collection mechanism to the webdav server (remove old templates when consumed by cloudstack)	
 	
 
 - provision ssh keys
@@ -21,7 +24,9 @@
 - Design stemcell generation and bootstrap strategy
 	userData json format ?
 	requirement for a registry ? (current registry has only openstack and aws plugins)
+		=> fixed by exposing a registry api from cpi-core + hsql db 
 	ssh tunnel requirement ?
+		=> registry access is OK from bosh-agent. Maybe needed on AWS or for security reason ?
 	see cloudstack aws compatibility wrt metadata
 		http://mail-archives.apache.org/mod_mbox/cloudstack-dev/201508.mbox/%3CD1E842D5.6319F%25chiradeep.vittal@citrix.com%3E
 	
@@ -35,15 +40,14 @@
 	conversion qcow2 => vhd
 	http://blogs.citrix.com/2012/10/04/convert-a-raw-image-to-xenserver-vhd/
 	
-	
-	
 - ephemeral disk
 	need custom size (created a dedicated offering)
 	unable to attach custom disk size => placement constraints due to local storage in ou cloudstack ?
+	cpi-core checks offering, ignores specified size if fixed size disk offering (for persistent disk or ephemeral disk)
 
 - attach disk
 	check if its possible on the fly, or if a vm reboot is required
-	director lifecycle should manage this aspect.
+	director lifecycle should manage this aspect according to bosh team ?
 
 - bosh-init compatibility
 	must currently launch manually cpi-core before using bosh init

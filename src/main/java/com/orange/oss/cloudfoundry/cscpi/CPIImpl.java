@@ -605,9 +605,6 @@ public class CPIImpl implements CPI{
 
 	@Override
 	public String create_disk(Integer size, Map<String, String> cloud_properties) {
-		//FIXME see disk offering (cloud properties specificy?) Can we use size?
-		//String diskOfferingName = "custom_size_disk_offering2";
-		
 		String diskOfferingName=cloud_properties.get("disk_offering");
 		Assert.isTrue(diskOfferingName!=null, "no disk_offering attribute specified for disk creation !");
 		
@@ -626,18 +623,20 @@ public class CPIImpl implements CPI{
 		//find disk offering
 		Set<DiskOffering> listDiskOfferings = api.getOfferingApi().listDiskOfferings(ListDiskOfferingsOptions.Builder.name(diskOfferingName));
 		Assert.isTrue(listDiskOfferings.size()>0, "Unknown Service Offering !");
-		String diskOfferingId=listDiskOfferings.iterator().next().getId();
-		
+		DiskOffering csDiskOffering = listDiskOfferings.iterator().next();
+		String diskOfferingId=csDiskOffering.getId();
 		
 		String zoneId=this.findZoneId();
 		
 		AsyncCreateResponse resp=null;
-		if (size==0){
-			logger.info("creating disk without specifiying size (fixed by offering)");
-			resp=api.getVolumeApi().createVolumeFromDiskOfferingInZone(name, diskOfferingId, zoneId);
-		} else {
-			logger.info("creating disk without specifiying size (custom size offering)");			
+		if (csDiskOffering.isCustomized()){
+			logger.info("creating disk with specified size (custom size offering)");			
 			resp=api.getVolumeApi().createVolumeFromCustomDiskOfferingInZone(name, diskOfferingId, zoneId, size);			
+			
+		} else {
+			logger.info("creating disk -  ignoring specified size {} (fixed by offering : {} )",size,csDiskOffering.getDiskSize());
+			resp=api.getVolumeApi().createVolumeFromDiskOfferingInZone(name, diskOfferingId, zoneId);
+
 		}
 		
 		jobComplete = retry(new JobComplete(api), 1200, 3, 5, SECONDS);
