@@ -54,8 +54,7 @@ public class CPIAdapterImpl implements CPIAdapter {
 
 			if (method.equals("create_disk")) {
 				Integer size=args.next().asInt();
-				Map<String, String> cloud_properties=new HashMap<String, String>();
-				//TODO map props ?
+				Map<String, String> cloud_properties=mapper.convertValue(args.next(), HashMap.class);
 				String diskId=this.cpi.create_disk(size,cloud_properties);
 				response.result.add(diskId);
 

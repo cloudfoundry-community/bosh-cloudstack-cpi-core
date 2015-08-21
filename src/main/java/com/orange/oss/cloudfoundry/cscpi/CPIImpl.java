@@ -481,9 +481,6 @@ public class CPIImpl implements CPI{
 		
 		//FIXME: assert stemcell_id template exists and is unique
 		
-		
-		
-		
 		Set<Template> listTemplates = api.getTemplateApi().listTemplates(ListTemplatesOptions.Builder.name(stemcell_id));
 		Assert.isTrue(listTemplates.size()>0,"Could not find any CloudStack Template matching stemcell id "+stemcell_id);
 		Assert.isTrue(listTemplates.size()==1,"Found multiple CloudStack templates matching stemcell_id "+stemcell_id);		
@@ -511,12 +508,13 @@ public class CPIImpl implements CPI{
 		String csVmId=vms.iterator().next().getId();
 		String jobId=api.getVirtualMachineApi().destroyVirtualMachine(csVmId);
 		
+		
 		jobComplete = retry(new JobComplete(api), 1200, 3, 5, SECONDS);
 		jobComplete.apply(jobId);
 
-		//FIXME: delete ephemeral disk ?!!
+		//FIXME: delete ephemeral disk !!
 		
-		//remove  bosh id / cloustack id association from bosh registry		
+		//remove  vm_id /settings from bosh registry		
 		logger.info("remove vm {} from registry", vm_id );
 		this.boshRegistry.delete(vm_id);
 		
