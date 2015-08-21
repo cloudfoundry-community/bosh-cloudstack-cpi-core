@@ -48,6 +48,7 @@ public class VmSettingGeneratorImpl implements VmSettingGenerator {
 		public List<String> ntp=new ArrayList<String>();
 		public String mbus="https://mbus:mbus-password@0.0.0.0:6868";
 		public VM vm=new VM();
+		public String trusted_certs;
 	}
 	
 	
@@ -66,7 +67,7 @@ public class VmSettingGeneratorImpl implements VmSettingGenerator {
 	public static class Disks {
 		String system="/dev/xvda";
 		String ephemeral="";
-		List<String> persistent=new ArrayList<String>();
+		Map<String,String> persistent=new HashMap<String, String>();
 	}
 	
 	
