@@ -1,7 +1,10 @@
 {  
    "method":"create_disk",
    "arguments":[  
-      32384
+      32384,
+       {
+         "disk_offering":"custom_size_disk_offering2",
+      }
    ],
    "context":{  
       "director_uuid":"9b66130e-77e6-4c54-b292-564e4668b4ce"
