@@ -607,9 +607,11 @@ public class CPIImpl implements CPI{
 
 	@Override
 	public String create_disk(Integer size, Map<String, String> cloud_properties) {
-
-		//FIXME see disk offering (cloud properties specificy?)
-		String diskOfferingName = "custom_size_disk_offering2";
+		//FIXME see disk offering (cloud properties specificy?) Can we use size?
+		//String diskOfferingName = "custom_size_disk_offering2";
+		
+		String diskOfferingName=cloud_properties.get("disk_offering");
+		Assert.isTrue(diskOfferingName!=null, "no disk_offering attribute specified for disk creation !");
 		
 		return this.diskCreate(size,diskOfferingName);
 
@@ -630,8 +632,16 @@ public class CPIImpl implements CPI{
 		
 		
 		String zoneId=this.findZoneId();
-		AsyncCreateResponse resp=api.getVolumeApi().createVolumeFromCustomDiskOfferingInZone(name, diskOfferingId, zoneId, size);
-		//AsyncCreateResponse resp=api.getVolumeApi().createVolumeFromDiskOfferingInZone(name, diskOfferingId, zoneId);
+		
+		AsyncCreateResponse resp=null;
+		if (size==0){
+			logger.info("creating disk without specifiying size (fixed by offering)");
+			resp=api.getVolumeApi().createVolumeFromDiskOfferingInZone(name, diskOfferingId, zoneId);
+		} else {
+			logger.info("creating disk without specifiying size (custom size offering)");			
+			resp=api.getVolumeApi().createVolumeFromCustomDiskOfferingInZone(name, diskOfferingId, zoneId, size);			
+		}
+		
 		jobComplete = retry(new JobComplete(api), 1200, 3, 5, SECONDS);
 		jobComplete.apply(resp.getJobId());
 		
