@@ -67,7 +67,7 @@ public class VmSettingGeneratorImpl implements VmSettingGenerator {
 
 	public static class PersistentDisk {
 		String path;
-		@JsonProperty(value="volume-id")
+		@JsonProperty(value="volume_id")
 		String volumeId;
 	}
 
