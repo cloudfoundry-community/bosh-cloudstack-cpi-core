@@ -66,7 +66,7 @@ public class VmSettingGeneratorImpl implements VmSettingGenerator {
 
 	public static class PersistentDisk {
 		String path;
-		String volumeId;
+		//String volumeId;
 	}
 
 	public static class Env {
