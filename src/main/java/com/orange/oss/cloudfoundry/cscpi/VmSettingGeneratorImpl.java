@@ -143,7 +143,7 @@ public class VmSettingGeneratorImpl implements VmSettingGenerator {
 			// add disk to persistent structure (if not existing). calculate
 			// unique device path.
 			// FIXME : now use device. a is root, b is ephemeral, start from c.
-			// Might night better algorithm, using cloudstack disk attachement
+			// Might night better algorithm, using cloudstack disk attachement info
 			if (disks.size() != 0) {
 				throw new IllegalArgumentException(
 						"CPI not yet able to managed more than 1 persistent disk");

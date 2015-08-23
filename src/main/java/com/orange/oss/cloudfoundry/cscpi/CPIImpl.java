@@ -265,6 +265,7 @@ public class CPIImpl implements CPI{
 			
         }
 		
+        logger.info("Now launching VM {} creation !",vmName);
         try {
         	AsyncCreateResponse job = api.getVirtualMachineApi().deployVirtualMachineInZone(csZoneId, so.getId(), csTemplateId, options);
         	jobComplete = retry(new JobComplete(api), 1200, 3, 5, SECONDS);
@@ -661,6 +662,25 @@ public class CPIImpl implements CPI{
 	public void attach_disk(String vm_id, String disk_id) {
 		logger.info("attach disk");
 		
+		this.diskAttachment(vm_id, disk_id);
+		
+		//now update registry
+		String previousSetting=this.boshRegistry.getRaw(vm_id);
+		String newSetting=this.vmSettingGenerator.updateVmSettingForAttachDisk(previousSetting, disk_id);
+		this.boshRegistry.put(vm_id, newSetting);
+		logger.info("==> attach disk updated in bosh registry");
+		
+	}
+
+
+
+	/**
+	 * Cloudstack Attachement.
+	 * Used for persistent disks and ephemeral disk
+	 * @param vm_id
+	 * @param disk_id
+	 */
+	private void diskAttachment(String vm_id, String disk_id) {
 		//FIXME; check disk exists
 		//FIXME: check vm exists
 		Set<Volume> volumes = api.getVolumeApi().listVolumes(ListVolumesOptions.Builder.name(disk_id));
@@ -679,13 +699,6 @@ public class CPIImpl implements CPI{
 		jobComplete.apply(resp.getJobId());
 		
 		logger.info("==> attach disk successfull");
-		
-		//now update registry
-		String previousSetting=this.boshRegistry.getRaw(vm_id);
-		String newSetting=this.vmSettingGenerator.updateVmSettingForAttachDisk(previousSetting, disk_id);
-		this.boshRegistry.put(vm_id, newSetting);
-		logger.info("==> attach disk updated in bosh registry");
-		
 	}
 
 	@Override
