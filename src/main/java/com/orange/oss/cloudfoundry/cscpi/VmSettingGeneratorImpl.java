@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -66,7 +67,8 @@ public class VmSettingGeneratorImpl implements VmSettingGenerator {
 
 	public static class PersistentDisk {
 		String path;
-		//String volumeId;
+		@JsonProperty(value="volume-id")
+		String volumeId;
 	}
 
 	public static class Env {
@@ -151,6 +153,7 @@ public class VmSettingGeneratorImpl implements VmSettingGenerator {
 
 			PersistentDisk newDisk = new PersistentDisk();
 			newDisk.path = "/dev/xvdc"; // FIXME : booooo
+			newDisk.volumeId="3";
 			disks.put(disk_id, newDisk);
 
 			// new setting
