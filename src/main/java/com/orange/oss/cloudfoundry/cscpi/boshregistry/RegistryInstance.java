@@ -24,5 +24,10 @@ public class RegistryInstance {
 	public String getSettings(){
 		return this.settings;
 	}
+	
+	public void setSettings(String settings){
+		this.settings=settings;
+	}
+	
 
 }

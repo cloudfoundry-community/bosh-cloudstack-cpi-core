@@ -48,6 +48,10 @@
 - attach disk
 	check if its possible on the fly, or if a vm reboot is required
 	director lifecycle should manage this aspect according to bosh team ?
+	must update registry to push setting.json with correct persistent / disk_id / path to bosh agent
+
+- detach disk
+	must update registry to push setting.json with correct persistent / disk_id / path to bosh agent
 
 - bosh-init compatibility
 	must currently launch manually cpi-core before using bosh init

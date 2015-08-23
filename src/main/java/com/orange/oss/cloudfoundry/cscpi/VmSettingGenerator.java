@@ -6,6 +6,8 @@ import com.orange.oss.cloudfoundry.cscpi.domain.Networks;
 
 public interface VmSettingGenerator {
 
-	String settingFor(String agent_id,String vmName, VirtualMachine vm, Networks networks);
+	String createsettingForVM(String agent_id,String vmName, VirtualMachine vm, Networks networks);
+	String updateVmSettingForAttachDisk (String previousSetting, String disk_id);
+	String updateVmSettingForDetachDisk (String previousSetting, String disk_id);	
 
 }

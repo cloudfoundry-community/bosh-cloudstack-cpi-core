@@ -42,6 +42,16 @@ public class BoshRegistryClientImpl implements BoshRegistryClient {
 		String result = restTemplate.getForObject(uri, String.class);
 		return result;
 	}
+	
+	@Override
+	public String getRaw(String vm_id) {
+		String uri = this.endpoint+"/instances/" + vm_id + "/rawsettings";
+		RestTemplate restTemplate = new RestTemplate();
+		String result = restTemplate.getForObject(uri, String.class);
+		return result;
+	}
+
+	
 
 	@Override
 	public void delete(String vm_id) {
