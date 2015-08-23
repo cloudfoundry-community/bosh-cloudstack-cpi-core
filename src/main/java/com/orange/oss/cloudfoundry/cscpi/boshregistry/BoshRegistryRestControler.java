@@ -13,6 +13,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 /**
  * This is a simple rest controller implementing bosh registry
  * Easier to embed as part of the CPI (bosh registry has plugins for cloudstack / openstack, and will be deprecated by bosh team)
@@ -37,6 +40,15 @@ public class BoshRegistryRestControler {
 	RegistryInstanceRepository repository;
 	
 	
+	
+	public static class RegistryReponse {
+		public String status="ok";
+		public String settings;
+	}
+	
+	
+	
+	
 	/**
 	http://10.234.228.154:8080/instances/cpivm-ffce8e11-4496-494f-802d-a6df17285b5a/settings
 	**/
@@ -55,24 +67,73 @@ public class BoshRegistryRestControler {
 		}
 		String settings=instance.getSettings();
 		
+		
+		
+		//the global json setting is wrapped in a 2 field json structure
+		
+		RegistryReponse response=new RegistryReponse();
+		response.settings=settings;
+		String resp=null;
+
+		try {
+			ObjectMapper mapper = new ObjectMapper();
+			resp = mapper.writeValueAsString(response);
+		} catch (JsonProcessingException e) {
+			throw new IllegalArgumentException("Cant serialize JSON registry reponse", e);
+		}
+		
+		logger.debug("found settings for vm {}\n{}",vm_id,settings);
+		
+		return resp;
+	}
+
+	
+	
+	@Transactional
+	@RequestMapping(method=RequestMethod.GET,value = "/{vm_id}/rawsettings",produces="application/json")
+	@ResponseBody
+	public String getRawSettingForVmId(@PathVariable String vm_id) {
+		logger.info("registry : give raw setting  for {}",vm_id);
+		
+		
+		RegistryInstance instance=repository.findOne(vm_id);
+		if (instance==null){
+			logger.warn("instance not found with vm_id {}",vm_id);
+			throw new InstanceNotFoundException();
+		}
+		String settings=instance.getSettings();
+		
 		logger.debug("found settings for vm {}\n{}",vm_id,settings);
 		
 		return settings;
 	}
 	
+	
+	@Transactional
 	@RequestMapping(method=RequestMethod.POST,value = "/{vm_id}")
 	public void setSettingForVmId(@PathVariable String vm_id,@RequestBody String settings) {
 		logger.info("set registry setting request for {} with setting :\n{}",vm_id,settings);
-		RegistryInstance registryInstance=new RegistryInstance(vm_id,settings);
-		this.repository.save(registryInstance);
+		
+		RegistryInstance instance=repository.findOne(vm_id);
+		if (instance==null){
+			logger.info("create new instance with vm_id {}",vm_id);
+			RegistryInstance registryInstance=new RegistryInstance(vm_id,settings);
+			this.repository.save(registryInstance);
+		} else
+		{logger.info("update existing registry instance with vm_id {}",vm_id);
+			instance.setSettings(settings);
+			//transaction commit with flush the new value
+		}
+		
+		
+		
 	}
 
-
+	@Transactional
 	@RequestMapping(method=RequestMethod.DELETE,value = "/{vm_id}")
 	@ResponseBody
 	public void deleteSettingForVmId(@PathVariable String vm_id) {
 		logger.info("registry setting delete for {}",vm_id);
-		
 		
 		RegistryInstance instance=repository.findOne(vm_id);
 		if (instance==null){

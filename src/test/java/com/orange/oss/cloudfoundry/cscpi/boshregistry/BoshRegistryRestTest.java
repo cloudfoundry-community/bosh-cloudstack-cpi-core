@@ -28,8 +28,18 @@ public class BoshRegistryRestTest {
 		String  vm_id="xxxx";	
 		String settings="zzzz";
 		client.put(vm_id,settings);
-		String foundSetting=client.get(vm_id);
+		String foundSetting=client.getRaw(vm_id);
 		Assert.assertEquals(settings, foundSetting);
+		
+		//update
+		String updateSetting="wwww";
+		client.put(vm_id,updateSetting);
+		String updatedFoundSetting=client.getRaw(vm_id);
+		Assert.assertEquals(updateSetting, updatedFoundSetting);
+		
+		
+		
+		
 		client.delete(vm_id);		
 	}
 	

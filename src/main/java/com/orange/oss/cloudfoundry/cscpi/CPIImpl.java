@@ -288,7 +288,7 @@ public class CPIImpl implements CPI{
 		
 		//populate bosh registry
 		logger.info("add vm {} to registry", vmName );
-		String settings=this.vmSettingGenerator.settingFor(agent_id,vmName,vm,networks);
+		String settings=this.vmSettingGenerator.createsettingForVM(agent_id,vmName,vm,networks);
 		this.boshRegistry.put(vmName, settings);
 		
 		
@@ -679,6 +679,13 @@ public class CPIImpl implements CPI{
 		jobComplete.apply(resp.getJobId());
 		
 		logger.info("==> attach disk successfull");
+		
+		//now update registry
+		String previousSetting=this.boshRegistry.getRaw(vm_id);
+		String newSetting=this.vmSettingGenerator.updateVmSettingForAttachDisk(previousSetting, disk_id);
+		this.boshRegistry.put(vm_id, newSetting);
+		logger.info("==> attach disk updated in bosh registry");
+		
 	}
 
 	@Override
@@ -711,6 +718,13 @@ public class CPIImpl implements CPI{
 		jobComplete.apply(resp.getJobId());
 		
 		logger.info("==> detach disk successfull");
+		
+		//now update registry
+		String previousSetting=this.boshRegistry.getRaw(vm_id);
+		String newSetting=this.vmSettingGenerator.updateVmSettingForDetachDisk(previousSetting, disk_id);
+		this.boshRegistry.put(vm_id, newSetting);
+		logger.info("==> attach disk updated in bosh registry");
+		
 		
 	}
 
