@@ -160,9 +160,9 @@ public class CPIImpl implements CPI{
 		//NOW attache the ephemeral disk to the vm (need reboot ?)
 		//FIXME : placement constraint local disk offering / vm
 		logger.info("now attaching ephemaral disk {} to cloudstack vm {}",ephemeralDiskName,vmName);		
-		this.attach_disk(vmName, ephemeralDiskName);
+		this.diskAttachment(vmName, ephemeralDiskName);
 		
-		//FIXME: add bosh id / cloustack id association to bosh registry ??
+		//FIXME: add bosh id / cloustack id association to bosh registry should be done only for create_vm??
 		
         return vmName;
     }
