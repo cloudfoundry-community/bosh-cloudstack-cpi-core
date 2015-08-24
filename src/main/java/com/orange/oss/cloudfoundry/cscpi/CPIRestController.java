@@ -46,9 +46,10 @@ public class CPIRestController {
 				throw new RuntimeException("NOT IMPLEMENTED : multiple response for "+request.textValue());
 		}	
 		
-		((ObjectNode) rootNode).put("error", response.error);
-		((ObjectNode) rootNode).put("log", response.log);
+		if (response.error!=null) ((ObjectNode) rootNode).put("error", mapper.valueToTree(response.error));
+
 		
+		((ObjectNode) rootNode).put("log", response.log);		
 		logger.info("generated json response payload {}",rootNode.asText());
 		
 		return rootNode;

@@ -8,6 +8,7 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 
@@ -20,11 +21,20 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 @JsonPropertyOrder({"result", "error","log"})
 public class CPIResponse {
 
+ public static class  CmdError{
+	 public String type="error";
+	 public String message;
+	 @JsonProperty(value="ok_to_retry")
+	 boolean okToRetry=false;
+ }
+	
+	
   public List <Object> result=new ArrayList<Object>();
 	
-  public String error=null;
+  public CmdError error=null;
 	
   public String log="";
+  
   
   public boolean equals(Object obj) {
       return EqualsBuilder.reflectionEquals(this, obj);
