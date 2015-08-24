@@ -103,7 +103,7 @@ public class VmSettingGeneratorTest {
 	   JsonNode updatedSetting = mapper.readTree(newSetting);
 	   JsonNode persistentDisk=updatedSetting.get("disks").get("persistent").get("new_disk_id");
 	   String path=persistentDisk.get("path").toString();
-	   assertEquals("\"/dev/xvdc\"",path);
+	   assertEquals("\"/dev/sdc\"",path);
 	   
 	   //Then detach the disk shoud result in intial setting
 	   

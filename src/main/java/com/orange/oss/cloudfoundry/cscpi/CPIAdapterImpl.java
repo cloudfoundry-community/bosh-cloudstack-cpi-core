@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -169,23 +170,20 @@ public class CPIAdapterImpl implements CPIAdapter {
     private Networks parseNetwork(JsonNode networks) {
     	ObjectMapper mapper=new ObjectMapper();
     	
-    	//FIXME :must  parse the bosh network name (used by bosh-agent to match network)
-    	//Networks nets=new Networks();
-    	//    	Iterator<JsonNode> it=networks.elements();    	
-    	//    	while (it.hasNext()){
-    	//    	JsonNode n=it.next();
-    	//    		
-    	//    		nets.networks.put("xx",mapper.convertValue(n, Network.class));
-    	//    	}
+		// FIXME :must parse the bosh network name (used by bosh-agent to match
+		// network)
+		Networks nets = new Networks();
+		Iterator<Entry<String, JsonNode>> it = networks.fields();
+		while (it.hasNext()) {
+
+			Entry<String, JsonNode> entry = it.next();
+			String networkName = entry.getKey();
+			JsonNode node = entry.getValue();
+
+			nets.networks.put(networkName,
+					mapper.convertValue(node, Network.class));
+		}
     	
-    	
-    	Networks nets=null;
-		try {
-			nets = mapper.treeToValue(networks, Networks.class);
-		} catch (JsonProcessingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}    	
     	
     	//consistency check
     	for (Network n:nets.networks.values()){
