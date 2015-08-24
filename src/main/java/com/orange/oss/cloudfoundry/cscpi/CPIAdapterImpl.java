@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.orange.oss.cloudfoundry.cscpi.domain.CPIResponse;
@@ -168,15 +169,23 @@ public class CPIAdapterImpl implements CPIAdapter {
     private Networks parseNetwork(JsonNode networks) {
     	ObjectMapper mapper=new ObjectMapper();
     	
-    	Networks nets=new Networks();
-    	Iterator<JsonNode> it=networks.elements();
+    	//FIXME :must  parse the bosh network name (used by bosh-agent to match network)
+    	//Networks nets=new Networks();
+    	//    	Iterator<JsonNode> it=networks.elements();    	
+    	//    	while (it.hasNext()){
+    	//    	JsonNode n=it.next();
+    	//    		
+    	//    		nets.networks.put("xx",mapper.convertValue(n, Network.class));
+    	//    	}
     	
-    	//FIXME :cant parse the bosh network name (unused anyway but ...)
     	
-    	while (it.hasNext()){
-    		JsonNode n=it.next();
-    		nets.networks.put("xx",mapper.convertValue(n, Network.class));
-    	}
+    	Networks nets=null;
+		try {
+			nets = mapper.treeToValue(networks, Networks.class);
+		} catch (JsonProcessingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}    	
     	
     	//consistency check
     	for (Network n:nets.networks.values()){
