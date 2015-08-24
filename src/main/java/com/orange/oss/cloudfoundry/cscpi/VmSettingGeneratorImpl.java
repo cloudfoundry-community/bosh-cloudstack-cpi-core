@@ -152,7 +152,7 @@ public class VmSettingGeneratorImpl implements VmSettingGenerator {
 			}
 
 			PersistentDisk newDisk = new PersistentDisk();
-			newDisk.path = "/dev/xvdc"; // FIXME : booooo
+			newDisk.path = "/dev/sdc"; // FIXME : booooo. hardcoded in bosh agent, here too.
 			newDisk.volumeId="3";
 			disks.put(disk_id, newDisk);
 
