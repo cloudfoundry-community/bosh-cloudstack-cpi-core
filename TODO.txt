@@ -1,5 +1,16 @@
 17/08
 
+- persist bosh registry.
+	now hsqldb
+	set persistent file in /var/vcap/store/cpi
+	OR use bosh postgres db (add postgres jdbc driver + dialect config + bosh *db credentials injection)
+
+- expunge vm
+	required with static ip vms (ip not freed until vm is expungged)
+	default value expunge.delay = 300 (5 mins)
+	reduce to 30s as cloudstack admin => need to restart management server 
+	wait 30s in CPI after vm delete
+
 - globals
 	harden Exception mangement
 	map spring boot /error to an intelligible CPI rest payload / stdout
