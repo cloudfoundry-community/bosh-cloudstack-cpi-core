@@ -19,6 +19,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.orange.oss.cloudfoundry.cscpi.domain.CPIResponse;
+import com.orange.oss.cloudfoundry.cscpi.domain.CPIResponse.CmdError;
 import com.orange.oss.cloudfoundry.cscpi.domain.Network;
 import com.orange.oss.cloudfoundry.cscpi.domain.Networks;
 import com.orange.oss.cloudfoundry.cscpi.domain.ResourcePool;
@@ -138,7 +139,10 @@ public class CPIAdapterImpl implements CPIAdapter {
 
 		catch (Exception e) {
 			logger.error("Caught Exception {}, converted to CPI response.", e);
-			response.error = e.toString() + "\n" + e.getMessage() + "\n" + e.getCause();
+			CmdError err=new CmdError();
+			err.message=e.toString() + "\n" + e.getMessage() + "\n" + e.getCause();
+			response.error=err;
+			
 			Writer result = new StringWriter();
 		    PrintWriter printWriter = new PrintWriter(result);
 		    e.printStackTrace(printWriter);
