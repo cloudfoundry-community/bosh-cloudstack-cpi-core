@@ -170,8 +170,6 @@ public class CPIAdapterImpl implements CPIAdapter {
     private Networks parseNetwork(JsonNode networks) {
     	ObjectMapper mapper=new ObjectMapper();
     	
-		// FIXME :must parse the bosh network name (used by bosh-agent to match
-		// network)
 		Networks nets = new Networks();
 		Iterator<Entry<String, JsonNode>> it = networks.fields();
 		while (it.hasNext()) {
@@ -184,12 +182,14 @@ public class CPIAdapterImpl implements CPIAdapter {
 					mapper.convertValue(node, Network.class));
 		}
     	
-    	
+		//TODO: at least 1 network
+		
     	//consistency check
     	for (Network n:nets.networks.values()){
 
     		Assert.notNull(n.cloud_properties.get("name"),"A name for the target network is required in cloud_properties");
     		
+    		//FIXME: compilation vm create_vm do not provide network type. assume manual defaut
     		switch (n.type){
 			case manual:
 				Assert.notNull(n.ip,"must provide ip  with manual (static) network");
