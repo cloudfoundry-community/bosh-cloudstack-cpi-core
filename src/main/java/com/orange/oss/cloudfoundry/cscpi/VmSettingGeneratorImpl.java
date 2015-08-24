@@ -87,6 +87,8 @@ public class VmSettingGeneratorImpl implements VmSettingGenerator {
 		settingObject.agent_id = agent;
 
 		// blobstore
+		
+		//FIXME: get blobstore options from director env (application.yml templated with deployment props)
 		settingObject.blobstore.options.put("endpoint",
 				"http://10.203.6.105:25250");
 		settingObject.blobstore.options.put("user", "agent");
