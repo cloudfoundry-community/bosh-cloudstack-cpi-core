@@ -477,7 +477,13 @@ public class CPIImpl implements CPI{
 		logger.info("Template successfully created ! {} - {}",stemcellId);
 		
 		logger.info("now cleaning work vm");
-		this.delete_vm(workVmName);
+		
+		String jobId=api.getVirtualMachineApi().destroyVirtualMachine(m.getId());
+		jobComplete = retry(new JobComplete(api), 1200, 3, 5, SECONDS);
+		jobComplete.apply(jobId);
+		
+		logger.info("work vm cleaned work vm");
+		
 		return stemcellId;
 	}
 
@@ -529,13 +535,14 @@ public class CPIImpl implements CPI{
 		this.boshRegistry.delete(vm_id);
 		
 		//delete ephemeral disk !! Unmount then delete.
-		Set<Volume> vols=api.getVolumeApi().listVolumes(ListVolumesOptions.Builder.type(Type.DATADISK));
+		Set<Volume> vols=api.getVolumeApi().listVolumes(ListVolumesOptions.Builder.type(Type.DATADISK).virtualMachineId(csVmId));
+		
 		Assert.isTrue(vols.size()==1,"Should have a single data disk mounted (ephemeral disk), found "+vols.size());
 		Volume ephemeralVol=vols.iterator().next();
 		Assert.isTrue(ephemeralVol.getName().startsWith(CPI_EPHEMERAL_DISK_PREFIX),"mounted disk is not ephemeral disk. Name is "+ephemeralVol.getName());
 		
 		//detach disk
-		AsyncCreateResponse resp=api.getVolumeApi().detachVolume(ephemeralVol.getName());
+		AsyncCreateResponse resp=api.getVolumeApi().detachVolume(ephemeralVol.getId());
 		
 		jobComplete = retry(new JobComplete(api), 1200, 3, 5, SECONDS);
 		jobComplete.apply(resp.getJobId());

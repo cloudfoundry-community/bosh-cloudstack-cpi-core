@@ -1,4 +1,7 @@
-17/08
+25/08
+
+- run Director BATS against the cpi
+	https://github.com/cloudfoundry/bosh/blob/master/docs/running_tests.md
 
 - persist bosh registry.
 	now hsqldb
@@ -6,10 +9,13 @@
 	OR use bosh postgres db (add postgres jdbc driver + dialect config + bosh *db credentials injection)
 
 - expunge vm
-	required with static ip vms (ip not freed until vm is expungged)
+	required with static ip vms (ip not freed until vm is expunged)
 	default value expunge.delay = 300 (5 mins)
-	reduce to 30s as cloudstack admin => need to restart management server 
-	wait 30s in CPI after vm delete
+	option 1
+		reduce to 30s as cloudstack admin => need to restart management server 
+		wait 30s in CPI after vm delete
+	option2
+		expunge with cloudstack API. option not avail in jclouds 1.9, use escaping mechanism to add the expunge flag?
 
 - globals
 	harden Exception mangement
@@ -24,6 +30,9 @@
 	
 	add a garbarge collection mechanism to the webdav server (remove old templates when consumed by cloudstack)	
 	
+- use isolated / decicated networks for bosh vms
+	http://www.shapeblue.com/using-the-api-for-advanced-network-management/
+	static API assigned through API deployVirtualMachine	
 
 - provision ssh keys
 	generate keypair with cloudstack API (no support on portail)
