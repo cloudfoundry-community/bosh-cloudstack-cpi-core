@@ -17,7 +17,7 @@ public class BoshRegistryClientImpl implements BoshRegistryClient {
 
 	private static Logger logger = LoggerFactory.getLogger(BoshRegistryClientImpl.class.getName());
 
-	@Value("${registry.endpoint}")
+	@Value("${cpi.registry.endpoint}")
 	String endpoint;
 
 	@Value("${registry.user}")

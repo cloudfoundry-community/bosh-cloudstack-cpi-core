@@ -26,7 +26,7 @@ public class UserDataGeneratorImpl implements UserDataGenerator {
 	private static Logger logger=LoggerFactory.getLogger(UserDataGeneratorImpl.class.getName());
 
 	
-	@Value("${registry.endpoint}")
+	@Value("${cpi.registry.endpoint}")
 	String endpoint;
 	
 	

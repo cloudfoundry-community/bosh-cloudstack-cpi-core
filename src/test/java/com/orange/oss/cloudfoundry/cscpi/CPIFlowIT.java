@@ -57,7 +57,7 @@ public class CPIFlowIT {
 		networks.networks.put("default", net);
 		//net.type=NetworkType.dynamic;
 		net.type=NetworkType.manual;
-		net.ip="10.234.228.158";
+		net.ip="10.234.228.155";
 		net.gateway="10.234.228.129";
 		net.netmask="255.255.255.192";
 		net.cloud_properties.put("name", "3112 - preprod - back");
