@@ -107,6 +107,12 @@ public class VmSettingGeneratorImpl implements VmSettingGenerator {
 
 		// vm
 		settingObject.vm.name = vmName;
+		
+		// set mac adress
+		String macAddress=vm.getNICs().iterator().next().getMacAddress();
+		settingObject.networks.values().iterator().next().mac=macAddress;
+		//FIXME only support single NIC
+		
 
 		// serialize to json
 		ObjectMapper mapper = new ObjectMapper();
