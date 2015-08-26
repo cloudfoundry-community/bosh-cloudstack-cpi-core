@@ -73,6 +73,8 @@ import com.orange.oss.cloudfoundry.cscpi.webdav.WebdavServerAdapter;
  */
 public class CPIImpl implements CPI{
 
+	private static final String CPI_VM_PREFIX = "cpivm-";
+
 	private static final String CPI_PERSISTENT_DISK_PREFIX = "cpi-disk-";
 
 	private static final String CPI_EPHEMERAL_DISK_PREFIX = "cpi-ephemeral-disk-";
@@ -145,7 +147,7 @@ public class CPIImpl implements CPI{
         String compute_offering=resource_pool.compute_offering;
         Assert.isTrue(compute_offering!=null,"Must provide compute offering in vm ressource pool");
 		
-        String vmName="cpivm-"+UUID.randomUUID().toString();
+        String vmName=CPI_VM_PREFIX+UUID.randomUUID().toString();
 		
 		logger.info("now creating cloudstack vm");
 		this.vmCreation(stemcell_id, compute_offering, networks, vmName,agent_id);
