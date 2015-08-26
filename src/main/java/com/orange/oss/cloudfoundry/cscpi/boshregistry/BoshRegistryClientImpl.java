@@ -20,10 +20,10 @@ public class BoshRegistryClientImpl implements BoshRegistryClient {
 	@Value("${cpi.registry.endpoint}")
 	String endpoint;
 
-	@Value("${registry.user}")
+	@Value("${cpi.registry.user}")
 	String user;
 
-	@Value("${registry.password}")
+	@Value("${cpi.registry.password}")
 	String password;
 
 	@Override
