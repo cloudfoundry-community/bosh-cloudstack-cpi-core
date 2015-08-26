@@ -28,6 +28,7 @@ import org.jclouds.cloudstack.domain.TemplateMetadata;
 import org.jclouds.cloudstack.domain.VirtualMachine;
 import org.jclouds.cloudstack.domain.VirtualMachine.State;
 import org.jclouds.cloudstack.domain.Volume;
+import org.jclouds.cloudstack.domain.Volume.Type;
 import org.jclouds.cloudstack.domain.Zone;
 import org.jclouds.cloudstack.features.VolumeApi;
 import org.jclouds.cloudstack.options.CreateSnapshotOptions;
@@ -71,6 +72,10 @@ import com.orange.oss.cloudfoundry.cscpi.webdav.WebdavServerAdapter;
  * 
  */
 public class CPIImpl implements CPI{
+
+	private static final String CPI_PERSISTENT_DISK_PREFIX = "cpi-disk-";
+
+	private static final String CPI_EPHEMERAL_DISK_PREFIX = "cpi-ephemeral-disk-";
 
 	private static Logger logger=LoggerFactory.getLogger(CPIImpl.class);
 	
@@ -147,7 +152,7 @@ public class CPIImpl implements CPI{
 
 		
 		//TODO: create ephemeral disk, read the disk size from properties, attach it to the vm.
-		//NB: if base ROOT disk is large enough, bosh agent can use it to hold swap / ephemeral data ??
+		//NB: if base ROOT disk is large enough, bosh agent can use it to hold swap / ephemeral data. CPI forces an external vol for ephemeral
 	    String ephemeralDiskServiceOfferingName=resource_pool.ephemeral_disk_offering;
 	    Assert.isTrue(ephemeralDiskServiceOfferingName!=null,"create_vm: must specify ephemeral_disk_offering attribute in cloud properties");
 	    logger.debug("ephemeral disk offering is {}",ephemeralDiskServiceOfferingName);
@@ -155,14 +160,15 @@ public class CPIImpl implements CPI{
 
 	    logger.info("now creating ephemeral disk");
 	    int ephemeralDiskSize=resource_pool.disk/1024; //cloudstack size api is Go
-		String ephemeralDiskName=this.diskCreate(ephemeralDiskSize,ephemeralDiskServiceOfferingName);
+		String name=CPI_EPHEMERAL_DISK_PREFIX+UUID.randomUUID().toString();
+		String ephemeralDiskName=this.diskCreate(name,ephemeralDiskSize,ephemeralDiskServiceOfferingName);
 		
 		//NOW attache the ephemeral disk to the vm (need reboot ?)
 		//FIXME : placement constraint local disk offering / vm
 		logger.info("now attaching ephemaral disk {} to cloudstack vm {}",ephemeralDiskName,vmName);		
 		this.diskAttachment(vmName, ephemeralDiskName);
 		
-		//FIXME: add bosh id / cloustack id association to bosh registry should be done only for create_vm??
+		//FIXME: registry feeding in vmCreation method. refactor here ?
 		
         return vmName;
     }
@@ -182,8 +188,6 @@ public class CPIImpl implements CPI{
 			Networks networks, String vmName,String agent_id) throws VMCreationFailedException {
 	
 		
-		//set options
-        long dataDiskSize=100;
 		
 		Set<Template> matchingTemplates=api.getTemplateApi().listTemplates(ListTemplatesOptions.Builder.name(stemcell_id));
 		Assert.isTrue(matchingTemplates.size()==1,"Did not find a single template with name "+stemcell_id);
@@ -232,6 +236,7 @@ public class CPIImpl implements CPI{
 		//					need dns ?
 		
 		
+		
 		logger.info("associated Network Offering is {}", networkOffering.getName());
 		
         //cloudstack userdata generation for bootstrap
@@ -248,7 +253,7 @@ public class CPIImpl implements CPI{
 			.name(vmName)
 			.networkId(network.getId())
 			.userData(userData.getBytes())
-			.dataDiskSize(dataDiskSize)
+			//.dataDiskSize(dataDiskSize)
 			;
 			break;
 		case manual:
@@ -257,7 +262,7 @@ public class CPIImpl implements CPI{
 			.name(vmName)
 			.networkId(network.getId())
 			.userData(userData.getBytes())
-			.dataDiskSize(dataDiskSize)
+			//.dataDiskSize(dataDiskSize)
 			.ipOnDefaultNetwork(directorNetwork.ip)
 		
 			;
@@ -287,6 +292,8 @@ public class CPIImpl implements CPI{
 		logger.info("generated NIC : "+nic.toString());
 
 		
+		
+		//FIXME: move bosh registry in create_vm (no need of registry for stemcell generation work vms)
 		//populate bosh registry
 		logger.info("add vm {} to registry", vmName );
 		String settings=this.vmSettingGenerator.createsettingForVM(agent_id,vmName,vm,networks);
@@ -301,7 +308,8 @@ public class CPIImpl implements CPI{
 	@Deprecated
 	public String current_vm_id() {
 		logger.info("current_vm_id");
-		//FIXME : strange API ? must keep state in CPI with latest changed / created vm ?? Or find current vm running cpi ? by IP / hostname ?
+		//FIXME : deprecated API
+		//must keep state in CPI with latest changed / created vm ?? Or find current vm running cpi ? by IP / hostname ?
 		// ==> use local vm meta data server to identify.
 		// see http://cloudstack-administration.readthedocs.org/en/latest/api.html#user-data-and-meta-data
 		return null;
@@ -512,15 +520,30 @@ public class CPIImpl implements CPI{
 		
 		jobComplete = retry(new JobComplete(api), 1200, 3, 5, SECONDS);
 		jobComplete.apply(jobId);
-
-		//FIXME: delete ephemeral disk !!
+		
+		//FIXME : should force expunge VM (bosh usually recreates a vm shortly, expunge is necessary to avoid ip / vols reuse conflicts).
+		
 		
 		//remove  vm_id /settings from bosh registry		
 		logger.info("remove vm {} from registry", vm_id );
 		this.boshRegistry.delete(vm_id);
 		
+		//delete ephemeral disk !! Unmount then delete.
+		Set<Volume> vols=api.getVolumeApi().listVolumes(ListVolumesOptions.Builder.type(Type.DATADISK));
+		Assert.isTrue(vols.size()==1,"Should have a single data disk mounted (ephemeral disk), found "+vols.size());
+		Volume ephemeralVol=vols.iterator().next();
+		Assert.isTrue(ephemeralVol.getName().startsWith(CPI_EPHEMERAL_DISK_PREFIX),"mounted disk is not ephemeral disk. Name is "+ephemeralVol.getName());
 		
-		logger.info("deleted successfully vm {}",vm_id);
+		//detach disk
+		AsyncCreateResponse resp=api.getVolumeApi().detachVolume(ephemeralVol.getName());
+		
+		jobComplete = retry(new JobComplete(api), 1200, 3, 5, SECONDS);
+		jobComplete.apply(resp.getJobId());
+		
+		//delete disk
+		api.getVolumeApi().deleteVolume(ephemeralVol.getName());
+		
+		logger.info("deleted successfully vm {} and ephemeral disk {}",vm_id,ephemeralVol.getName());
 	}
 
 	@Override
@@ -608,8 +631,8 @@ public class CPIImpl implements CPI{
 	public String create_disk(Integer size, Map<String, String> cloud_properties) {
 		String diskOfferingName=cloud_properties.get("disk_offering");
 		Assert.isTrue(diskOfferingName!=null, "no disk_offering attribute specified for disk creation !");
-		
-		return this.diskCreate(size,diskOfferingName);
+		String name=CPI_PERSISTENT_DISK_PREFIX+UUID.randomUUID().toString();
+		return this.diskCreate(name,size,diskOfferingName);
 
 	}
 
@@ -617,8 +640,8 @@ public class CPIImpl implements CPI{
 	 * @param diskOfferingName
 	 * @return
 	 */
-	private String diskCreate(int size,String diskOfferingName) {
-		String name="cpidisk-"+UUID.randomUUID().toString();
+	private String diskCreate(String name,int size,String diskOfferingName) {
+
 		logger.info("create_disk {} on offering {}",name,diskOfferingName);
 		
 		//find disk offering
@@ -749,15 +772,16 @@ public class CPIImpl implements CPI{
 
 		VolumeApi vol = this.api.getVolumeApi();
 		Set<Volume> vols=vol.listVolumes(ListVolumesOptions.Builder.virtualMachineId(vm.getId()));
-
-		//FIXME : dont give ROOT disk, just type= ? dont give ephemeral disk ?
 		
 		ArrayList<String> disks = new ArrayList<String>();
 		Iterator<Volume> it=vols.iterator();
 		while (it.hasNext()){
 			Volume v=it.next();
-			String disk_id=v.getName();
-			disks.add(disk_id);
+			//only DATA disk  - persistent disk. No ROOT disk,no ephemeral disk ?			
+			if ((v.getType()==Type.DATADISK) && (v.getName().startsWith(CPI_PERSISTENT_DISK_PREFIX))){
+				String disk_id=v.getName();
+				disks.add(disk_id);
+			}
 		}
 		return disks;
 	}
