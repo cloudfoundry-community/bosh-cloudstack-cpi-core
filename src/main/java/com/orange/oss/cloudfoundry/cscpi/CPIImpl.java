@@ -519,7 +519,11 @@ public class CPIImpl implements CPI{
 		
 		Set<VirtualMachine> vms = api.getVirtualMachineApi().listVirtualMachines(ListVirtualMachinesOptions.Builder.name(vm_id));
 		
-		Assert.isTrue(vms.size()>0, "delete_vm : Could not find any VM with name "+vm_id); //FIXME: throw a dedicated exception
+		if (vms.size()==0) {
+			logger.warn("Vm to delete does not exist {}. OK ...",vm_id);
+			return;
+		}
+		
 		Assert.isTrue(vms.size()==1, "delete_vm : Found multiple VMs with name "+vm_id);		
 		
 		String csVmId=vms.iterator().next().getId();
