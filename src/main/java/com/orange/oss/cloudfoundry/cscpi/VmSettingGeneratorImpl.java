@@ -9,6 +9,7 @@ import java.util.Map;
 import org.jclouds.cloudstack.domain.VirtualMachine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -16,6 +17,7 @@ import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.orange.oss.cloudfoundry.cscpi.config.DirectorConfig;
 import com.orange.oss.cloudfoundry.cscpi.domain.Network;
 import com.orange.oss.cloudfoundry.cscpi.domain.Networks;
 
@@ -33,6 +35,12 @@ import com.orange.oss.cloudfoundry.cscpi.domain.Networks;
  *
  */
 public class VmSettingGeneratorImpl implements VmSettingGenerator {
+	
+	/**
+	 * Director level configuration
+	 */
+	@Autowired
+	DirectorConfig directorConfig;
 
 	private static Logger logger = LoggerFactory
 			.getLogger(VmSettingGeneratorImpl.class.getName());
@@ -89,12 +97,10 @@ public class VmSettingGeneratorImpl implements VmSettingGenerator {
 		// blobstore
 		
 		//FIXME: get blobstore options from director env (application.yml templated with deployment props)
-		settingObject.blobstore.options.put("endpoint",
-				"http://10.203.6.105:25250");
-		settingObject.blobstore.options.put("user", "agent");
-		settingObject.blobstore.options.put("password", "agent-password");
-		settingObject.blobstore.options.put("blobstore_path",
-				"/var/vcap/micro_bosh/data/cache");
+		settingObject.blobstore.options.put("endpoint", directorConfig.endpoint);
+		settingObject.blobstore.options.put("user", directorConfig.user);
+		settingObject.blobstore.options.put("password", directorConfig.password);
+		settingObject.blobstore.options.put("blobstore_path", directorConfig.path);
 
 		// env
 
