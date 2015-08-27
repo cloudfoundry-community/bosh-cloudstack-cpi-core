@@ -1,0 +1,32 @@
+{                                                                            
+  "Platform": {                                                              
+    "Linux": {                                                               
+      "CreatePartitionIfNoEphemeralDisk": true,                              
+      "DevicePathResolutionType": "virtio"                                   
+    }                                                                        
+  },                                                                         
+  "Infrastructure": {                                                        
+    "NetworkingType": "static",                                              
+
+    "Settings": {
+      "Sources": [
+        {
+          "Type": "ConfigDrive",
+          "DiskPaths": [
+            "/dev/disk/by-label/CONFIG-2",
+            "/dev/disk/by-label/config-2"
+          ],
+          "MetaDataPath": "latest/meta-data",
+          "UserDataPath": "latest/user-data"
+        },
+        {
+          "Type": "HTTP",
+          "URI": "http://10.234.228.142"
+        }
+      ],
+
+      "UseServerName": true,
+      "UseRegistry": true
+    }
+  }
+}
