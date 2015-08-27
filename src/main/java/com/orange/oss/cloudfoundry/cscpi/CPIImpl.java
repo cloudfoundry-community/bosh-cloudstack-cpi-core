@@ -543,7 +543,11 @@ public class CPIImpl implements CPI{
 		
 		//delete ephemeral disk !! Unmount then delete.
 		Set<Volume> vols=api.getVolumeApi().listVolumes(ListVolumesOptions.Builder.type(Type.DATADISK).virtualMachineId(csVmId));
-		
+
+		if (vols.size()==0){
+			logger.warn("No ephemeral disk found while deleting vm {}. Ignoring ...",vm_id);
+			return;
+		} 
 		Assert.isTrue(vols.size()==1,"Should have a single data disk mounted (ephemeral disk), found "+vols.size());
 		Volume ephemeralVol=vols.iterator().next();
 		Assert.isTrue(ephemeralVol.getName().startsWith(CPI_EPHEMERAL_DISK_PREFIX),"mounted disk is not ephemeral disk. Name is "+ephemeralVol.getName());
@@ -556,6 +560,7 @@ public class CPIImpl implements CPI{
 		
 		//delete disk
 		api.getVolumeApi().deleteVolume(ephemeralVol.getName());
+
 		
 		logger.info("deleted successfully vm {} and ephemeral disk {}",vm_id,ephemeralVol.getName());
 	}
