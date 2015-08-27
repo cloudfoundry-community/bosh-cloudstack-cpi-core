@@ -24,20 +24,22 @@ public class DirectorConfig {
 	
  */
 
-	@Value("${blobstore.provider}")
+	@Value("${cpi.blobstore.provider}")
 	public String blobstore_provider;
 	
-	@Value("${blobstore.path}")
+	@Value("${cpi.blobstore.path}")
 	public String path;
-	
-	
-	@Value("${blobstore.options.endpoint}")
-	public String endpoint;
 
-	@Value("${blobstore.options.user}")
+	@Value("${cpi.blobstore.address}")
+	public String address;
+
+	@Value("${cpi.blobstore.port}")
+	public String port;
+
+	@Value("${cpi.blobstore.options.user}")
 	public String user;
 
-	@Value("${blobstore.options.password}")
+	@Value("${cpi.blobstore.options.password}")
 	public String password;
 	
 }
