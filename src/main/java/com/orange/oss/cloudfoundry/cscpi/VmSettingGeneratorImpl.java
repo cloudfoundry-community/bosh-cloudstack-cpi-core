@@ -96,7 +96,8 @@ public class VmSettingGeneratorImpl implements VmSettingGenerator {
 
 		// blobstore
 		
-		//FIXME: get blobstore options from director env (application.yml templated with deployment props)
+		//FIXME: check blobstore options from director env (application.yml templated with deployment props)
+		settingObject.blobstore.provider=directorConfig.blobstore_provider;
 		settingObject.blobstore.options.put("endpoint", "http://"+directorConfig.address+":"+directorConfig.port);
 		settingObject.blobstore.options.put("user", directorConfig.user);
 		settingObject.blobstore.options.put("password", directorConfig.password);
