@@ -665,7 +665,7 @@ public class CPIImpl implements CPI{
 		
 		//find disk offering
 		Set<DiskOffering> listDiskOfferings = api.getOfferingApi().listDiskOfferings(ListDiskOfferingsOptions.Builder.name(diskOfferingName));
-		Assert.isTrue(listDiskOfferings.size()>0, "Unknown Service Offering !");
+		Assert.isTrue(listDiskOfferings.size()>0, "Unknown Service Offering ! : "+diskOfferingName);
 		DiskOffering csDiskOffering = listDiskOfferings.iterator().next();
 		String diskOfferingId=csDiskOffering.getId();
 		
