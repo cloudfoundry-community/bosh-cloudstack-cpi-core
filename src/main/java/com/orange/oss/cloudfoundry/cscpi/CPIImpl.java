@@ -150,7 +150,10 @@ public class CPIImpl implements CPI{
         String vmName=CPI_VM_PREFIX+UUID.randomUUID().toString();
 		
 		logger.info("now creating cloudstack vm");
-		this.vmCreation(stemcell_id, compute_offering, networks, vmName,agent_id);
+        //cloudstack userdata generation for bootstrap
+        String userData=this.userDataGenerator.vmMetaData(vmName,networks);
+
+		this.vmCreation(stemcell_id, compute_offering, networks, vmName,agent_id,userData);
 
 		
 		//TODO: create ephemeral disk, read the disk size from properties, attach it to the vm.
@@ -187,7 +190,7 @@ public class CPIImpl implements CPI{
      * @throws VMCreationFailedException 
      */
 	private void vmCreation(String stemcell_id, String compute_offering,
-			Networks networks, String vmName,String agent_id) throws VMCreationFailedException {
+			Networks networks, String vmName,String agent_id,String userData) throws VMCreationFailedException {
 	
 		
 		
@@ -241,8 +244,6 @@ public class CPIImpl implements CPI{
 		
 		logger.info("associated Network Offering is {}", networkOffering.getName());
 		
-        //cloudstack userdata generation for bootstrap
-        String userData=this.userDataGenerator.vmMetaData(vmName,networks);
         
         NetworkType netType=directorNetwork.type;
         DeployVirtualMachineOptions options=null;
@@ -435,7 +436,7 @@ public class CPIImpl implements CPI{
 		fakeDirectorNetworks.networks.put("default",net);
 		
 		
-		this.vmCreation(existingTemplateName, instance_type, fakeDirectorNetworks, workVmName,"fakeagent");
+		this.vmCreation(existingTemplateName, instance_type, fakeDirectorNetworks, workVmName,"fakeagent","fakeuserdata");
 		VirtualMachine m=api.getVirtualMachineApi().listVirtualMachines(ListVirtualMachinesOptions.Builder.name(workVmName)).iterator().next();
 		
 		logger.info("STOPPING work vm for template generation");
