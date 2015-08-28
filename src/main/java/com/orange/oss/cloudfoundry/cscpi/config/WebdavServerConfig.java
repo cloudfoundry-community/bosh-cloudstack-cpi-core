@@ -18,15 +18,20 @@ import org.springframework.context.annotation.Configuration;
 public class WebdavServerConfig {
 	
 	
+	
+	private static final String WEBDAV_CONTEXT = "/webdav/*";
+	
 	@Value("${cpi.webdav_directory}")
 	String webDavDirectory;
+	
+	
 	
 	//add a WebDavServlet for cloudstack template http exposition (webdav exposes a local filesystem in http protocol. 
 	//known client : windows / sharepoint, bitkinex, linux => cadaver, konqueror, java => sardine
 	@Bean
 	public ServletRegistrationBean servletRegistrationBean(){
 		WebdavServlet webdav=new WebdavServlet();
-		ServletRegistrationBean srb=new ServletRegistrationBean(webdav,"/webdav/*");
+		ServletRegistrationBean srb=new ServletRegistrationBean(webdav,WEBDAV_CONTEXT);
 
 		//name of the class that implements net.sf.webdav.WebdavStore
 		srb.addInitParameter("ResourceHandlerImplementation", "net.sf.webdav.LocalFileSystemStore");
@@ -42,7 +47,6 @@ public class WebdavServerConfig {
 		srb.addInitParameter("instead-of-404", "");
 		//set to 2G
 		srb.addInitParameter("maxUploadSize", "2000000000");
-		
 	    return srb ;
 	}
 }
