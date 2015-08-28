@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.jclouds.cloudstack.domain.VirtualMachine;
+import org.neo4j.cypher.internal.compiler.v2_1.planner.logical.steps.aggregation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -109,16 +110,23 @@ public class VmSettingGeneratorImpl implements VmSettingGenerator {
 		settingObject.networks = networks.networks;
 
 		// ntp
+		
+		//FIXME parse from directorCondif and set ntp server list
+			
 
 		// mbus url
-
+		settingObject.mbus=directorConfig.mbus;
+				
 		// vm
 		settingObject.vm.name = vmName;
 		
-		// set mac adress
-		String macAddress=vm.getNICs().iterator().next().getMacAddress();
+		// set mac adress (required?)
+		if (vm!=null) {
+			logger.debug("setting mac address in setting");
+			String macAddress=vm.getNICs().iterator().next().getMacAddress();
 		settingObject.networks.values().iterator().next().mac=macAddress;
 		//FIXME only support single NIC
+		}
 		
 
 		// serialize to json

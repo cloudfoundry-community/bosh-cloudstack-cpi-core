@@ -42,4 +42,11 @@ public class DirectorConfig {
 	@Value("${cpi.blobstore.options.password}")
 	public String password;
 	
+	@Value("${cpi.agent.mbus}")
+	public String mbus;
+	
+	@Value("${cpi.ntp}")
+	public String ntp;
+	
+	
 }
