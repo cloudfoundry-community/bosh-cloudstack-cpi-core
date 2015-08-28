@@ -36,7 +36,7 @@ public class UserDataGeneratorTest {
 		net.dns.add("10.234.50.180");
 		net.dns.add("10.234.71.124");
 		
-		String userData=this.generator.vmMetaData("my-vm",networks);
+		String userData=this.generator.userMetadata("my-vm",networks);
 		
 		
 		//TODO parse json and add assertions

@@ -71,7 +71,7 @@ public class UserDataGeneratorImpl implements UserDataGenerator {
 	
 	
 	@Override
-	public String vmMetaData(String vmName,Networks networks){
+	public String userMetadata(String vmName,Networks networks){
 		
 		UserData datas=new UserData();
 		//compose the user data from cpi create vm call
