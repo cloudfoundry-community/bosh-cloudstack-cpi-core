@@ -35,10 +35,11 @@ public class WebdavServerAdapterImpl implements WebdavServerAdapter {
 		
 		try {
 			String targetUrl = "http://"+webDavHost+":"+webDavPort+"/webdav/"+ressourceName;
+			String retrieveUrl="http://"+webDavHost+":"+webDavPort+"/templates/"+ressourceName;
 			logger.debug("target is {}",targetUrl);
 			sardine.put(targetUrl, is);
-			logger.info("done pushing file  {} to webdav server. target URL is {}",ressourceName,targetUrl);
-			return targetUrl;
+			logger.info("done pushing file  {} to webdav server. retrieve URL is {}",ressourceName,retrieveUrl);
+			return retrieveUrl;
 			
 		} catch (IOException e) {
 			logger.error("failure putting file to webdav server {}",e.getMessage());
