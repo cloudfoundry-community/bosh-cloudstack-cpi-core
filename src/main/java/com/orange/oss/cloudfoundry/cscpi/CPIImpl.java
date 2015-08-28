@@ -40,6 +40,7 @@ import org.jclouds.cloudstack.options.ListDiskOfferingsOptions;
 import org.jclouds.cloudstack.options.ListNetworkOfferingsOptions;
 import org.jclouds.cloudstack.options.ListNetworksOptions;
 import org.jclouds.cloudstack.options.ListServiceOfferingsOptions;
+import org.jclouds.cloudstack.options.ListTagsOptions;
 import org.jclouds.cloudstack.options.ListTemplatesOptions;
 import org.jclouds.cloudstack.options.ListVirtualMachinesOptions;
 import org.jclouds.cloudstack.options.ListVolumesOptions;
@@ -151,7 +152,7 @@ public class CPIImpl implements CPI{
 		
 		logger.info("now creating cloudstack vm");
         //cloudstack userdata generation for bootstrap
-        String userData=this.userDataGenerator.vmMetaData(vmName,networks);
+        String userData=this.userDataGenerator.userMetadata(vmName,networks);
 
 		this.vmCreation(stemcell_id, compute_offering, networks, vmName,agent_id,userData);
 
@@ -605,7 +606,9 @@ public class CPIImpl implements CPI{
 		logger.info("set vm metadata");
 		VirtualMachine vm=api.getVirtualMachineApi().listVirtualMachines(ListVirtualMachinesOptions.Builder.name(vm_id)).iterator().next();
 		
+		//set metadatas
 		setVmMetada(vm_id, metadata, vm);
+		
 	}
 
 
@@ -619,7 +622,18 @@ public class CPIImpl implements CPI{
 	private void setVmMetada(String vm_id, Map<String, String> metadata,
 			VirtualMachine vm) {
 		
-		//TODO: check if must merge with preexisting user tags
+		//NB: must merge with preexisting user tags. delete previous tag
+		
+		
+		ListTagsOptions listTagOptions=ListTagsOptions.Builder.resourceId(vm.getId()).resourceType(Tag.ResourceType.USER_VM);
+		Set<Tag> existingTags=api.getTagApi().listTags(listTagOptions);
+		
+		if (existingTags.size()>0) {
+			//FIXME: merge change existing tags
+			logger.warn("VM metadata already set on vm {}.Metadata change not yet implemented by CPI");
+			return;
+		}
+		
 		ImmutableMap.Builder<String, String> builder = ImmutableMap.builder();		
 		Map<String, String> tags = builder.putAll(metadata).build();
 		
