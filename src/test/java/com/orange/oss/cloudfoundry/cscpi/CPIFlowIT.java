@@ -72,13 +72,15 @@ public class CPIFlowIT {
 		boolean hasVM=cpi.has_vm(vm_id);
 		
 		
-		//Integer size=new Integer(10); //0 for fixed size offering
-		Integer size=new Integer(0); //0 for fixed size offering		
+		//Integer size=new Integer(10); 
+		Integer size=new Integer(1); //ignored if fix disk size offering		
 		Map<String, String> diskcloud_properties=new HashMap<String, String>();
 		diskcloud_properties.put("disk_offering","DO2 - Medium STD");
 		
 		
 		String disk_id=cpi.create_disk(size, diskcloud_properties);
+		
+		boolean hasDisk=cpi.has_disk(disk_id);
 		
 		//test set vm metadatas
 		Map<String,String> vmsMetadata=new HashMap<String, String>();

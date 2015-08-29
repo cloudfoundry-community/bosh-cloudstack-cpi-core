@@ -578,9 +578,10 @@ public class CPIImpl implements CPI{
 	@Override
 	public boolean has_disk(String disk_id) {
 		logger.info("has_disk ?");
+		Set<Volume> vols=api.getVolumeApi().listVolumes(ListVolumesOptions.Builder.name(disk_id));
+		if (vols.size()==0) return false;
 		
-		Volume vol = api.getVolumeApi().getVolume(disk_id);
-		if (vol==null) return false;
+		logger.debug("disk {} found in cloudstack", disk_id);
 		return true;
 	}
 
