@@ -448,7 +448,8 @@ public class CPIImpl implements CPI{
 		logger.info("Work vm stopped. now creating template from it its ROOT Volume");
 		
 		
-		Volume rootVolume=api.getVolumeApi().listVolumes(ListVolumesOptions.Builder.virtualMachineId(m.getId())).iterator().next(); //hopefully, fist volume is ROOT ?
+		Volume rootVolume=api.getVolumeApi().listVolumes(ListVolumesOptions.Builder.virtualMachineId(m.getId()).type(Type.ROOT)).iterator().next();
+		//hopefully, fist volume is ROOT ?
 
 		
 		//FIXME : template name limited to 32 chars, UUID is longer. use Random
@@ -542,6 +543,7 @@ public class CPIImpl implements CPI{
 		logger.info("remove vm {} from registry", vm_id );
 		this.boshRegistry.delete(vm_id);
 		
+		
 		//delete ephemeral disk !! Unmount then delete.
 		Set<Volume> vols=api.getVolumeApi().listVolumes(ListVolumesOptions.Builder.type(Type.DATADISK).virtualMachineId(csVmId));
 
@@ -578,7 +580,7 @@ public class CPIImpl implements CPI{
 	@Override
 	public boolean has_disk(String disk_id) {
 		logger.info("has_disk ?");
-		Set<Volume> vols=api.getVolumeApi().listVolumes(ListVolumesOptions.Builder.name(disk_id));
+		Set<Volume> vols=api.getVolumeApi().listVolumes(ListVolumesOptions.Builder.name(disk_id).type(Type.DATADISK));
 		if (vols.size()==0) return false;
 		
 		logger.debug("disk {} found in cloudstack", disk_id);
@@ -711,7 +713,7 @@ public class CPIImpl implements CPI{
 		
 		//FIXME; check disk exists
 		
-		String csDiskId=api.getVolumeApi().listVolumes(ListVolumesOptions.Builder.name(disk_id)).iterator().next().getId();
+		String csDiskId=api.getVolumeApi().listVolumes(ListVolumesOptions.Builder.name(disk_id).type(Type.DATADISK)).iterator().next().getId();
 		api.getVolumeApi().deleteVolume(csDiskId);
 	}
 
@@ -740,7 +742,8 @@ public class CPIImpl implements CPI{
 	private void diskAttachment(String vm_id, String disk_id) {
 		//FIXME; check disk exists
 		//FIXME: check vm exists
-		Set<Volume> volumes = api.getVolumeApi().listVolumes(ListVolumesOptions.Builder.name(disk_id));
+		Set<Volume> volumes = api.getVolumeApi().listVolumes(ListVolumesOptions.Builder.name(disk_id).type(Type.DATADISK));
+		Assert.isTrue(volumes.size()<2,"attach_disk: Fatal, Found multiple volume with name  "+disk_id);
 		Assert.isTrue(volumes.size()==1,"attach_disk: Unable to find volume "+disk_id);
 		String csDiskId=volumes.iterator().next().getId();
 		
@@ -781,7 +784,7 @@ public class CPIImpl implements CPI{
 	@Override
 	public void detach_disk(String vm_id, String disk_id) {
 		logger.info("detach disk");
-		String csDiskId=api.getVolumeApi().listVolumes(ListVolumesOptions.Builder.name(disk_id)).iterator().next().getId();		
+		String csDiskId=api.getVolumeApi().listVolumes(ListVolumesOptions.Builder.name(disk_id).type(Type.DATADISK)).iterator().next().getId();		
 		AsyncCreateResponse resp=api.getVolumeApi().detachVolume(csDiskId);
 		
 		jobComplete = retry(new JobComplete(api), 1200, 3, 5, SECONDS);
