@@ -15,7 +15,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.orange.oss.cloudfoundry.cscpi.domain.CPIResponse;
@@ -121,7 +120,14 @@ public class CPIAdapterImpl implements CPIAdapter {
 			} else if (method.equals("delete_stemcell")) {
 				String stemcell_id=args.next().asText();				
 				this.cpi.delete_stemcell(stemcell_id);
-			} else
+			} else if (method.equals("configure_networks")) {
+				String vm_id=args.next().asText();
+				Networks networks=this.parseNetwork(args.next());				
+				this.cpi.configure_networks(vm_id, networks);
+				
+			} 
+			
+			else
 				throw new IllegalArgumentException("Unknown method :" + method);
 
 			

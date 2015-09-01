@@ -54,7 +54,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.Assert;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableMap;
 import com.orange.oss.cloudfoundry.cscpi.boshregistry.BoshRegistryClient;
@@ -73,6 +72,8 @@ import com.orange.oss.cloudfoundry.cscpi.webdav.WebdavServerAdapter;
  * 
  */
 public class CPIImpl implements CPI{
+
+	private static final String CPI_OS_TYPE = "Other PV (64-bit)";
 
 	private static final String CPI_VM_PREFIX = "cpivm-";
 
@@ -157,7 +158,7 @@ public class CPIImpl implements CPI{
 		this.vmCreation(stemcell_id, compute_offering, networks, vmName,agent_id,userData);
 
 		
-		//TODO: create ephemeral disk, read the disk size from properties, attach it to the vm.
+		//create ephemeral disk, read the disk size from properties, attach it to the vm.
 		//NB: if base ROOT disk is large enough, bosh agent can use it to hold swap / ephemeral data. CPI forces an external vol for ephemeral
 	    String ephemeralDiskServiceOfferingName=resource_pool.ephemeral_disk_offering;
 	    Assert.isTrue(ephemeralDiskServiceOfferingName!=null,"create_vm: must specify ephemeral_disk_offering attribute in cloud properties");
@@ -374,7 +375,7 @@ public class CPIImpl implements CPI{
 		//FIXME: find correct os type (PVM 64 bits)
 		OSType osType=null;
 		for (OSType ost:api.getGuestOSApi().listOSTypes()){
-			if (ost.getDescription().equals("Other PV (64-bit)")) osType=ost;
+			if (ost.getDescription().equals(CPI_OS_TYPE)) osType=ost;
 		}
 		
 		Assert.notNull(osType, "Unable to find OsType");
@@ -456,10 +457,10 @@ public class CPIImpl implements CPI{
 		Random randomGenerator=new Random();
 		String stemcellId="cpitemplate-"+randomGenerator.nextInt(100000);
 		
-		//FIXME: find correct os type (PVM 64 bits)
+		//find correct os type (PVM 64 bits)
 		OSType osType=null;
 		for (OSType ost:api.getGuestOSApi().listOSTypes()){
-			if (ost.getDescription().equals("Other PV (64-bit)")) osType=ost;
+			if (ost.getDescription().equals(CPI_OS_TYPE)) osType=ost;
 		}
 		
 		Assert.notNull(osType, "Unable to find OsType");
@@ -529,9 +530,23 @@ public class CPIImpl implements CPI{
 		
 		Assert.isTrue(vms.size()==1, "delete_vm : Found multiple VMs with name "+vm_id);		
 		
-		String csVmId=vms.iterator().next().getId();
-		String jobId=api.getVirtualMachineApi().destroyVirtualMachine(csVmId);
+		VirtualMachine csVm = vms.iterator().next();
+		String csVmId=csVm.getId();
 		
+		//stop the vm
+		String stopJobId=api.getVirtualMachineApi().stopVirtualMachine(csVmId);
+		jobComplete = retry(new JobComplete(api), 1200, 3, 5, SECONDS);
+		jobComplete.apply(stopJobId);
+		logger.info("vm {} stopped before destroying");
+
+		
+		//remove NIC (free the IP before expunge delay
+		NIC nic=csVm.getNICs().iterator().next();
+		logger.info("NIC to delete : {}",nic.toString());
+		//TODO: can use jclouds to remove the nic?
+
+		
+		String jobId=api.getVirtualMachineApi().destroyVirtualMachine(csVmId);
 		
 		jobComplete = retry(new JobComplete(api), 1200, 3, 5, SECONDS);
 		jobComplete.apply(jobId);
@@ -656,7 +671,7 @@ public class CPIImpl implements CPI{
 	 * @throws com.orange.oss.cloudfoundry.cscpi.exceptions.NotSupportedException 
 	 */
 	@Override
-	public void configure_networks(String vm_id, JsonNode networks) throws com.orange.oss.cloudfoundry.cscpi.exceptions.NotSupportedException {
+	public void configure_networks(String vm_id, Networks networks) throws com.orange.oss.cloudfoundry.cscpi.exceptions.NotSupportedException {
 		logger.info("configure network");
 		throw new com.orange.oss.cloudfoundry.cscpi.exceptions.NotSupportedException("CPI does not support modifying network yet");
 		
