@@ -209,7 +209,7 @@ public interface CPI {
  * @throws NotSupportedException 
     * 
     */
-   void configure_networks(String vm_id,JsonNode networks) throws NotSupportedException;
+   void configure_networks(String vm_id,Networks networks) throws NotSupportedException;
    
    
    
