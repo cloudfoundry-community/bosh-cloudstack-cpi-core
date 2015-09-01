@@ -577,7 +577,7 @@ public class CPIImpl implements CPI{
 		jobComplete.apply(resp.getJobId());
 		
 		//delete disk
-		api.getVolumeApi().deleteVolume(ephemeralVol.getName());
+		api.getVolumeApi().deleteVolume(ephemeralVol.getId());
 
 		
 		logger.info("deleted successfully vm {} and ephemeral disk {}",vm_id,ephemeralVol.getName());
