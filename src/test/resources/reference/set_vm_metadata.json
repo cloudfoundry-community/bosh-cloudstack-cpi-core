@@ -1,13 +1,13 @@
 {
    "method":"set_vm_metadata",
    "arguments":[
-      "urn:vcloud:vm:b068ad18-2903-407d-aeba-c6ff8b721749",
+      "cpivm-db877da4-1c81-471d-be75-9ae9654035be",
       {
-         "director":"my-bosh",
-         "deployment":"bosh-cloudstack"
+         "director":"bosh-master-dfy-qa",
+         "deployment":"concourse"
       }
    ],
    "context":{
-      "director_uuid":"9b66130e-77e6-4c54-b292-564e4668b4ce"
+      "director_uuid":"f8891348-b92d-4a67-9f74-c0db05005f40"
    }
 }

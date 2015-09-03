@@ -1,10 +1,10 @@
 {
    "method":"attach_disk",
    "arguments":[
-      "urn:vcloud:vm:b068ad18-2903-407d-aeba-c6ff8b721749",
-      "urn:vcloud:disk:74d8a522-f138-4b07-8fba-d2228f6a3b69"
+      "cpivm-172775c3-4df7-4ccd-8661-0310aee117c8",
+      "cpi-disk-873adfd4-c44f-434d-96d3-c39996fd13d7"
    ],
    "context":{
-      "director_uuid":"9b66130e-77e6-4c54-b292-564e4668b4ce"
+      "director_uuid":"f8891348-b92d-4a67-9f74-c0db05005f40"
    }
 }
