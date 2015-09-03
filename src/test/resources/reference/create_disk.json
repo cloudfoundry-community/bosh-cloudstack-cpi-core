@@ -1,12 +1,13 @@
-{  
+{
    "method":"create_disk",
-   "arguments":[  
-      32384,
-       {
-         "disk_offering":"custom_size_disk_offering2",
-      }
+   "arguments":[
+      1024,
+      {
+         "disk_offering":"DO2 - Medium STD"
+      },
+      "cpivm-172775c3-4df7-4ccd-8661-0310aee117c8"
    ],
-   "context":{  
-      "director_uuid":"9b66130e-77e6-4c54-b292-564e4668b4ce"
+   "context":{
+      "director_uuid":"f8891348-b92d-4a67-9f74-c0db05005f40"
    }
 }

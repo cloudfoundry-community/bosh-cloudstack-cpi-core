@@ -1,0 +1,37 @@
+ {
+   "method":"create_vm",
+   "arguments":[
+      "83b1ce00-c470-47c4-a00f-6eac66837204",
+      "cpitemplate-15380",
+      {
+         "compute_offering":"CO1 - Small STD",
+         "ephemeral_disk_offering":"DO2 - Medium STD"
+      },
+      {
+         "concourse":{
+            "ip":"10.234.228.151",
+            "netmask":"255.255.255.192",
+            "cloud_properties":{
+               "name":"3112 - preprod - back"
+            },
+            "default":[
+               "dns",
+               "gateway"
+            ],
+            "dns":[
+               "10.234.50.180",
+               "10.234.71.124",
+               "10.234.228.156"
+            ],
+            "gateway":"10.234.228.129"
+         }
+      },
+      null,
+      {
+
+      }
+   ],
+   "context":{
+      "director_uuid":"f8891348-b92d-4a67-9f74-c0db05005f40"
+   }
+}

@@ -1,29 +1,42 @@
 {
-  "method": "create_vm",
-  "arguments": [
-    "ad7d4219-d512-496f-8bbb-c3899ab45159",
-    "bosh-stemcell-3033-cloudstack-ubuntu-trusty.vhd.bz2",
-    {
-      "compute_offering":"CO1 - Small STD",
-      "disk": 8192,
-      "ephemeral_disk_offering": "custom_size_disk_offering"
-    },
-    {
-      "network-1": {
-        "type": "manual",
-        "ip": "10.234.229.50",
-        "netmask": "255.255.255.192",
-        "cloud_properties": {"name": "3112 - prod - back"},
-        "default": [
-          "dns",
-          "gateway"
-        ],
-        "dns": ["10.203.6.105"],
-        "gateway": "10.234.229.1"
+   "method":"create_vm",
+   "arguments":[
+      "0c297322-e637-47e6-7c72-b6ab645231b7",
+      "cpitemplate-15550",
+      {
+         "compute_offering":"CO1 - Small STD",
+         "disk":20000,
+         "ephemeral_disk_offering":"custom_size_disk_offering2"
+      },
+      {
+         "private":{
+            "cloud_properties":{
+               "name":"3112 - preprod - back"
+            },
+            "default":[
+               "dns",
+               "gateway"
+            ],
+            "dns":[
+               "10.234.50.180",
+               "10.234.71.124"
+            ],
+            "gateway":"10.234.228.129",
+            "ip":"10.234.228.158",
+            "netmask":"255.255.255.192",
+            "type":"manual"
+         }
+      },
+      [
+
+      ],
+      {
+         "bosh":{
+            "password":"$6$4gDD3aV0rdqlrKC$2axHCxGKIObs6tAmMTqYCspcdvQXh3JJcvWOY2WGb4SrdXtnCyNaWlrf3WEqvYR2MYizEGp3kMmbpwBC6jsHt0"
+         }
       }
-    },
-    null,
-    {}
-  ],
-  "context": {"director_uuid": "9b66130e-77e6-4c54-b292-564e4668b4ce"}
+   ],
+   "context":{
+      "director_uuid":"5e637715-58d3-4617-7268-873d9d4c92bb"
+   }
 }
