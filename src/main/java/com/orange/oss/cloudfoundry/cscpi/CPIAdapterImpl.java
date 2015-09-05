@@ -81,7 +81,11 @@ public class CPIAdapterImpl implements CPIAdapter {
 				ResourcePool resource_pool=this.parseResourcePool(args.next());
 				Networks networks=this.parseNetwork(args.next());
 				
-				List<String> disk_locality=new ArrayList<String>();				
+				List<String> disk_locality=new ArrayList<String>();
+				//TODO: log and parse if a disk hint is provided by director
+				//see: https://github.com/cloudfoundry/bosh/issues/945
+				
+				
 				Map<String, String> env=new HashMap<String, String>();
 
 				String vmId=this.cpi.create_vm(agent_id, stemcell_id, resource_pool, networks, disk_locality, env);

@@ -51,12 +51,12 @@ import org.jclouds.http.HttpResponseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.Assert;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableMap;
 import com.orange.oss.cloudfoundry.cscpi.boshregistry.BoshRegistryClient;
+import com.orange.oss.cloudfoundry.cscpi.config.CloudStackConfiguration;
 import com.orange.oss.cloudfoundry.cscpi.domain.NetworkType;
 import com.orange.oss.cloudfoundry.cscpi.domain.Networks;
 import com.orange.oss.cloudfoundry.cscpi.domain.ResourcePool;
@@ -83,30 +83,11 @@ public class CPIImpl implements CPI{
 
 	private static Logger logger=LoggerFactory.getLogger(CPIImpl.class);
 	
-	@Value("${cloudstack.state_timeout}")	
-	int state_timeout;
-
-	@Value("${cloudstack.state_timeout_volume}")	
-	int state_timeout_volume;
-
-	@Value("${cloudstack.stemcell_public_visibility}")	
-	boolean stemcell_public_visibility;
-
-	@Value("${cloudstack.default_zone}")	
-	String  default_zone;
+	@Autowired
+	private CloudStackConfiguration cloudstackConfig;
 	
-	@Value("${cpi.mock_create_stemcell}")
-	boolean mockCreateStemcell;
-
-	//initial preexisting template (to mock stemcell upload before template generation)
-	@Value("${cpi.existing_template_name}")
-	String existingTemplateName;	
-	
-	private  Predicate<String> jobComplete;
-
 	@Autowired
 	private CloudStackApi api;
-	
 	
 	@Autowired
 	UserDataGenerator userDataGenerator;
@@ -119,7 +100,9 @@ public class CPIImpl implements CPI{
 	
 	@Autowired
 	private BoshRegistryClient boshRegistry;
+
 	
+	private  Predicate<String> jobComplete;
 	
 	/**
 	 * creates a vm.
@@ -149,6 +132,14 @@ public class CPIImpl implements CPI{
         String compute_offering=resource_pool.compute_offering;
         Assert.isTrue(compute_offering!=null,"Must provide compute offering in vm ressource pool");
 		
+        
+        String affinityGroup=resource_pool.affinity_group;
+        if (affinityGroup!=null) {
+        	logger.info("an affinity group {} has been specified for create_vm",affinityGroup);
+        }
+        
+        
+        
         String vmName=CPI_VM_PREFIX+UUID.randomUUID().toString();
 		
 		logger.info("now creating cloudstack vm");
@@ -174,6 +165,10 @@ public class CPIImpl implements CPI{
 		//FIXME : placement constraint local disk offering / vm
 		logger.info("now attaching ephemaral disk {} to cloudstack vm {}",ephemeralDiskName,vmName);		
 		this.diskAttachment(vmName, ephemeralDiskName);
+		
+		//FIXME: if attach fails, clean both vm and ephemeral disk ??
+		
+		
 		
 		//FIXME: registry feeding in vmCreation method. refactor here ?
 		
@@ -269,7 +264,6 @@ public class CPIImpl implements CPI{
 			.userData(userData.getBytes())
 			//.dataDiskSize(dataDiskSize)
 			.ipOnDefaultNetwork(directorNetwork.ip)
-		
 			;
 			break;
 			
@@ -338,7 +332,7 @@ public class CPIImpl implements CPI{
 		
 		//mock mode enables tests with an existing template (copied as a new template)
 		
-		if (this.mockCreateStemcell){
+		if (this.cloudstackConfig.mockCreateStemcell){
 			logger.warn("USING MOCK STEMCELL TRANSFORMATION TO CLOUDSTAK TEMPLATE)");
 			String stemcellId;
 			try {
@@ -438,7 +432,7 @@ public class CPIImpl implements CPI{
 		fakeDirectorNetworks.networks.put("default",net);
 		
 		
-		this.vmCreation(existingTemplateName, instance_type, fakeDirectorNetworks, workVmName,"fakeagent","fakeuserdata");
+		this.vmCreation(cloudstackConfig.existingTemplateName, instance_type, fakeDirectorNetworks, workVmName,"fakeagent","fakeuserdata");
 		VirtualMachine m=api.getVirtualMachineApi().listVirtualMachines(ListVirtualMachinesOptions.Builder.name(workVmName)).iterator().next();
 		
 		logger.info("STOPPING work vm for template generation");
@@ -851,7 +845,7 @@ public class CPIImpl implements CPI{
 		Zone zone=zones.iterator().next();
 		String zoneId = zone.getId();
 		
-		Assert.isTrue(zone.getName().equals(this.default_zone));
+		Assert.isTrue(zone.getName().equals(this.cloudstackConfig.default_zone));
 		
 		return zoneId;
 	}

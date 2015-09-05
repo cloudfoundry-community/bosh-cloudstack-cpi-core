@@ -26,35 +26,53 @@ public class CloudStackConfiguration {
 	
 	
 	@Value("${cloudstack.endpoint}")	
-	String endpoint;
+	public String endpoint;
 
 	@Value("${cloudstack.api_key}")	
-	String api_key;
+	public  String api_key;
 
 	@Value("${cloudstack.secret_access_key}")	
-	String secret_access_key;
+	public  String secret_access_key;
 
 	@Value("${cloudstack.default_key_name}")	
-	String default_key_name;
+	public String default_key_name;
 
 	@Value("${cloudstack.private_key}")	
-	String private_key;
+	public String private_key;
 
 
 	
 	@Value("${cloudstack.proxy_host}")	
-    String proxy_host;
+	public String proxy_host;
 
 	@Value("${cloudstack.proxy_port}")	
-	String proxy_port;
+	public String proxy_port;
 
 	@Value("${cloudstack.proxy_user}")	
-	String proxy_user;
+	public String proxy_user;
 
 	@Value("${cloudstack.proxy_password}")	
-	String proxy_password;
+	public String proxy_password;
 
+	@Value("${cloudstack.state_timeout}")	
+	public int state_timeout;
+
+	@Value("${cloudstack.state_timeout_volume}")	
+	public int state_timeout_volume;
+
+	@Value("${cloudstack.stemcell_public_visibility}")	
+	public boolean stemcell_public_visibility;
+
+	@Value("${cloudstack.default_zone}")	
+	public String  default_zone;
 	
+	@Value("${cpi.mock_create_stemcell}")
+	public boolean mockCreateStemcell;
+
+	//initial preexisting template (to mock stemcell upload before template generation)
+	@Value("${cpi.existing_template_name}")
+	public String existingTemplateName;	
+
 	
 	
 	
@@ -109,6 +127,8 @@ public class CloudStackConfiguration {
                 .modules(modules)
                 .overrides(overrides)
                 .buildApi(CloudStackApi.class);
+        
+        
         
         return api;
 
