@@ -257,7 +257,11 @@ public class CPIImpl implements CPI{
 			;
 			break;
 		case manual:
-        	logger.debug("static / manual ip vm creation");			
+        	logger.debug("static / manual ip vm creation");
+        	
+        	//check ip is available
+        	Assert.isTrue(!this.vmWithIpExists(directorNetwork.ip), "The required IP "+directorNetwork.ip +" is not available");
+        	
 			options=DeployVirtualMachineOptions.Builder
 			.name(vmName)
 			.networkId(network.getId())
@@ -585,6 +589,9 @@ public class CPIImpl implements CPI{
 		return true;
 		
 	}
+	
+	
+	
 
 	@Override
 	public boolean has_disk(String disk_id) {
@@ -850,7 +857,24 @@ public class CPIImpl implements CPI{
 		return zoneId;
 	}
 
-
+	/**
+	 * utility method to check ip conflict
+	 * @param ip
+	 * @return
+	 */
+	public boolean vmWithIpExists(String ip) {
+		logger.debug("check vm exist with ip {}",ip);
+		Set<VirtualMachine> listVirtualMachines = api.getVirtualMachineApi().listVirtualMachines(ListVirtualMachinesOptions.Builder.zoneId(this.findZoneId()));
+		boolean ipExists=false;
+		for (VirtualMachine vm:listVirtualMachines){
+			String vmIp=vm.getIPAddress();
+			if ((vmIp!=null)&& (vmIp.equals(ip))){
+				logger.warn("vm {} already uses ip {}",vm.getName(),ip);
+				ipExists=true;
+			}
+		}
+		return ipExists;
+	}
 	
 	
     
