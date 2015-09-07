@@ -71,10 +71,15 @@ public class CloudStackConfiguration {
 
 	//initial preexisting template (to mock stemcell upload before template generation)
 	@Value("${cpi.existing_template_name}")
-	public String existingTemplateName;	
+	public String existingTemplateName;
+	
+	
+	
+	@Value("${cpi.default_disk_offering}")
+	public String defaultDiskOffering;
 
-	
-	
+	@Value("${cpi.default_ephemeral_disk_offering}")	
+	public String defaultEphemeralDiskOffering;
 	
 	
 	@Bean
