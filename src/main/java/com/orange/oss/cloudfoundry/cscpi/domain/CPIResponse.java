@@ -22,7 +22,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 public class CPIResponse {
 
  public static class  CmdError{
-	 public String type="error";
+	 public String type="Bosh::Clouds::CpiError";
 	 public String message;
 	 @JsonProperty(value="ok_to_retry")
 	 boolean okToRetry=false;
