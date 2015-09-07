@@ -131,14 +131,11 @@ public class CPIImpl implements CPI{
         
         String compute_offering=resource_pool.compute_offering;
         Assert.isTrue(compute_offering!=null,"Must provide compute offering in vm ressource pool");
-		
         
         String affinityGroup=resource_pool.affinity_group;
         if (affinityGroup!=null) {
         	logger.info("an affinity group {} has been specified for create_vm",affinityGroup);
         }
-        
-        
         
         String vmName=CPI_VM_PREFIX+UUID.randomUUID().toString();
 		
@@ -152,9 +149,11 @@ public class CPIImpl implements CPI{
 		//create ephemeral disk, read the disk size from properties, attach it to the vm.
 		//NB: if base ROOT disk is large enough, bosh agent can use it to hold swap / ephemeral data. CPI forces an external vol for ephemeral
 	    String ephemeralDiskServiceOfferingName=resource_pool.ephemeral_disk_offering;
-	    Assert.isTrue(ephemeralDiskServiceOfferingName!=null,"create_vm: must specify ephemeral_disk_offering attribute in cloud properties");
+	    if (ephemeralDiskServiceOfferingName==null) {
+	    	ephemeralDiskServiceOfferingName=this.cloudstackConfig.defaultEphemeralDiskOffering;
+	    	logger.info("no ephemeral_disk_offering specified in cloud_properties. use global CPI default ephemeral disk offering {}",ephemeralDiskServiceOfferingName);
+	    }
 	    logger.debug("ephemeral disk offering is {}",ephemeralDiskServiceOfferingName);
-		
 
 	    logger.info("now creating ephemeral disk");
 	    int ephemeralDiskSize=resource_pool.disk/1024; //cloudstack size api is Go
@@ -163,7 +162,7 @@ public class CPIImpl implements CPI{
 		
 		//NOW attache the ephemeral disk to the vm (need reboot ?)
 		//FIXME : placement constraint local disk offering / vm
-		logger.info("now attaching ephemaral disk {} to cloudstack vm {}",ephemeralDiskName,vmName);		
+		logger.info("now attaching ephemeral disk {} to cloudstack vm {}",ephemeralDiskName,vmName);		
 		this.diskAttachment(vmName, ephemeralDiskName);
 		
 		//FIXME: if attach fails, clean both vm and ephemeral disk ??
@@ -683,6 +682,11 @@ public class CPIImpl implements CPI{
 	public String create_disk(Integer size, Map<String, String> cloud_properties) {
 		String diskOfferingName=cloud_properties.get("disk_offering");
 		Assert.isTrue(diskOfferingName!=null, "no disk_offering attribute specified for disk creation !");
+		if (diskOfferingName==null){
+			diskOfferingName=this.cloudstackConfig.defaultDiskOffering;
+			logger.info("no disk_offering attribute specified for disk creation. use global CPI default disk offering: {}",diskOfferingName);
+		}
+		
 		String name=CPI_PERSISTENT_DISK_PREFIX+UUID.randomUUID().toString();
 		return this.diskCreate(name,size,diskOfferingName);
 
@@ -767,6 +771,9 @@ public class CPIImpl implements CPI{
 		Set<VirtualMachine> vms = api.getVirtualMachineApi().listVirtualMachines(ListVirtualMachinesOptions.Builder.name(vm_id));
 		Assert.isTrue(vms.size()==1, "attach_disk: Unable to find vm "+vm_id);
 		String csVmId=vms.iterator().next().getId();
+		
+		//FIXME: with local disk, should check the host and vm host id match ?
+		
 		
 		VolumeApi vol = this.api.getVolumeApi();
 		AsyncCreateResponse resp=vol.attachVolume(csDiskId, csVmId);
