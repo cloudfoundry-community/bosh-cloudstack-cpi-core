@@ -232,11 +232,9 @@ public class CPIImpl implements CPI{
 		NetworkOffering networkOffering=listNetworkOfferings.iterator().next();
 
 		//Requirements, check the provided network, must have a correct prerequisite in offering
-		// service offering need dhcp (if same bootstrap as openstack)
+		// service offering need dhcp (for dhcp bootstrap, and getting vrouter ip, used for metadata access)
 		// 					need metadata service for userData
 		//					need dns ?
-		
-		
 		
 		logger.info("associated Network Offering is {}", networkOffering.getName());
 		
@@ -584,6 +582,7 @@ public class CPIImpl implements CPI{
 	public boolean has_vm(String vm_id) {
 		logger.info("has_vm ?");
 		Set<VirtualMachine> listVirtualMachines = api.getVirtualMachineApi().listVirtualMachines(ListVirtualMachinesOptions.Builder.name(vm_id));
+		Assert.isTrue(listVirtualMachines.size() <=1, "INCONSISTENCY : multiple vms found for vm_id "+vm_id);		
 		if (listVirtualMachines.size()==0) return false;
 		return true;
 		
@@ -596,6 +595,8 @@ public class CPIImpl implements CPI{
 	public boolean has_disk(String disk_id) {
 		logger.info("has_disk ?");
 		Set<Volume> vols=api.getVolumeApi().listVolumes(ListVolumesOptions.Builder.name(disk_id).type(Type.DATADISK));
+		Assert.isTrue(vols.size() <=1, "INCONSISTENCY : multiple data volumes found for disk_id "+disk_id);
+		
 		if (vols.size()==0) return false;
 		
 		logger.debug("disk {} found in cloudstack", disk_id);
