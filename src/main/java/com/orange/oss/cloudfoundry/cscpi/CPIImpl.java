@@ -682,7 +682,7 @@ public class CPIImpl implements CPI{
 	@Override
 	public String create_disk(Integer size, Map<String, String> cloud_properties) {
 		String diskOfferingName=cloud_properties.get("disk_offering");
-		Assert.isTrue(diskOfferingName!=null, "no disk_offering attribute specified for disk creation !");
+//		Assert.isTrue(diskOfferingName!=null, "no disk_offering attribute specified for disk creation !");
 		if (diskOfferingName==null){
 			diskOfferingName=this.cloudstackConfig.defaultDiskOffering;
 			logger.info("no disk_offering attribute specified for disk creation. use global CPI default disk offering: {}",diskOfferingName);
