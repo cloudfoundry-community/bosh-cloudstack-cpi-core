@@ -17,6 +17,7 @@ import com.orange.oss.cloudfoundry.cscpi.domain.Network;
 import com.orange.oss.cloudfoundry.cscpi.domain.NetworkType;
 import com.orange.oss.cloudfoundry.cscpi.domain.Networks;
 import com.orange.oss.cloudfoundry.cscpi.domain.ResourcePool;
+import com.orange.oss.cloudfoundry.cscpi.exceptions.CpiErrorException;
 import com.orange.oss.cloudfoundry.cscpi.exceptions.VMCreationFailedException;
 
 
@@ -33,10 +34,11 @@ public class CPIFlowIT {
 	/**
 	 * see reference doc
 	 * @throws VMCreationFailedException 
+	 * @throws CpiErrorException 
 	 * @see https://github.com/cloudfoundry/bosh-init/blob/master/docs/architecture.md
 	 */
 	@Test
-	public void testCompleteFlow() throws VMCreationFailedException{
+	public void testCompleteFlow() throws VMCreationFailedException, CpiErrorException{
 		//provided by bosh ?
 		String agent_id="xxxxx";
 		

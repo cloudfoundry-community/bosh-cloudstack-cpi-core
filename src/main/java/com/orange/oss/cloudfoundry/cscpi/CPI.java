@@ -6,6 +6,7 @@ import java.util.Map;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.orange.oss.cloudfoundry.cscpi.domain.Networks;
 import com.orange.oss.cloudfoundry.cscpi.domain.ResourcePool;
+import com.orange.oss.cloudfoundry.cscpi.exceptions.CpiErrorException;
 import com.orange.oss.cloudfoundry.cscpi.exceptions.NotSupportedException;
 import com.orange.oss.cloudfoundry.cscpi.exceptions.VMCreationFailedException;
 
@@ -124,8 +125,9 @@ public interface CPI {
     def delete_vm(vm_id)
       not_implemented(:delete_vm)
     end
+ * @throws CpiErrorException 
 **/
-   void delete_vm(String vm_id); 
+   void delete_vm(String vm_id) throws CpiErrorException; 
 	
 	/**
 	 * 

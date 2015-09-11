@@ -69,6 +69,10 @@ public class CloudStackConfiguration {
 	@Value("${cpi.mock_create_stemcell}")
 	public boolean mockCreateStemcell;
 
+	
+	@Value("${cpi.vm_expunge_delay}")
+	public int vmExpungeDelaySeconds;
+	
 	//initial preexisting template (to mock stemcell upload before template generation)
 	@Value("${cpi.existing_template_name}")
 	public String existingTemplateName;
