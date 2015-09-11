@@ -17,6 +17,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import com.orange.oss.cloudfoundry.cscpi.domain.Network;
 import com.orange.oss.cloudfoundry.cscpi.domain.Networks;
 import com.orange.oss.cloudfoundry.cscpi.domain.ResourcePool;
+import com.orange.oss.cloudfoundry.cscpi.exceptions.CpiErrorException;
 import com.orange.oss.cloudfoundry.cscpi.exceptions.VMCreationFailedException;
 
 
@@ -34,7 +35,7 @@ public class CPIImplIT {
 	
 	
 	@Test
-	public void testCreate_vm() throws VMCreationFailedException {
+	public void testCreate_vm() throws VMCreationFailedException, CpiErrorException {
 		//should be template Id
 		String agent_id="123456789";
 		

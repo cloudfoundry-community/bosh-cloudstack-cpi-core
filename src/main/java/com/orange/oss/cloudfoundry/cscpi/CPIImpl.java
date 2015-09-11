@@ -60,6 +60,8 @@ import com.orange.oss.cloudfoundry.cscpi.config.CloudStackConfiguration;
 import com.orange.oss.cloudfoundry.cscpi.domain.NetworkType;
 import com.orange.oss.cloudfoundry.cscpi.domain.Networks;
 import com.orange.oss.cloudfoundry.cscpi.domain.ResourcePool;
+import com.orange.oss.cloudfoundry.cscpi.exceptions.CPIException;
+import com.orange.oss.cloudfoundry.cscpi.exceptions.CpiErrorException;
 import com.orange.oss.cloudfoundry.cscpi.exceptions.VMCreationFailedException;
 import com.orange.oss.cloudfoundry.cscpi.webdav.WebdavServerAdapter;
 
@@ -513,7 +515,7 @@ public class CPIImpl implements CPI{
 	}
 
 	@Override
-	public void delete_vm(String vm_id) {
+	public void delete_vm(String vm_id) throws CpiErrorException {
 		logger.info("delete_vm");
 		
 		Set<VirtualMachine> vms = api.getVirtualMachineApi().listVirtualMachines(ListVirtualMachinesOptions.Builder.name(vm_id));
@@ -573,7 +575,16 @@ public class CPIImpl implements CPI{
 		
 		//delete disk
 		api.getVolumeApi().deleteVolume(ephemeralVol.getId());
-
+		
+		
+		//wait expunge delay
+		try {
+			logger.info("waiting expunge delay for vm {} delete",vm_id);
+			Thread.sleep(this.cloudstackConfig.vmExpungeDelaySeconds*1000);
+			logger.info("DONE waiting expunge delay for vm {} delete",vm_id);
+		} catch (InterruptedException e) {
+			throw new CpiErrorException(e.getMessage(),e); 
+			};
 		
 		logger.info("deleted successfully vm {} and ephemeral disk {}",vm_id,ephemeralVol.getName());
 	}
