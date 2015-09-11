@@ -3,7 +3,6 @@ package com.orange.oss.cloudfoundry.cscpi;
 import java.util.List;
 import java.util.Map;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.orange.oss.cloudfoundry.cscpi.domain.Networks;
 import com.orange.oss.cloudfoundry.cscpi.domain.ResourcePool;
 import com.orange.oss.cloudfoundry.cscpi.exceptions.CpiErrorException;
@@ -99,8 +98,9 @@ public interface CPI {
 	 @param [Hash] cloud_properties properties required for creating this template
 	               specific to a CPI
 	@return [String] opaque id later used by {#create_vm} and {#delete_stemcell}
+	 * @throws CpiErrorException 
 	 */
-    String create_stemcell(String image_path, Map<String,String>cloud_properties);
+    String create_stemcell(String image_path, Map<String,String>cloud_properties) throws CpiErrorException;
     
     
     

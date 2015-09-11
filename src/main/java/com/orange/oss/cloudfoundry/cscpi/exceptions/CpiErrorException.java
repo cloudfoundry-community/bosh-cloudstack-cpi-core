@@ -10,6 +10,11 @@ public class CpiErrorException extends CPIException {
 		super(msg, e);
 	}
 	
+	public CpiErrorException(String msg){
+		super(msg);
+	}
+	
+	
 	@Override
 	public String toString(){
 		return "Bosh::Clouds::CpiError";

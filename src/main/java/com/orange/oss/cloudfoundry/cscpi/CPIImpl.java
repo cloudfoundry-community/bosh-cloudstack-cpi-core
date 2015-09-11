@@ -24,6 +24,7 @@ import org.jclouds.cloudstack.domain.OSType;
 import org.jclouds.cloudstack.domain.ServiceOffering;
 import org.jclouds.cloudstack.domain.Tag;
 import org.jclouds.cloudstack.domain.Template;
+import org.jclouds.cloudstack.domain.Template.Status;
 import org.jclouds.cloudstack.domain.TemplateMetadata;
 import org.jclouds.cloudstack.domain.VirtualMachine;
 import org.jclouds.cloudstack.domain.VirtualMachine.State;
@@ -326,10 +327,11 @@ public class CPIImpl implements CPI{
 	 * @param image_path
 	 * @param cloud_properties
 	 * @return
+	 * @throws CpiErrorException 
 	 */
 	@Override
 	public String create_stemcell(String image_path,
-			Map<String, String> cloud_properties) {
+			Map<String, String> cloud_properties) throws CpiErrorException {
 		logger.info("create_stemcell");
 		
 		
@@ -397,13 +399,55 @@ public class CPIImpl implements CPI{
 		for (Template t: registredTemplates){
 			logger.debug("registred template "+t.toString());
 		}
-		//FIXME: wait for the template to be ready
 		
-		
-		logger.info("Template successfully registred ! {} - {}",stemcellId);
+		this.waitForTemplateReady(stemcellId);
 		
 		logger.info("done registering cloudstack template for stemcell {}",stemcellId);
 		return stemcellId;
+	}
+
+
+
+
+	/**
+	 * Wait for a registered template to be ready for instanciation (downloaded by cloudstack, and replicated in secondadry storage)
+	 * 
+	 * @param stemcellId
+	 * @throws CpiErrorException 
+	 */
+	private void waitForTemplateReady(String stemcellId) throws CpiErrorException {
+		//FIXME: wait for the template to be ready
+		long startTime=System.currentTimeMillis();
+		long timeoutTime=startTime+1000*60*5; //5 min wait for template publication
+		
+		boolean templateReady=false;
+		boolean templateError=false;
+		boolean timeout=false;
+		while ((!timeout)&&(!templateReady) &&(!templateError)){
+			timeout=System.currentTimeMillis()> timeoutTime;
+			Set<Template> matchingTemplates=api.getTemplateApi().listTemplates(ListTemplatesOptions.Builder.name(stemcellId));
+			Assert.isTrue(matchingTemplates.size()==1,"found multiple templates matching stemcellid "+stemcellId);
+			Template t=matchingTemplates.iterator().next();
+			Status templateStatus=t.getStatus();
+				
+			switch (templateStatus) {
+				case DOWNLOADED : templateReady=true; break;
+				case DOWNLOAD_ERROR: t.getStatus();break;
+				case UPLOAD_ERROR: templateError=true;break;
+				default: 
+					logger.warn("unknown template status {}"+templateStatus);
+			}
+		}
+		
+		if (templateError){
+			logger.error("Error publishing template {} in cloudstack",stemcellId);
+			throw new CpiErrorException("Error publishing template" +stemcellId);
+			}
+		if (timeout){
+			logger.error("Timeout publishing template {} in cloudstack",stemcellId);
+			throw new CpiErrorException("Timeout publishing template" +stemcellId);
+			}
+		
 	}
 
 	/**

@@ -71,7 +71,7 @@ public class CPIImplIT {
 	}
 
 	@Test
-	public void testCreate_stemcell() {
+	public void testCreate_stemcell() throws CpiErrorException {
 		
 		Map<String, String> cloud_properties=new HashMap<String, String>();
 		String image_path="/tmp/image.vhd";
