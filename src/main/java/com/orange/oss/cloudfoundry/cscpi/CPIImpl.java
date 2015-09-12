@@ -61,7 +61,6 @@ import com.orange.oss.cloudfoundry.cscpi.config.CloudStackConfiguration;
 import com.orange.oss.cloudfoundry.cscpi.domain.NetworkType;
 import com.orange.oss.cloudfoundry.cscpi.domain.Networks;
 import com.orange.oss.cloudfoundry.cscpi.domain.ResourcePool;
-import com.orange.oss.cloudfoundry.cscpi.exceptions.CPIException;
 import com.orange.oss.cloudfoundry.cscpi.exceptions.CpiErrorException;
 import com.orange.oss.cloudfoundry.cscpi.exceptions.VMCreationFailedException;
 import com.orange.oss.cloudfoundry.cscpi.webdav.WebdavServerAdapter;
@@ -75,7 +74,7 @@ import com.orange.oss.cloudfoundry.cscpi.webdav.WebdavServerAdapter;
  * 
  */
 public class CPIImpl implements CPI{
-
+	
 	private static final String CPI_OS_TYPE = "Other PV (64-bit)";
 
 	private static final String CPI_VM_PREFIX = "cpivm-";

@@ -26,6 +26,34 @@ import com.orange.oss.cloudfoundry.cscpi.exceptions.CPIException;
 
 public class CPIAdapterImpl implements CPIAdapter {
 
+
+	public enum CPIMethod {
+		delete_stemcell,
+		create_stemcell,
+		has_disk,
+		has_vm,
+		delete_vm,
+		set_vm_metadata,
+		reboot_vm,
+		create_vm,
+		detach_disk,
+		attach_disk,
+		delete_disk,
+		create_disk
+	}
+	
+	private static final String DELETE_STEMCELL = "delete_stemcell";
+	private static final String CREATE_STEMCELL = "create_stemcell";
+	private static final String HAS_DISK = "has_disk";
+	private static final String HAS_VM = "has_vm";
+	private static final String DELETE_VM = "delete_vm";
+	private static final String SET_VM_METADATA = "set_vm_metadata";
+	private static final String REBOOT_VM = "reboot_vm";
+	private static final String CREATE_VM = "create_vm";
+	private static final String DETACH_DISK = "detach_disk";
+	private static final String ATTACH_DISK = "attach_disk";
+	private static final String DELETE_DISK = "delete_disk";
+	private static final String CREATE_DISK = "create_disk";
 	private static Logger logger = LoggerFactory.getLogger(CPIAdapterImpl.class.getName());
 
 	@Autowired
@@ -44,39 +72,32 @@ public class CPIAdapterImpl implements CPIAdapter {
 
 			String method = json.get("method").asText();
 			logger.info("method : {}", method);
-
-//			String arguments = json.get("arguments").textValue();
-//			logger.info("arguments : {}", arguments);
-//
-//			String context = json.get("context").textValue();
-//			logger.info("context : {}", context);
 			
 			Iterator<JsonNode> args=json.get("arguments").elements();
-			
-			
 
-			if (method.equals("create_disk")) {
+
+			if (method.equals(CREATE_DISK)) {
 				Integer size=args.next().asInt();
 				Map<String, String> cloud_properties=mapper.convertValue(args.next(), HashMap.class);
 				String diskId=this.cpi.create_disk(size,cloud_properties);
 				response.result.add(diskId);
 
-			} else if (method.equals("delete_disk")) {
+			} else if (method.equals(DELETE_DISK)) {
 				String disk_id=args.next().asText();
 				this.cpi.delete_disk(disk_id);
 
 
-			} else if (method.equals("attach_disk")) {
+			} else if (method.equals(ATTACH_DISK)) {
 				String vm_id=args.next().asText();
 				String disk_id=args.next().asText();;
 				this.cpi.attach_disk(vm_id, disk_id);
 
-			} else if (method.equals("detach_disk")) {
+			} else if (method.equals(DETACH_DISK)) {
 				String vm_id=args.next().asText();
 				String disk_id=args.next().asText();
 				this.cpi.detach_disk(vm_id, disk_id);
 
-			} else if (method.equals("create_vm")) {
+			} else if (method.equals(CREATE_VM)) {
 				String agent_id=args.next().asText();;
 				String stemcell_id=args.next().asText();;
 				ResourcePool resource_pool=this.parseResourcePool(args.next());
@@ -93,36 +114,36 @@ public class CPIAdapterImpl implements CPIAdapter {
 				response.result.add(vmId);
 				
 				
-			} else if (method.equals("reboot_vm")) {
+			} else if (method.equals(REBOOT_VM)) {
 				String vm_id=args.next().asText();
 				this.cpi.reboot_vm(vm_id);
 
-			} else if (method.equals("set_vm_metadata")) {
+			} else if (method.equals(SET_VM_METADATA)) {
 				String vm_id=args.next().asText();
 				Map<String, String> metadata=mapper.convertValue(args.next(), HashMap.class);
 				this.cpi.set_vm_metadata(vm_id, metadata);
 				
-			} else if (method.equals("delete_vm")) {
+			} else if (method.equals(DELETE_VM)) {
 				String vm_id=args.next().asText();
 				this.cpi.delete_vm(vm_id);
-			} else if (method.equals("has_vm")) {
+			} else if (method.equals(HAS_VM)) {
 				String vm_id=args.next().asText();
 				boolean hasVm=this.cpi.has_vm(vm_id);
 				response.result.add(new Boolean(hasVm));
 
-			}  else if (method.equals("has_disk")) {
+			}  else if (method.equals(HAS_DISK)) {
 				String disk_id=args.next().asText();
 				boolean hasDisk=this.cpi.has_disk(disk_id);
 				response.result.add(new Boolean(hasDisk));
 			
-			} else if (method.equals("create_stemcell")) {
+			} else if (method.equals(CREATE_STEMCELL)) {
 				String image_path=args.next().asText();				
 				Map<String, String> cloud_properties=mapper.convertValue(args.next(), HashMap.class);
 				
 				String stemcell=this.cpi.create_stemcell(image_path, cloud_properties);
 				response.result.add(stemcell);
 
-			} else if (method.equals("delete_stemcell")) {
+			} else if (method.equals(DELETE_STEMCELL)) {
 				String stemcell_id=args.next().asText();				
 				this.cpi.delete_stemcell(stemcell_id);
 			} else if (method.equals("configure_networks")) {
