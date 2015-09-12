@@ -1,0 +1,101 @@
+  
+logging:
+  level:
+    org.springframework: INFO
+    org.springframework.boot.actuate: DEBUG
+    
+spring:
+  main:
+    show-banner: true
+  jackson:
+    deserialization:
+      ACCEPT_SINGLE_VALUE_AS_ARRAY: true    
+  profiles:
+    active: qa
+  pidfile: ./target/application.pid
+  
+  datasource:
+    url:  jdbc:hsqldb:file:./target/testdb
+#    username: sa
+#    password: sa
+#    driverClassName: org.hsql.Driver
+  
+server:
+  tomcat:
+    access-log-enabled: true
+  
+
+---
+spring:
+  profiles: default    
+cloudstack:
+  endpoint: http://192.168.56.11:8080/client/api
+  proxy_host:
+  proxy_port:
+  proxy_user:
+  proxy_password:
+
+  api_key: Jfy8RHP1-BddKb0qTBfGJxTm8FQreLjSQvej7nF5XZOnmNzUMA9f9qhbFzBwwsny-XId8Eo56CnYTs-Ws-OoeQ
+  secret_access_key: ZZ0lguo0uk2QM5NFncdTQANAm6eyaMemTwyO4xI5j8tQIVzv7zOctNDx81Y7vSfeRb2OY7CGIzv_w6KR4l4AbQ
+# api_key: Pfq9J0ySWcFWEee_TcK3FzsjtUcquPcVWmmFO_66O_GUARi2HSdJjm6-kpz3ksedwfO2ZO_nxi53jRroBqYXIQ
+# secret_access_key: d4wPT3TgOt1dhubBJSm7fZtEfM-_9fcUbxg1V7TP_tq6QXQQTAw1y4n1qDLou833baFK4gEAU3tNHgfiOgiD6g
+
+  default_key_name: xx
+  private_key: zz
+  state_timeout: 600
+  state_timeout_volume: 600
+  stemcell_public_visibility: true
+  default_zone: TEST2
+    
+    
+---
+spring:
+  profiles: qa    
+cloudstack:
+  endpoint:  http://zzz:8080/client/api
+  
+  proxy_host: 10.98.253.30
+  proxy_port: 8080
+  proxy_user: xx
+  proxy_password: yy
+  
+  api_key: xxxxxxxxxxxxxxxxxxxxxxxxxxx
+  secret_access_key: yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy
+
+  default_key_name: xx
+  private_key: zz
+  state_timeout: 600
+  state_timeout_volume: 600
+  stemcell_public_visibility: true
+  default_zone: SPH-PP-NEON
+    
+cpi:
+  mock_create_stemcell: true
+ 
+  existing_template_name: "bosh-stemcell-3033-po10.vhd.bz2"
+  vm_expunge_delay: 30
+
+  webdav_host: 127.0.0.1
+  webdav_port: 8080
+  webdav_directory: "/tmp"
+  
+  default_disk_offering: "DO1 - Small STD" 
+  default_ephemeral_disk_offering: "DO1 - Small STD"  
+      
+  registry:
+    endpoint: http://127.0.0.1:8080
+    user: admin
+    password: admin
+      
+  blobstore:
+    provider: local
+    path: /var/vcap/micro_bosh/data/cache
+    address: 10.234.228.157
+    port: 25250
+    options:
+      user: agent
+      password: password
+  agent:
+    mbus: "nats://nats:nats-password@10.234.228.157:4222"
+  ntp: "[10.234.50.245 ,10.234.50.246]"   
+      
