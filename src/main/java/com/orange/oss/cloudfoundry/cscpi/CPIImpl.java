@@ -74,14 +74,15 @@ import com.orange.oss.cloudfoundry.cscpi.webdav.WebdavServerAdapter;
  * 
  */
 public class CPIImpl implements CPI{
+
+	
+	
+	public static final String CPI_VM_PREFIX = "cpivm-";
+	public static final String CPI_PERSISTENT_DISK_PREFIX = "cpi-disk-";
+	public static final String CPI_EPHEMERAL_DISK_PREFIX = "cpi-ephemeral-disk-";
 	
 	private static final String CPI_OS_TYPE = "Other PV (64-bit)";
 
-	private static final String CPI_VM_PREFIX = "cpivm-";
-
-	private static final String CPI_PERSISTENT_DISK_PREFIX = "cpi-disk-";
-
-	private static final String CPI_EPHEMERAL_DISK_PREFIX = "cpi-ephemeral-disk-";
 
 	private static Logger logger=LoggerFactory.getLogger(CPIImpl.class);
 	
