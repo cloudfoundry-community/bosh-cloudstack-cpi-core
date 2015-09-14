@@ -6,14 +6,13 @@ package com.orange.oss.cloudfoundry.cscpi.cep;
  * @author poblin
  *
  */
-public class CPIEvent {
+public abstract class CPIEvent {
 
-	private String command;
+	protected String command;
 	private String vmId = null;
 	private String diskId = null;
 
-	public CPIEvent(String command, String vmId, String diskId) {
-		this.command = command;
+	public CPIEvent( String vmId, String diskId) {
 		this.vmId = vmId;
 		this.diskId = diskId;
 	}

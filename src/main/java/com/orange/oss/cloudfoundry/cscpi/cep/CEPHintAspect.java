@@ -28,19 +28,24 @@ public class CEPHintAspect {
 	
 	
 	/**
-	 * catch successfull action when done by CPI Logic (no exception)
+	 * catch successfull action when done OK by CPI Logic (no exception)
 	 * @param joinPoint
 	 * @param result
 	 */
 	@AfterReturning(pointcut = "execution(* com.orange.oss.cloudfoundry..*CPIImpl.*(..))", returning = "result")
 	public void logAfterReturning(JoinPoint joinPoint, Object result) {
 		// get disk_id / vm_id
-		if (joinPoint.getSignature().getName().equals("create_disk")){
-			logger.info("intercept event create_disk");
-			
-			CPIEvent event=new CPIEvent("create_disk",joinPoint.getArgs()[0].toString(), null);
+		String command=joinPoint.getSignature().getName();
+		if (command.equals("detach_disk")){
+			logger.info("intercept event detach_disk");
+			CPIEvent event=new CPIDetachDiskOK(joinPoint.getArgs()[0].toString(), joinPoint.getArgs()[1].toString());
+			cep.sendEvent(event);
+		} else if (command.equals("delete_vm")){
+			logger.info("intercept event delete_vm");
+			CPIEvent event=new CPIDeleteVmOK(joinPoint.getArgs()[0].toString(), null);
 			cep.sendEvent(event);
 		}
+		
 
 	}
 
