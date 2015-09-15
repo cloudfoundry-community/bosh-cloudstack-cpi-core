@@ -64,6 +64,7 @@ import com.orange.oss.cloudfoundry.cscpi.domain.ResourcePool;
 import com.orange.oss.cloudfoundry.cscpi.exceptions.CpiErrorException;
 import com.orange.oss.cloudfoundry.cscpi.exceptions.VMCreationFailedException;
 import com.orange.oss.cloudfoundry.cscpi.webdav.WebdavServerAdapter;
+import com.orange.oss.cloudfoundry.cspi.cloudstack.NativeCloudstackConnector;
 
 /**
  * Implementation of the CPI API, translating to CloudStack jclouds API calls
@@ -103,6 +104,9 @@ public class CPIImpl implements CPI{
 	
 	@Autowired
 	private BoshRegistryClient boshRegistry;
+	
+	@Autowired
+	private NativeCloudstackConnector nativeCloudstackConnector;
 
 	
 	private  Predicate<String> jobComplete;
