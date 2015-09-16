@@ -23,6 +23,7 @@ import com.orange.oss.cloudfoundry.cscpi.domain.Network;
 import com.orange.oss.cloudfoundry.cscpi.domain.Networks;
 import com.orange.oss.cloudfoundry.cscpi.domain.ResourcePool;
 import com.orange.oss.cloudfoundry.cscpi.exceptions.CPIException;
+import com.orange.oss.cloudfoundry.cscpi.logic.CPI;
 
 public class CPIAdapterImpl implements CPIAdapter {
 

@@ -2,8 +2,9 @@ package com.orange.oss.cloudfoundry.cscpi.explorejson;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.orange.oss.cloudfoundry.cscpi.TestResourceLoader;
 import com.orange.oss.cloudfoundry.cscpi.domain.CPIRequest;
+import com.orange.oss.cloudfoundry.cscpi.logic.TestResourceLoader;
+
 import org.apache.commons.io.output.StringBuilderWriter;
 import org.junit.Before;
 import org.junit.Test;

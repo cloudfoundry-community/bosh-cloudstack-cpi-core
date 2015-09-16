@@ -25,8 +25,8 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.web.client.RestTemplate;
 
 import com.orange.oss.cloudfoundry.cscpi.BoshCloudstackCpiCoreApplication;
-import com.orange.oss.cloudfoundry.cscpi.CPI;
 import com.orange.oss.cloudfoundry.cscpi.exceptions.CpiErrorException;
+import com.orange.oss.cloudfoundry.cscpi.logic.CPI;
 /**
  * Rest integration tests.
  * Tests end to end to the running tomcat instance. Checks the rest api, POST verb, correct content-type and accept http headers

@@ -20,11 +20,11 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.orange.oss.cloudfoundry.cscpi.BoshCloudstackCpiCoreApplication;
-import com.orange.oss.cloudfoundry.cscpi.CPI;
 import com.orange.oss.cloudfoundry.cscpi.CPIAdapter;
 import com.orange.oss.cloudfoundry.cscpi.domain.CPIResponse;
 import com.orange.oss.cloudfoundry.cscpi.exceptions.CpiErrorException;
 import com.orange.oss.cloudfoundry.cscpi.exceptions.VMCreationFailedException;
+import com.orange.oss.cloudfoundry.cscpi.logic.CPI;
 /**
  * json cpi mapping tests. Tests the json => CPI class parameter parsing
  * @author pierre

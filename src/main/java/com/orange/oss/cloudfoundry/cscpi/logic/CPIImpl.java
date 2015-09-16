@@ -1,4 +1,4 @@
-package com.orange.oss.cloudfoundry.cscpi;
+package com.orange.oss.cloudfoundry.cscpi.logic;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.jclouds.util.Predicates2.retry;
@@ -56,7 +56,6 @@ import org.springframework.util.Assert;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableMap;
-import com.orange.oss.cloudfoundry.cscpi.boshregistry.BoshRegistryClient;
 import com.orange.oss.cloudfoundry.cscpi.config.CloudStackConfiguration;
 import com.orange.oss.cloudfoundry.cscpi.domain.NetworkType;
 import com.orange.oss.cloudfoundry.cscpi.domain.Networks;
