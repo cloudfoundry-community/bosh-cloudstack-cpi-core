@@ -221,10 +221,11 @@ public class CPIImpl implements CPI{
 		com.orange.oss.cloudfoundry.cscpi.domain.Network directorNetwork=networks.networks.values().iterator().next();
 		
 		String network_name=directorNetwork.cloud_properties.get("name");
-		
+
 		
 		//find the network with the provided name
-		Network network=null;		
+		Network network=null;
+		
 		Set<Network> listNetworks = api.getNetworkApi().listNetworks(ListNetworksOptions.Builder.zoneId(csZoneId));
 		for (Network n:listNetworks){
 			if (n.getName().equals(network_name)){
@@ -390,7 +391,7 @@ public class CPIImpl implements CPI{
 		
 		RegisterTemplateOptions options=RegisterTemplateOptions.Builder
 				.bits(64)
-				.isExtractable(true)				
+				.isExtractable(true)
 				//.isPublic(false) //true is KO
 				//.isFeatured(false)
 				//.domainId(domainId) 
@@ -517,7 +518,7 @@ public class CPIImpl implements CPI{
 				.build();
 		
 		CreateTemplateOptions options=CreateTemplateOptions.Builder
-				.isPublic(true)
+				//.isPublic(true). public = true creates cross-zones templates?
 				.isFeatured(true);
 		
 		AsyncCreateResponse asyncTemplateCreateJob =api.getTemplateApi().createTemplate(templateMetadata, options);
