@@ -1,11 +1,9 @@
-package com.orange.oss.cloudfoundry.cscpi.boshregistry;
+package com.orange.oss.cloudfoundry.cscpi.logic;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.client.RestTemplate;
-
-import com.orange.oss.cloudfoundry.cscpi.logic.BoshRegistryClient;
 
 /**
  * bosh registry client see
