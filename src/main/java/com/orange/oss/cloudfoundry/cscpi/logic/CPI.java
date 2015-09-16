@@ -1,4 +1,4 @@
-package com.orange.oss.cloudfoundry.cscpi;
+package com.orange.oss.cloudfoundry.cscpi.logic;
 
 import java.util.List;
 import java.util.Map;

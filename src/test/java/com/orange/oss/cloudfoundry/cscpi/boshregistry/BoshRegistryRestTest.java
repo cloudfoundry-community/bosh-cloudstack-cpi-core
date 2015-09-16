@@ -11,6 +11,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.web.client.HttpClientErrorException;
 
 import com.orange.oss.cloudfoundry.cscpi.BoshCloudstackCpiCoreApplication;
+import com.orange.oss.cloudfoundry.cscpi.logic.BoshRegistryClient;
 
 
 @RunWith(SpringJUnit4ClassRunner.class)

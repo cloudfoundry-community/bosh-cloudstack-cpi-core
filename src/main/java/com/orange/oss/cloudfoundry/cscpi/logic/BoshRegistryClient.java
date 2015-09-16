@@ -1,4 +1,4 @@
-package com.orange.oss.cloudfoundry.cscpi.boshregistry;
+package com.orange.oss.cloudfoundry.cscpi.logic;
 
 public interface BoshRegistryClient {
 

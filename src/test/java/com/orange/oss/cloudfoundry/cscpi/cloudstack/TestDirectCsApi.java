@@ -35,5 +35,15 @@ public class TestDirectCsApi {
 		logger.info("response from native call {}",result);
 
 	}
+	
+	@Test
+	public void testRawAsyncApiCall(){
+		Map<String,String> apiParameters=new TreeMap<String, String>();
+		apiParameters.put("command","listZones");
+		
+		
+		
+	}
+	
 }
 

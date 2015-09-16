@@ -5,7 +5,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 
 import com.orange.oss.cloudfoundry.cscpi.BeanMock;
-import com.orange.oss.cloudfoundry.cscpi.CPI;
+import com.orange.oss.cloudfoundry.cscpi.logic.CPI;
 
 import static org.mockito.Mockito.*;
 /**

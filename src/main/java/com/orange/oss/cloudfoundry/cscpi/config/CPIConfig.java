@@ -3,14 +3,14 @@ package com.orange.oss.cloudfoundry.cscpi.config;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import com.orange.oss.cloudfoundry.cscpi.CPI;
 import com.orange.oss.cloudfoundry.cscpi.CPIAdapter;
 import com.orange.oss.cloudfoundry.cscpi.CPIAdapterImpl;
-import com.orange.oss.cloudfoundry.cscpi.CPIImpl;
-import com.orange.oss.cloudfoundry.cscpi.UserDataGenerator;
-import com.orange.oss.cloudfoundry.cscpi.UserDataGeneratorImpl;
-import com.orange.oss.cloudfoundry.cscpi.VmSettingGenerator;
-import com.orange.oss.cloudfoundry.cscpi.VmSettingGeneratorImpl;
+import com.orange.oss.cloudfoundry.cscpi.logic.CPI;
+import com.orange.oss.cloudfoundry.cscpi.logic.CPIImpl;
+import com.orange.oss.cloudfoundry.cscpi.logic.UserDataGenerator;
+import com.orange.oss.cloudfoundry.cscpi.logic.UserDataGeneratorImpl;
+import com.orange.oss.cloudfoundry.cscpi.logic.VmSettingGenerator;
+import com.orange.oss.cloudfoundry.cscpi.logic.VmSettingGeneratorImpl;
 
 
 @Configuration
