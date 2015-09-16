@@ -1,0 +1,26 @@
+@startuml
+
+participant bosh_init
+participant cpi
+participant registry
+participant agent
+participant metadata_server
+participant CloudStack
+'box "cpi"
+'endbox
+
+
+autonumber
+
+== create_vm ==
+
+bosh_init -> cpi: create_vm
+cpi -> CloudStack: create_vm
+create agent
+CloudStack -> agent: create vm with user meta-data & start agent
+cpi -> registry: set agent config
+cpi -> agent: open ssh forwarding 8080 to registry:80
+agent -> metadata_server: get metadata and write it to settings.json (IP and network)
+agent -> registry: get agent config from 127.0.0.1:8080 (disk and additional config)
+
+@enduml
