@@ -774,7 +774,7 @@ public class CPIImpl implements CPI{
 			resp=api.getVolumeApi().createVolumeFromCustomDiskOfferingInZone(name, diskOfferingId, zoneId, size);			
 			
 		} else {
-			logger.info("creating disk -  ignoring specified size {} (fixed by offering : {} )",size,csDiskOffering.getDiskSize());
+			logger.info("creating disk -  ignoring specified size {} Mo (fixed by offering : {} Go )",size,csDiskOffering.getDiskSize());
 			resp=api.getVolumeApi().createVolumeFromDiskOfferingInZone(name, diskOfferingId, zoneId);
 
 		}
