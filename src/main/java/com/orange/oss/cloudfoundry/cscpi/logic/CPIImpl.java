@@ -252,7 +252,7 @@ public class CPIImpl implements CPI{
         {
 		case vip:
         case dynamic:
-        	logger.debug("dynamic ip vm creation");
+        	logger.debug("dynamic ip vm creation. Let Cloudstack choose an IP");
 			options=DeployVirtualMachineOptions.Builder
 			.name(vmName)
 			.networkId(network.getId())
@@ -261,7 +261,7 @@ public class CPIImpl implements CPI{
 			;
 			break;
 		case manual:
-        	logger.debug("static / manual ip vm creation");
+        	logger.debug("static / manual ip vm creation. bosh director has chosen a specific IP");
         	
         	//check ip is available
         	Assert.isTrue(!this.vmWithIpExists(directorNetwork.ip), "The required IP "+directorNetwork.ip +" is not available");
@@ -925,24 +925,25 @@ public class CPIImpl implements CPI{
 	}
 
 	/**
-	 * utility method to check ip conflict
+	 * utility method to check ip conflict (scope is Zone)
 	 * @param ip
 	 * @return
 	 */
 	public boolean vmWithIpExists(String ip) {
-		logger.debug("check vm exist with ip {}",ip);
+		logger.debug("check vm exist with ip {}", ip);
 		Set<VirtualMachine> listVirtualMachines = api.getVirtualMachineApi().listVirtualMachines(ListVirtualMachinesOptions.Builder.zoneId(this.findZoneId()));
-		boolean ipExists=false;
-		for (VirtualMachine vm:listVirtualMachines){
-			String vmIp=vm.getIPAddress();
-			if ((vmIp!=null)&& (vmIp.equals(ip))){
-				logger.warn("vm {} already uses ip {}",vm.getName(),ip);
-				ipExists=true;
+		boolean ipExists = false;
+		for (VirtualMachine vm : listVirtualMachines) {
+			Set<NIC> nics = vm.getNICs();
+			for (NIC nic : nics) {
+				String vmIp = nic.getIPAddress();
+				if ((vmIp != null) && (vmIp.equals(ip))) {
+					logger.warn("vm {} already uses ip {}", vm.getName(), ip);
+					ipExists = true;
+				}
 			}
 		}
 		return ipExists;
-	}
-	
-	
+	}	
     
 }
