@@ -3,16 +3,22 @@ logging:
   level:
     org.springframework: INFO
     org.springframework.boot.actuate: DEBUG
+    org.apache.http.client: DEBUG
     
 spring:
   main:
     show-banner: true
   jackson:
     deserialization:
-      ACCEPT_SINGLE_VALUE_AS_ARRAY: true    
+      ACCEPT_SINGLE_VALUE_AS_ARRAY: true
+  jpa:
+    hibernate:
+      ddl-auto: none          
   profiles:
     active: qa
   pidfile: ./target/application.pid
+  
+ 
   
   datasource:
     url:  jdbc:hsqldb:file:./target/testdb
@@ -52,15 +58,15 @@ cloudstack:
 spring:
   profiles: qa    
 cloudstack:
-  endpoint:  http://zzz:8080/client/api
+  endpoint:  http://cloudstack-api.redacted-domain:8080/client/api
   
   proxy_host: 10.98.253.30
   proxy_port: 8080
-  proxy_user: xx
-  proxy_password: yy
+  proxy_user: poblin
+  proxy_password: 9dK'-kB[
   
-  api_key: xxxxxxxxxxxxxxxxxxxxxxxxxxx
-  secret_access_key: yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy
+  api_key: TKVNrMEIx2lHMjwavyb2Y68c7D3FP1xzQ54Fnvdlzt8ZNKe2Bcf9qF8_-VGSQ_-0qVuXXJ2KiNcMxQPbWWB93Q
+  secret_access_key: 0KJe9HbnA8QfaxZFwPtHR2CB1ymToRPPKM00J0tGWvT2huLJ8GGIG3L56rvJAod-A7xfxTrHBFOcSM3UdzRiVQ
 
   default_key_name: xx
   private_key: zz
