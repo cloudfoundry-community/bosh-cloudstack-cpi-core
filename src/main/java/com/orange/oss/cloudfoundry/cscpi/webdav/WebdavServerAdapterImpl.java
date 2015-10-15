@@ -48,6 +48,24 @@ public class WebdavServerAdapterImpl implements WebdavServerAdapter {
 		}
 
 	}
+
+	@Override
+	public void delete(String ressourceName) {
+		logger.info("begin deleting file  {} to webdav server",ressourceName);
+		
+		Sardine sardine=SardineFactory.begin();
+		
+		try {
+			String targetUrl = "http://"+webDavHost+":"+webDavPort+"/webdav/"+ressourceName;
+			logger.debug("target is {}",targetUrl);
+			sardine.delete(targetUrl);
+			
+		} catch (IOException e) {
+			logger.warn("failure deleting file from webdav server {}. Ignoring ...",e.getMessage());
+		}
+		logger.info("done deleting file  {} from webdav server.",ressourceName);		
+		
+	}
 	
 
 }

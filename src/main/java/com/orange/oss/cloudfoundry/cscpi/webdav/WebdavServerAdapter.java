@@ -7,4 +7,6 @@ import java.io.InputStream;
 public interface WebdavServerAdapter {
 
 	String pushFile(InputStream is,String name);
+
+	void delete(String ressourceName);
 }

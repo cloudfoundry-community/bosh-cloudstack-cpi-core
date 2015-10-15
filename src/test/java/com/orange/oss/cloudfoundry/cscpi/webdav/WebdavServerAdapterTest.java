@@ -3,20 +3,9 @@ package com.orange.oss.cloudfoundry.cscpi.webdav;
 
 import static junit.framework.Assert.assertEquals;
 
-import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 
-
-
-
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-
-import org.fest.assertions.AssertExtension;
 import org.junit.Test;
-import org.junit.Assert.*;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.SpringApplicationConfiguration;
@@ -55,6 +44,13 @@ public class WebdavServerAdapterTest {
 		RestTemplate template=new RestTemplate();
 		String retrievedContent=template.getForObject(targetUrl, String.class);
 		assertEquals(content,retrievedContent);
+		
+		this.adapter.delete(name);
+	}
+	
+	@Test
+	public void testDeleteShouldNeverFail(){
+		this.adapter.delete("toto");
 		
 	}
 
