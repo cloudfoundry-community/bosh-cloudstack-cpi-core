@@ -559,6 +559,9 @@ public class CPIImpl implements CPI{
 		jobComplete = retry(new JobComplete(api), 1200, 3, 5, SECONDS);
 		jobComplete.apply(asyncTemplateDeleteJob.getJobId());
 		
+		//clean the webdav 
+		this.webdav.delete(stemcell_id+".vhd");
+		
 		logger.info("stemcell {} successfully deleted",stemcell_id);
 	}
 
@@ -771,12 +774,13 @@ public class CPIImpl implements CPI{
 		AsyncCreateResponse resp=null;
 		if (csDiskOffering.isCustomized()){
 			logger.info("creating disk with specified size (custom size offering)");			
+			
 			resp=api.getVolumeApi().createVolumeFromCustomDiskOfferingInZone(name, diskOfferingId, zoneId, size);			
 			
 		} else {
-			logger.info("creating disk -  ignoring specified size {} Mo (fixed by offering : {} Go )",size,csDiskOffering.getDiskSize());
+			Assert.isTrue(size<=csDiskOffering.getDiskSize()*1024, "specified persistent disk size "+size+" too big for offering "+diskOfferingName);
+			logger.info("creating disk -  ignoring specified size {} Mo for cloudstack volume creation (fixed by offering {}: {} Go )",size,diskOfferingName,csDiskOffering.getDiskSize());
 			resp=api.getVolumeApi().createVolumeFromDiskOfferingInZone(name, diskOfferingId, zoneId);
-
 		}
 		
 		jobComplete = retry(new JobComplete(api), 1200, 3, 5, SECONDS);
@@ -820,8 +824,6 @@ public class CPIImpl implements CPI{
 	 * @param disk_id
 	 */
 	private void diskAttachment(String vm_id, String disk_id) {
-		//FIXME; check disk exists
-		//FIXME: check vm exists
 		Set<Volume> volumes = api.getVolumeApi().listVolumes(ListVolumesOptions.Builder.name(disk_id).type(Type.DATADISK));
 		Assert.isTrue(volumes.size()<2,"attach_disk: Fatal, Found multiple volume with name  "+disk_id);
 		Assert.isTrue(volumes.size()==1,"attach_disk: Unable to find volume "+disk_id);
