@@ -796,6 +796,7 @@ public class CPIImpl implements CPI{
 		logger.info("delete_disk");
 		
 		//FIXME; check disk exists
+		//FIXME: check disk is detached
 		
 		String csDiskId=api.getVolumeApi().listVolumes(ListVolumesOptions.Builder.name(disk_id).type(Type.DATADISK)).iterator().next().getId();
 		api.getVolumeApi().deleteVolume(csDiskId);
