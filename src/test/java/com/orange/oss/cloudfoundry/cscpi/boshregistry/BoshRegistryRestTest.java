@@ -50,6 +50,14 @@ public class BoshRegistryRestTest {
 		client.get(vm_id);
 	}
 	
+	@Test
+	public void test_delete_is_always_ok(){
+		String vm_id="zzzz";
+		client.delete(vm_id);
+	}
+	
+	
+	
 	
 	
 }

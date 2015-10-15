@@ -3,6 +3,7 @@ package com.orange.oss.cloudfoundry.cscpi.logic;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 /**
@@ -15,7 +16,8 @@ import org.springframework.web.client.RestTemplate;
  */
 public class BoshRegistryClientImpl implements BoshRegistryClient {
 
-	private static Logger logger = LoggerFactory.getLogger(BoshRegistryClientImpl.class.getName());
+	private static Logger logger = LoggerFactory
+			.getLogger(BoshRegistryClientImpl.class.getName());
 
 	@Value("${cpi.registry.endpoint}")
 	String endpoint;
@@ -29,7 +31,7 @@ public class BoshRegistryClientImpl implements BoshRegistryClient {
 	@Override
 	public void put(String vm_id, String settings) {
 
-		String uri = this.endpoint+"/instances/" + vm_id;
+		String uri = this.endpoint + "/instances/" + vm_id;
 		RestTemplate restTemplate = new RestTemplate();
 		restTemplate.postForObject(uri, settings, String.class);
 
@@ -37,29 +39,32 @@ public class BoshRegistryClientImpl implements BoshRegistryClient {
 
 	@Override
 	public String get(String vm_id) {
-		String uri = this.endpoint+"/instances/" + vm_id + "/settings";
-		RestTemplate restTemplate = new RestTemplate();
-		String result = restTemplate.getForObject(uri, String.class);
-		return result;
-	}
-	
-	@Override
-	public String getRaw(String vm_id) {
-		String uri = this.endpoint+"/instances/" + vm_id + "/rawsettings";
+		String uri = this.endpoint + "/instances/" + vm_id + "/settings";
 		RestTemplate restTemplate = new RestTemplate();
 		String result = restTemplate.getForObject(uri, String.class);
 		return result;
 	}
 
-	
+	@Override
+	public String getRaw(String vm_id) {
+		String uri = this.endpoint + "/instances/" + vm_id + "/rawsettings";
+		RestTemplate restTemplate = new RestTemplate();
+		String result = restTemplate.getForObject(uri, String.class);
+		return result;
+	}
 
 	@Override
 	public void delete(String vm_id) {
-		String uri = this.endpoint+"instances/" + vm_id;
+		String uri = this.endpoint + "instances/" + vm_id;
 		RestTemplate restTemplate = new RestTemplate();
-		restTemplate.delete(uri);
-		
-		
+		// Dont fail on exception (registry corrupt)
+		try {
+			restTemplate.delete(uri);
+
+		} catch (RestClientException e) {
+			logger.warn("could not delete vm {} from registry with exception {}. Ignoring ...",vm_id, e.getMessage());
+		}
+
 	}
 
 }
