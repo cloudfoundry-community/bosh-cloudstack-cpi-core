@@ -15,7 +15,7 @@ spring:
     hibernate:
       ddl-auto: none          
   profiles:
-    active: qa
+    active: orange
   pidfile: ./target/application.pid
   
  
@@ -31,49 +31,28 @@ server:
     access-log-enabled: true
   
 
----
-spring:
-  profiles: default    
-cloudstack:
-  endpoint: http://192.168.56.11:8080/client/api
-  proxy_host:
-  proxy_port:
-  proxy_user:
-  proxy_password:
-
-  api_key: Jfy8RHP1-BddKb0qTBfGJxTm8FQreLjSQvej7nF5XZOnmNzUMA9f9qhbFzBwwsny-XId8Eo56CnYTs-Ws-OoeQ
-  secret_access_key: ZZ0lguo0uk2QM5NFncdTQANAm6eyaMemTwyO4xI5j8tQIVzv7zOctNDx81Y7vSfeRb2OY7CGIzv_w6KR4l4AbQ
-# api_key: Pfq9J0ySWcFWEee_TcK3FzsjtUcquPcVWmmFO_66O_GUARi2HSdJjm6-kpz3ksedwfO2ZO_nxi53jRroBqYXIQ
-# secret_access_key: d4wPT3TgOt1dhubBJSm7fZtEfM-_9fcUbxg1V7TP_tq6QXQQTAw1y4n1qDLou833baFK4gEAU3tNHgfiOgiD6g
-
-  default_key_name: xx
-  private_key: zz
-  state_timeout: 600
-  state_timeout_volume: 600
-  stemcell_public_visibility: true
-  default_zone: TEST2
     
     
 ---
 spring:
   profiles: qa    
 cloudstack:
-  endpoint:  http://csm05.preprod.cloud.s0.p.fti.net:8080/client/api
+  endpoint:  http://xx.xx.xx:8080/client/api
   
-  proxy_host: 10.98.253.30
+  proxy_host: yy.yy.yy
   proxy_port: 8080
-  proxy_user: poblin
-  proxy_password: 9dK'-kB[
+  proxy_user: zz
+  proxy_password: www
   
-  api_key: TKVNrMEIx2lHMjwavyb2Y68c7D3FP1xzQ54Fnvdlzt8ZNKe2Bcf9qF8_-VGSQ_-0qVuXXJ2KiNcMxQPbWWB93Q
-  secret_access_key: 0KJe9HbnA8QfaxZFwPtHR2CB1ymToRPPKM00J0tGWvT2huLJ8GGIG3L56rvJAod-A7xfxTrHBFOcSM3UdzRiVQ
+  api_key: xxx
+  secret_access_key: yyy
 
   default_key_name: xx
   private_key: zz
   state_timeout: 600
   state_timeout_volume: 600
   stemcell_public_visibility: true
-  default_zone: SPH-PP-NEON
+  default_zone: yyy
     
 cpi:
   mock_create_stemcell: true
@@ -85,8 +64,8 @@ cpi:
   webdav_port: 8080
   webdav_directory: "/tmp"
   
-  default_disk_offering: "DO1 - Small STD" 
-  default_ephemeral_disk_offering: "DO1 - Small STD"  
+  default_disk_offering: "ww" 
+  default_ephemeral_disk_offering: "xxx"  
       
   registry:
     endpoint: http://127.0.0.1:8080
@@ -96,12 +75,12 @@ cpi:
   blobstore:
     provider: local
     path: /var/vcap/micro_bosh/data/cache
-    address: 10.234.228.157
+    address: xx.xx.xx.xx
     port: 25250
     options:
       user: agent
       password: password
   agent:
-    mbus: "nats://nats:nats-password@10.234.228.157:4222"
-  ntp: "[10.234.50.245 ,10.234.50.246]"   
+    mbus: "nats://nats:nats-password@yy.yy.yyy:4222"
+  ntp: "[xx.xx.xx.xx ,yy.yy.yy.yy]"   
       
