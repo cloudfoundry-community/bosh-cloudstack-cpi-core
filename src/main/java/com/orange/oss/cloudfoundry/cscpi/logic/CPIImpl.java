@@ -870,7 +870,18 @@ public class CPIImpl implements CPI{
 	@Override
 	public void detach_disk(String vm_id, String disk_id) {
 		logger.info("detach disk");
-		String csDiskId=api.getVolumeApi().listVolumes(ListVolumesOptions.Builder.name(disk_id).type(Type.DATADISK)).iterator().next().getId();		
+		Volume csDisk = api.getVolumeApi().listVolumes(ListVolumesOptions.Builder.name(disk_id).type(Type.DATADISK)).iterator().next();
+		String csDiskId=csDisk.getId();
+		
+		//Dont fail if disk is already detached		
+		if (csDisk.getVirtualMachineId()==null){
+			logger.warn("CPI requests Detach volume {}, but disk not attached. Ignoring ..." );
+			return;
+		}
+		
+
+		
+		
 		AsyncCreateResponse resp=api.getVolumeApi().detachVolume(csDiskId);
 		
 		jobComplete = retry(new JobComplete(api), 1200, 3, 5, SECONDS);
