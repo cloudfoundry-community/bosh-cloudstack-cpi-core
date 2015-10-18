@@ -1,0 +1,18 @@
+---
+name: bosh-openstack-kvm-ubuntu-trusty-go_agent-raw
+version: '3033'
+bosh_protocol: 1
+sha1: 8e6b778ae248a02a45d2c99cf43f3572dd853bcf
+operating_system: ubuntu-trusty
+cloud_properties:
+  name: bosh-openstack-kvm-ubuntu-trusty-go_agent-raw
+  version: '3033'
+  infrastructure: openstack
+  hypervisor: kvm
+  disk: 3072
+  disk_format: raw
+  container_format: bare
+  os_type: linux
+  os_distro: ubuntu
+  architecture: x86_64
+  auto_disk_config: true
