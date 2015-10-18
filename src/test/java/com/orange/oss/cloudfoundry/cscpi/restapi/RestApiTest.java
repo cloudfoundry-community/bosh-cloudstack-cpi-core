@@ -76,7 +76,7 @@ public class RestApiTest {
 		
 		TestData data=this.loadData("create_stemcell");
 
-		HashMap<String, String> cloud_properties=new HashMap<>();
+		HashMap<String, Object> cloud_properties=new HashMap<>();
 		cloud_properties.put("disk","3072");
 		cloud_properties.put("root_device_name","/dev/sda1");
 		cloud_properties.put("infrastructure","vcloud");		

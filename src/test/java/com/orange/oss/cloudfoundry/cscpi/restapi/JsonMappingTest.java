@@ -58,7 +58,7 @@ public class JsonMappingTest {
 		
 		String response = postRequest(data);
 		
-		Map<String, String> cloud_properties=new HashMap<String, String>();
+		Map<String, Object> cloud_properties=new HashMap<String, Object>();
 		String image_path="/home/xx.gz";
 		verify(cpi).create_stemcell(image_path, cloud_properties);		
 		assertEquals(data.response,response);
