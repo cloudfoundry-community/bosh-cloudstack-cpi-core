@@ -1,0 +1,142 @@
+# Logfile created on 2015-10-14 18:11:23 +0000 by logger.rb/31641
+I, [2015-10-14T18:11:38.772679 #28405]  INFO -- : [AWS EC2 200 0.060864 0 retries] describe_regions()  
+
+I, [2015-10-14T18:11:43.096116 #28405]  INFO -- : [AWS EC2 200 0.137679 0 retries] describe_instances(:instance_ids=>["i-7200bba6"])  
+
+I, [2015-10-14T18:11:43.296008 #28405]  INFO -- : [AWS EC2 200 0.198102 0 retries] create_volume(:availability_zone=>"us-east-1a",:encrypted=>false,:size=>3,:volume_type=>"standard")  
+
+I, [2015-10-14T18:11:43.296314 #28405]  INFO -- : Creating volume 'vol-89503e69'
+I, [2015-10-14T18:11:43.381488 #28405]  INFO -- : [AWS EC2 200 0.084055 0 retries] describe_volumes(:volume_ids=>["vol-89503e69"])  
+
+D, [2015-10-14T18:11:43.381852 #28405] DEBUG -- : Waiting for vol-89503e69 to be available, retrying in 2 seconds (1/54)
+I, [2015-10-14T18:11:45.423989 #28405]  INFO -- : [AWS EC2 200 0.041092 0 retries] describe_volumes(:volume_ids=>["vol-89503e69"])  
+
+D, [2015-10-14T18:11:45.424235 #28405] DEBUG -- : Waiting for vol-89503e69 to be available, retrying in 4 seconds (2/54)
+I, [2015-10-14T18:11:49.576591 #28405]  INFO -- : [AWS EC2 200 0.151321 0 retries] describe_volumes(:volume_ids=>["vol-89503e69"])  
+
+I, [2015-10-14T18:11:49.576864 #28405]  INFO -- : vol-89503e69 is now available, took 6.280466428s
+I, [2015-10-14T18:11:49.660510 #28405]  INFO -- : [AWS EC2 200 0.082874 0 retries] describe_instances(:instance_ids=>["i-7200bba6"])  
+
+D, [2015-10-14T18:11:49.661257 #28405] DEBUG -- : Attaching 'vol-89503e69' to 'i-7200bba6' as '/dev/sdf'
+I, [2015-10-14T18:11:49.956410 #28405]  INFO -- : [AWS EC2 200 0.294256 0 retries] attach_volume(:device=>"/dev/sdf",:instance_id=>"i-7200bba6",:volume_id=>"vol-89503e69")  
+
+I, [2015-10-14T18:11:50.104826 #28405]  INFO -- : [AWS EC2 200 0.147603 0 retries] describe_volumes(:volume_ids=>["vol-89503e69"])  
+
+D, [2015-10-14T18:11:50.105114 #28405] DEBUG -- : Waiting for volume vol-89503e69 to be attached to instance i-7200bba6 as device /dev/sdf to be attached, retrying in 2 seconds (1/54)
+I, [2015-10-14T18:11:52.183601 #28405]  INFO -- : [AWS EC2 200 0.077492 0 retries] describe_volumes(:volume_ids=>["vol-89503e69"])  
+
+D, [2015-10-14T18:11:52.183847 #28405] DEBUG -- : Waiting for volume vol-89503e69 to be attached to instance i-7200bba6 as device /dev/sdf to be attached, retrying in 4 seconds (2/54)
+I, [2015-10-14T18:11:56.328243 #28405]  INFO -- : [AWS EC2 200 0.143426 0 retries] describe_volumes(:volume_ids=>["vol-89503e69"])  
+
+I, [2015-10-14T18:11:56.328467 #28405]  INFO -- : volume vol-89503e69 to be attached to instance i-7200bba6 as device /dev/sdf is now attached, took 6.371838721s
+I, [2015-10-14T18:11:56.328515 #28405]  INFO -- : Attached 'vol-89503e69' to 'i-7200bba6' as '/dev/sdf'
+I, [2015-10-14T18:11:56.328659 #28405]  INFO -- : Creating stemcell with: 'vol-89503e69' and '{"name"=>"bosh-aws-xen-ubuntu-trusty-go_agent", "version"=>"3104", "infrastructure"=>"aws", "hypervisor"=>"xen", "disk"=>3072, "disk_format"=>"raw", "container_format"=>"bare", "os_type"=>"linux", "os_distro"=>"ubuntu", "architecture"=>"x86_64", "root_device_name"=>"/dev/sda1", "virtualization_type"=>"paravirtual"}'
+I, [2015-10-14T18:11:56.328917 #28405]  INFO -- : falling back to using included copy stemcell
+D, [2015-10-14T18:15:26.827518 #28405] DEBUG -- : stemcell copy output:
+0+44920 records in
+0+44920 records out
+3221225472 bytes (3.2 GB) copied, 210.433 s, 15.3 MB/s
+
+I, [2015-10-14T18:15:27.190541 #28405]  INFO -- : [AWS EC2 200 0.361913 0 retries] create_snapshot(:volume_id=>"vol-89503e69")  
+
+I, [2015-10-14T18:15:27.259725 #28405]  INFO -- : [AWS EC2 200 0.068054 0 retries] describe_snapshots(:snapshot_ids=>["snap-2db88663"])  
+
+D, [2015-10-14T18:15:27.260098 #28405] DEBUG -- : Waiting for snap-2db88663 to be completed, retrying in 2 seconds (1/18)
+I, [2015-10-14T18:15:29.298061 #28405]  INFO -- : [AWS EC2 200 0.03698 0 retries] describe_snapshots(:snapshot_ids=>["snap-2db88663"])  
+
+D, [2015-10-14T18:15:29.298278 #28405] DEBUG -- : Waiting for snap-2db88663 to be completed, retrying in 4 seconds (2/18)
+I, [2015-10-14T18:15:33.334387 #28405]  INFO -- : [AWS EC2 200 0.035133 0 retries] describe_snapshots(:snapshot_ids=>["snap-2db88663"])  
+
+D, [2015-10-14T18:15:33.334641 #28405] DEBUG -- : Waiting for snap-2db88663 to be completed, retrying in 8 seconds (3/18)
+I, [2015-10-14T18:15:41.392539 #28405]  INFO -- : [AWS EC2 200 0.056857 0 retries] describe_snapshots(:snapshot_ids=>["snap-2db88663"])  
+
+D, [2015-10-14T18:15:41.392816 #28405] DEBUG -- : Waiting for snap-2db88663 to be completed, retrying in 16 seconds (4/18)
+I, [2015-10-14T18:15:57.444591 #28405]  INFO -- : [AWS EC2 200 0.050529 0 retries] describe_snapshots(:snapshot_ids=>["snap-2db88663"])  
+
+D, [2015-10-14T18:15:57.444868 #28405] DEBUG -- : Waiting for snap-2db88663 to be completed, retrying in 32 seconds (5/18)
+I, [2015-10-14T18:16:29.512459 #28405]  INFO -- : [AWS EC2 200 0.066326 0 retries] describe_snapshots(:snapshot_ids=>["snap-2db88663"])  
+
+D, [2015-10-14T18:16:29.512736 #28405] DEBUG -- : Waiting for snap-2db88663 to be completed, retrying in 32 seconds (6/18)
+I, [2015-10-14T18:17:01.565689 #28405]  INFO -- : [AWS EC2 200 0.051703 0 retries] describe_snapshots(:snapshot_ids=>["snap-2db88663"])  
+
+D, [2015-10-14T18:17:01.565975 #28405] DEBUG -- : Waiting for snap-2db88663 to be completed, retrying in 32 seconds (7/18)
+I, [2015-10-14T18:17:33.754995 #28405]  INFO -- : [AWS EC2 200 0.05451 0 retries] describe_snapshots(:snapshot_ids=>["snap-2db88663"])  
+
+D, [2015-10-14T18:17:33.755266 #28405] DEBUG -- : Waiting for snap-2db88663 to be completed, retrying in 32 seconds (8/18)
+I, [2015-10-14T18:18:05.831456 #28405]  INFO -- : [AWS EC2 200 0.075059 0 retries] describe_snapshots(:snapshot_ids=>["snap-2db88663"])  
+
+D, [2015-10-14T18:18:05.831725 #28405] DEBUG -- : Waiting for snap-2db88663 to be completed, retrying in 32 seconds (9/18)
+I, [2015-10-14T18:18:37.894808 #28405]  INFO -- : [AWS EC2 200 0.061941 0 retries] describe_snapshots(:snapshot_ids=>["snap-2db88663"])  
+
+I, [2015-10-14T18:18:37.895086 #28405]  INFO -- : snap-2db88663 is now completed, took 190.704280771s
+I, [2015-10-14T18:18:39.766336 #28405]  INFO -- : [AWS EC2 200 1.870804 0 retries] describe_images(:filters=>[{:name=>"architecture",:values=>["x86_64"]},{:name=>"image-type",:values=>["kernel"]},{:name=>"owner-alias",:values=>["amazon"]}])  
+
+I, [2015-10-14T18:18:39.766673 #28405]  INFO -- : auto-selected AKI: aki-499ccb20
+I, [2015-10-14T18:18:40.186271 #28405]  INFO -- : [AWS EC2 200 0.418933 0 retries] register_image(:architecture=>"x86_64",:block_device_mappings=>[{:device_name=>"/dev/sda",:ebs=>{:snapshot_id=>"snap-2db88663"}},{:device_name=>"/dev/sdb",:virtual_name=>"ephemeral0"}],:description=>"bosh-aws-xen-ubuntu-trusty-go_agent 3104",:kernel_id=>"aki-499ccb20",:name=>"BOSH-af041352-a54a-4030-945e-198badc43231",:root_device_name=>"/dev/sda1")  
+
+I, [2015-10-14T18:18:40.252583 #28405]  INFO -- : [AWS EC2 200 0.065233 0 retries] describe_images(:image_ids=>["ami-15d78270"])  
+
+I, [2015-10-14T18:18:40.252991 #28405]  INFO -- : ami-15d78270 is now available, took 0.066433728s
+I, [2015-10-14T18:18:40.485220 #28405]  INFO -- : [AWS EC2 200 0.231703 0 retries] create_tags(:resources=>["ami-15d78270"],:tags=>[{:key=>"Name",:value=>"bosh-aws-xen-ubuntu-trusty-go_agent 3104"}])  
+
+I, [2015-10-14T18:18:40.669212 #28405]  INFO -- : [AWS EC2 200 0.183323 0 retries] describe_instances(:instance_ids=>["i-7200bba6"])  
+
+I, [2015-10-14T18:18:40.842232 #28405]  INFO -- : [AWS EC2 200 0.171874 0 retries] detach_volume(:device=>"/dev/sdf",:force=>true,:instance_id=>"i-7200bba6",:volume_id=>"vol-89503e69")  
+
+I, [2015-10-14T18:18:40.842320 #28405]  INFO -- : Detaching `vol-89503e69' from `i-7200bba6'
+I, [2015-10-14T18:18:40.983421 #28405]  INFO -- : [AWS EC2 200 0.140559 0 retries] describe_volumes(:volume_ids=>["vol-89503e69"])  
+
+D, [2015-10-14T18:18:40.983687 #28405] DEBUG -- : Waiting for volume vol-89503e69 to be detached to instance i-7200bba6 as device /dev/sdf to be detached, retrying in 2 seconds (1/54)
+I, [2015-10-14T18:18:43.166594 #28405]  INFO -- : [AWS EC2 200 0.181001 0 retries] describe_volumes(:volume_ids=>["vol-89503e69"])  
+
+D, [2015-10-14T18:18:43.166798 #28405] DEBUG -- : Waiting for volume vol-89503e69 to be detached to instance i-7200bba6 as device /dev/sdf to be detached, retrying in 4 seconds (2/54)
+I, [2015-10-14T18:18:47.237655 #28405]  INFO -- : [AWS EC2 200 0.069974 0 retries] describe_volumes(:volume_ids=>["vol-89503e69"])  
+
+D, [2015-10-14T18:18:47.237842 #28405] DEBUG -- : Waiting for volume vol-89503e69 to be detached to instance i-7200bba6 as device /dev/sdf to be detached, retrying in 8 seconds (3/54)
+I, [2015-10-14T18:18:55.342706 #28405]  INFO -- : [AWS EC2 200 0.103943 0 retries] describe_volumes(:volume_ids=>["vol-89503e69"])  
+
+I, [2015-10-14T18:18:55.343112 #28405]  INFO -- : Deleting volume `vol-89503e69'
+I, [2015-10-14T18:18:55.458930 #28405]  INFO -- : [AWS EC2 200 0.115221 0 retries] delete_volume(:volume_id=>"vol-89503e69")  
+
+I, [2015-10-14T18:18:55.545432 #28405]  INFO -- : [AWS EC2 200 0.085831 0 retries] describe_volumes(:volume_ids=>["vol-89503e69"])  
+
+D, [2015-10-14T18:18:55.545705 #28405] DEBUG -- : Waiting for vol-89503e69 to be deleted, retrying in 2 seconds (1/54)
+I, [2015-10-14T18:18:57.614285 #28405]  INFO -- : [AWS EC2 400 0.06687 0 retries] describe_volumes(:volume_ids=>["vol-89503e69"]) AWS::EC2::Errors::InvalidVolume::NotFound The volume 'vol-89503e69' does not exist.
+
+I, [2015-10-14T18:18:57.614528 #28405]  INFO -- : Volume `vol-89503e69' has been deleted
+I, [2015-10-14T18:18:57.837643 #28405]  INFO -- : [AWS EC2 200 0.222174 0 retries] modify_image_attribute(:image_id=>"ami-15d78270",:launch_permission=>{:add=>[{:group=>"all"}]})  
+
+I, [2015-10-14T18:18:57.918852 #28405]  INFO -- : [AWS EC2 200 0.08061 0 retries] describe_images(:image_ids=>["ami-15d78270"])  
+
+I, [2015-10-14T18:18:58.015097 #28405]  INFO -- : Copying AMI 'ami-15d78270' from region 'us-east-1' to region 'us-west-1'
+I, [2015-10-14T18:18:58.015254 #28405]  INFO -- : Copying AMI 'ami-15d78270' from region 'us-east-1' to region 'us-west-2'
+I, [2015-10-14T18:18:58.015337 #28405]  INFO -- : Copying AMI 'ami-15d78270' from region 'us-east-1' to region 'eu-central-1'
+I, [2015-10-14T18:18:58.015404 #28405]  INFO -- : Copying AMI 'ami-15d78270' from region 'us-east-1' to region 'ap-southeast-1'
+I, [2015-10-14T18:18:58.015469 #28405]  INFO -- : Copying AMI 'ami-15d78270' from region 'us-east-1' to region 'ap-southeast-2'
+I, [2015-10-14T18:18:58.015532 #28405]  INFO -- : Copying AMI 'ami-15d78270' from region 'us-east-1' to region 'ap-northeast-1'
+I, [2015-10-14T18:18:58.015594 #28405]  INFO -- : Copying AMI 'ami-15d78270' from region 'us-east-1' to region 'sa-east-1'
+I, [2015-10-14T18:18:58.015659 #28405]  INFO -- : Copying AMI 'ami-15d78270' from region 'us-east-1' to region 'eu-west-1'
+I, [2015-10-14T18:24:10.551720 #28405]  INFO -- : [AWS EC2 200 0.076151 0 retries] describe_tags(:filters=>[{:name=>"key",:values=>["Name"]},{:name=>"resource-type",:values=>["image"]},{:name=>"resource-id",:values=>["ami-15d78270"]}])  
+
+I, [2015-10-14T18:24:10.890225 #28405]  INFO -- : Finished copying AMI 'ami-15d78270' from region 'us-east-1' to AMI 'ami-c2e607f1' in region 'us-west-2'
+I, [2015-10-14T18:24:29.621011 #28405]  INFO -- : [AWS EC2 200 0.046789 0 retries] describe_tags(:filters=>[{:name=>"key",:values=>["Name"]},{:name=>"resource-type",:values=>["image"]},{:name=>"resource-id",:values=>["ami-15d78270"]}])  
+
+I, [2015-10-14T18:24:29.948175 #28405]  INFO -- : Finished copying AMI 'ami-15d78270' from region 'us-east-1' to AMI 'ami-79f0c30e' in region 'eu-west-1'
+I, [2015-10-14T18:26:07.778104 #28405]  INFO -- : [AWS EC2 200 0.066644 0 retries] describe_tags(:filters=>[{:name=>"key",:values=>["Name"]},{:name=>"resource-type",:values=>["image"]},{:name=>"resource-id",:values=>["ami-15d78270"]}])  
+
+I, [2015-10-14T18:26:08.130517 #28405]  INFO -- : Finished copying AMI 'ami-15d78270' from region 'us-east-1' to AMI 'ami-5a919c47' in region 'eu-central-1'
+I, [2015-10-14T18:29:16.561612 #28405]  INFO -- : [AWS EC2 200 0.060459 0 retries] describe_tags(:filters=>[{:name=>"key",:values=>["Name"]},{:name=>"resource-type",:values=>["image"]},{:name=>"resource-id",:values=>["ami-15d78270"]}])  
+
+I, [2015-10-14T18:29:17.246875 #28405]  INFO -- : Finished copying AMI 'ami-15d78270' from region 'us-east-1' to AMI 'ami-5802120a' in region 'ap-southeast-1'
+I, [2015-10-14T18:29:17.506723 #28405]  INFO -- : [AWS EC2 200 0.033758 0 retries] describe_tags(:filters=>[{:name=>"key",:values=>["Name"]},{:name=>"resource-type",:values=>["image"]},{:name=>"resource-id",:values=>["ami-15d78270"]}])  
+
+I, [2015-10-14T18:29:17.943915 #28405]  INFO -- : Finished copying AMI 'ami-15d78270' from region 'us-east-1' to AMI 'ami-3b23b526' in region 'sa-east-1'
+I, [2015-10-14T18:29:26.315060 #28405]  INFO -- : [AWS EC2 200 0.049658 0 retries] describe_tags(:filters=>[{:name=>"key",:values=>["Name"]},{:name=>"resource-type",:values=>["image"]},{:name=>"resource-id",:values=>["ami-15d78270"]}])  
+
+I, [2015-10-14T18:29:26.885291 #28405]  INFO -- : Finished copying AMI 'ami-15d78270' from region 'us-east-1' to AMI 'ami-f495f3f4' in region 'ap-northeast-1'
+I, [2015-10-14T18:29:44.435575 #28405]  INFO -- : [AWS EC2 200 0.181464 0 retries] describe_tags(:filters=>[{:name=>"key",:values=>["Name"]},{:name=>"resource-type",:values=>["image"]},{:name=>"resource-id",:values=>["ami-15d78270"]}])  
+
+I, [2015-10-14T18:29:45.098086 #28405]  INFO -- : Finished copying AMI 'ami-15d78270' from region 'us-east-1' to AMI 'ami-a9a1ea93' in region 'ap-southeast-2'
+I, [2015-10-14T18:34:40.292681 #28405]  INFO -- : [AWS EC2 200 0.137433 0 retries] describe_tags(:filters=>[{:name=>"key",:values=>["Name"]},{:name=>"resource-type",:values=>["image"]},{:name=>"resource-id",:values=>["ami-15d78270"]}])  
+
+I, [2015-10-14T18:34:40.628082 #28405]  INFO -- : Finished copying AMI 'ami-15d78270' from region 'us-east-1' to AMI 'ami-57a76713' in region 'us-west-1'
