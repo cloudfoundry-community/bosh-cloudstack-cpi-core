@@ -2,6 +2,7 @@ package com.orange.oss.cloudfoundry.cscpi.logic;
 
 import static org.junit.Assert.fail;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -12,6 +13,7 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.boot.test.WebIntegrationTest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.orange.oss.cloudfoundry.cscpi.BoshCloudstackCpiCoreApplication;
@@ -26,14 +28,13 @@ import com.orange.oss.cloudfoundry.cscpi.logic.CPI;
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = BoshCloudstackCpiCoreApplication.class)
 @ConfigurationProperties
+@WebIntegrationTest({"server.port=8080", "management.port=0"})
 
 public class CPIImplIT {
 
 	
 	@Autowired
 	CPI cpi;
-	
-
 	
 	
 	@Test
@@ -73,10 +74,13 @@ public class CPIImplIT {
 	}
 
 	@Test
-	public void testCreate_stemcell() throws CpiErrorException {
+	public void testCreate_stemcell() throws CpiErrorException, IOException {
+		
+		String current = new java.io.File( "." ).getCanonicalPath();
+		System.out.println("Current dir:"+current);
 		
 		Map<String, String> cloud_properties=new HashMap<String, String>();
-		String image_path="/tmp/image.vhd";
+		String image_path=current+"/src/test/resources/mock-template.vhd";
 		String stemcell=this.cpi.create_stemcell(image_path, cloud_properties);
 		//TODO: clean stemcell
 	}
