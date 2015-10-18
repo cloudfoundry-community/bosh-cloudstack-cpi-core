@@ -10,6 +10,8 @@ import java.util.Map;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.test.SpringApplicationConfiguration;
@@ -32,6 +34,7 @@ import com.orange.oss.cloudfoundry.cscpi.logic.CPI;
 
 public class CPIImplIT {
 
+	private static Logger logger=LoggerFactory.getLogger(CPIImplIT.class.getName());
 	
 	@Autowired
 	CPI cpi;
@@ -77,12 +80,42 @@ public class CPIImplIT {
 	public void testCreate_stemcell() throws CpiErrorException, IOException {
 		
 		String current = new java.io.File( "." ).getCanonicalPath();
-		System.out.println("Current dir:"+current);
+		logger.info("Current dir:"+current);
+
+//    		cloud_properties:
+//			  name: bosh-cloudstack-xen-ubuntu-trusty-go_agent
+//			  version: '3033'
+//			  infrastructure: cloudstack
+//			  hypervisor: xen
+//			  disk: 3072
+//			  disk_format: raw
+//			  container_format: bare
+//			  os_type: linux
+//			  os_distro: ubuntu
+//			  architecture: x86_64
+//			  auto_disk_config: true
 		
 		Map<String, String> cloud_properties=new HashMap<String, String>();
+		cloud_properties.put("name","bosh-cloudstack-xen-ubuntu-trusty-go_agent");
+		cloud_properties.put("version","3033");		
+		cloud_properties.put("infrastructure","cloudstack");
+		cloud_properties.put("hypervisor","xen");		
+		cloud_properties.put("disk","3072");
+		cloud_properties.put("disk_format","raw");		
+		cloud_properties.put("container_format","bare");
+		cloud_properties.put("os_type","linux");		
+		cloud_properties.put("os_distro","ubuntu");
+		cloud_properties.put("architecture","x86_64");		
+		cloud_properties.put("auto_disk_config","true");
+		
+		//set template for light stemcell
+		cloud_properties.put("light_template","bosh-stemcell-3033-po10.vhd.bz2");		
+		
 		String image_path=current+"/src/test/resources/mock-template.vhd";
 		String stemcell=this.cpi.create_stemcell(image_path, cloud_properties);
 		//TODO: clean stemcell
+		this.cpi.delete_stemcell(stemcell);
+		
 	}
 
 	@Test
