@@ -1,13 +1,13 @@
 ---
-name: bosh-aws-xen-ubuntu-trusty-go_agent
-version: '3104'
+name: bosh-cloudstack-xen-ubuntu-trusty-go_agent
+version: '3033'
 bosh_protocol: 1
 sha1: e819bdb22ea889dbf69739d4b678504b47343b38
 operating_system: ubuntu-trusty
 cloud_properties:
-  name: bosh-aws-xen-ubuntu-trusty-go_agent
-  version: '3104'
-  infrastructure: aws
+  name: bosh-cloudstack-xen-ubuntu-trusty-go_agent
+  version: '3033'
+  infrastructure: cloudstack
   hypervisor: xen
   disk: 3072
   disk_format: raw
@@ -16,6 +16,7 @@ cloud_properties:
   os_distro: ubuntu
   architecture: x86_64
   root_device_name: /dev/sda1
+  template: bosh-stemcell-3033-po10.vhd.bz2
   ami:
     us-west-2: ami-c2e607f1
     eu-west-1: ami-79f0c30e
