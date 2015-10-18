@@ -16,7 +16,7 @@ cloud_properties:
   os_distro: ubuntu
   architecture: x86_64
   root_device_name: /dev/sda1
-  template: bosh-stemcell-3033-po10.vhd.bz2
+  light_template: bosh-stemcell-3033-po10.vhd.bz2
   ami:
     us-west-2: ami-c2e607f1
     eu-west-1: ami-79f0c30e

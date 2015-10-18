@@ -82,6 +82,8 @@ public class CPIImpl implements CPI{
 	public static final String CPI_EPHEMERAL_DISK_PREFIX = "cpi-ephemeral-disk-";
 	
 	private static final String CPI_OS_TYPE = "Other PV (64-bit)";
+	private static final String HYPERVISOR="XenServer";
+	private static final String TEMPLATE_FORMAT="VHD"; // QCOW2, RAW, and VHD.
 
 
 	private static Logger logger=LoggerFactory.getLogger(CPIImpl.class);
@@ -345,12 +347,53 @@ public class CPIImpl implements CPI{
 			logger.warn("USING MOCK STEMCELL TRANSFORMATION TO CLOUDSTAK TEMPLATE)");
 			String stemcellId;
 			try {
-				stemcellId = mockTemplateGeneration();
+				stemcellId = mockTemplateGeneration(cloudstackConfig.existingTemplateName); //use globaly configured mock template name
 			} catch (VMCreationFailedException e) {
 				throw new RuntimeException(e);
 			}
 			return stemcellId;
 
+		}
+		
+		//read cloud properties to get template information
+		String stemcellName=cloud_properties.get("name"); //,"bosh-cloudstack-xen-ubuntu-trusty-go_agent"
+		String stemcellVersion =cloud_properties.get("version");//,"3033"
+		String stemcellInfrastructure =cloud_properties.get("infrastructure");//,"cloudstack"
+		String stemcellHypervisor =cloud_properties.get("hypervisor");//,"xen"		
+		String stemcellDisk=cloud_properties.get("disk");//,"3072"
+		String stemcellDiskDFormat=cloud_properties.get("disk_format");//,"raw"	
+		String stemcellContainerFormat=cloud_properties.get("container_format");//,"bare"
+		String stemcellOsType=cloud_properties.get("os_type");//"linux"		
+		String stemcellOsDistro=cloud_properties.get("os_distro");//"ubuntu"
+		String stemcellArchitecture=cloud_properties.get("architecture");//,"x86_64"		
+		String stemcellAutoDiskConfig=cloud_properties.get("auto_disk_config");//,"true"
+		
+		String stemcellLightTemplate=cloud_properties.get("light_template"); //bosh-stemcell-3033-po10.vhd.bz2
+		
+		logger.info("stemcell cloud_properties:\n stemcellName {}\n stemcellVersion {}\n stemcellInfrastructure  {}\n stemcellHypervisor  {}\n",
+				stemcellName,
+				stemcellVersion,
+				stemcellInfrastructure,
+				stemcellHypervisor);
+		
+		//checking property consistency
+		Assert.isTrue(stemcellInfrastructure.equals("cloudstack"), "infrastructure "+stemcellInfrastructure+ " is not supported by CPI");
+		Assert.isTrue(stemcellArchitecture.equals("x86_64"), "architecture "+stemcellArchitecture+ " is not supported by CPI");
+		Assert.isTrue(stemcellHypervisor.equals("xen"), "hypervisor "+stemcellHypervisor+ " is not supported by CPI");
+		Assert.isTrue(stemcellOsType.equals("linux"), "OS type "+stemcellOsType+ " is not supported by CPI");		
+		
+		//detect light stemcell
+		if (stemcellLightTemplate!=null){
+			logger.info("a light_template attribute in cloud_properties. Infering Light Template from  {}",stemcellLightTemplate);
+			logger.warn("USING LIGHT STEMCELL REFERENCE TO CREATE CLOUDSTAK TEMPLATE)");
+			String stemcellId;
+			try {
+				stemcellId = mockTemplateGeneration(stemcellLightTemplate);
+			} catch (VMCreationFailedException e) {
+				throw new RuntimeException(e);
+			}
+			logger.info("done creating template {} from light_template attribute in cloud_properties  {}",stemcellId,stemcellLightTemplate);
+			return stemcellId;
 		}
 
 		//TODO : template name limited to 32 chars, UUID is longer. use Random for now
@@ -397,9 +440,7 @@ public class CPIImpl implements CPI{
 				//.domainId(domainId) 
 				;
 		//TODO: get from cloud properties ie  from stemcell MANIFEST file ?
-		String hypervisor="XenServer";
-		String format="VHD"; // QCOW2, RAW, and VHD.
-		Set<Template> registredTemplates = api.getTemplateApi().registerTemplate(templateMetadata, format, hypervisor, webDavUrl, findZoneId(), options);
+		Set<Template> registredTemplates = api.getTemplateApi().registerTemplate(templateMetadata, TEMPLATE_FORMAT, HYPERVISOR, webDavUrl, findZoneId(), options);
 		for (Template t: registredTemplates){
 			logger.debug("registred template "+t.toString());
 		}
@@ -469,7 +510,7 @@ public class CPIImpl implements CPI{
 	 * 
 	 * @return
 	 */
-	private String mockTemplateGeneration() throws VMCreationFailedException {
+	private String mockTemplateGeneration(String existingTemplateName) throws VMCreationFailedException {
 		//String instance_type="Ultra Tiny";
 		String instance_type="CO1 - Small STD";
 		
@@ -493,7 +534,8 @@ public class CPIImpl implements CPI{
 		fakeDirectorNetworks.networks.put("default",net);
 		
 		
-		this.vmCreation(cloudstackConfig.existingTemplateName, instance_type, fakeDirectorNetworks, workVmName,"fakeagent","fakeuserdata");
+
+		this.vmCreation(existingTemplateName, instance_type, fakeDirectorNetworks, workVmName,"fakeagent","fakeuserdata");
 		VirtualMachine m=api.getVirtualMachineApi().listVirtualMachines(ListVirtualMachinesOptions.Builder.name(workVmName)).iterator().next();
 		
 		logger.info("STOPPING work vm for template generation");
