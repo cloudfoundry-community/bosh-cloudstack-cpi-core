@@ -139,7 +139,7 @@ public class CPIAdapterImpl implements CPIAdapter {
 			
 			} else if (method.equals(CREATE_STEMCELL)) {
 				String image_path=args.next().asText();				
-				Map<String, String> cloud_properties=mapper.convertValue(args.next(), HashMap.class);
+				Map<String, Object> cloud_properties=mapper.convertValue(args.next(), HashMap.class);
 				
 				String stemcell=this.cpi.create_stemcell(image_path, cloud_properties);
 				response.result.add(stemcell);

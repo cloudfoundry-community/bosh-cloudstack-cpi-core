@@ -337,7 +337,7 @@ public class CPIImpl implements CPI{
 	 */
 	@Override
 	public String create_stemcell(String image_path,
-			Map<String, String> cloud_properties) throws CpiErrorException {
+			Map<String, Object> cloud_properties) throws CpiErrorException {
 		logger.info("create_stemcell");
 		
 		
@@ -356,19 +356,19 @@ public class CPIImpl implements CPI{
 		}
 		
 		//read cloud properties to get template information
-		String stemcellName=cloud_properties.get("name"); //,"bosh-cloudstack-xen-ubuntu-trusty-go_agent"
-		String stemcellVersion =cloud_properties.get("version");//,"3033"
-		String stemcellInfrastructure =cloud_properties.get("infrastructure");//,"cloudstack"
-		String stemcellHypervisor =cloud_properties.get("hypervisor");//,"xen"		
-		String stemcellDisk=cloud_properties.get("disk");//,"3072"
-		String stemcellDiskDFormat=cloud_properties.get("disk_format");//,"raw"	
-		String stemcellContainerFormat=cloud_properties.get("container_format");//,"bare"
-		String stemcellOsType=cloud_properties.get("os_type");//"linux"		
-		String stemcellOsDistro=cloud_properties.get("os_distro");//"ubuntu"
-		String stemcellArchitecture=cloud_properties.get("architecture");//,"x86_64"		
-		String stemcellAutoDiskConfig=cloud_properties.get("auto_disk_config");//,"true"
+		String stemcellName=cloud_properties.get("name").toString(); //,"bosh-cloudstack-xen-ubuntu-trusty-go_agent"
+		String stemcellVersion =cloud_properties.get("version").toString();//,"3033"
+		String stemcellInfrastructure =cloud_properties.get("infrastructure").toString();//,"cloudstack"
+		String stemcellHypervisor =cloud_properties.get("hypervisor").toString();//,"xen"		
+		Integer stemcellDisk=(Integer)cloud_properties.get("disk");//,"3072"
+		String stemcellDiskDFormat=cloud_properties.get("disk_format").toString();//,"raw"	
+		String stemcellContainerFormat=cloud_properties.get("container_format").toString();//,"bare"
+		String stemcellOsType=cloud_properties.get("os_type").toString();//"linux"		
+		String stemcellOsDistro=cloud_properties.get("os_distro").toString();//"ubuntu"
+		String stemcellArchitecture=cloud_properties.get("architecture").toString();//,"x86_64"		
+		String stemcellAutoDiskConfig=cloud_properties.get("auto_disk_config").toString();//,"true"
 		
-		String stemcellLightTemplate=cloud_properties.get("light_template"); //bosh-stemcell-3033-po10.vhd.bz2
+		String stemcellLightTemplate=cloud_properties.get("light_template").toString(); //bosh-stemcell-3033-po10.vhd.bz2
 		
 		logger.info("stemcell cloud_properties:\n stemcellName {}\n stemcellVersion {}\n stemcellInfrastructure  {}\n stemcellHypervisor  {}\n",
 				stemcellName,

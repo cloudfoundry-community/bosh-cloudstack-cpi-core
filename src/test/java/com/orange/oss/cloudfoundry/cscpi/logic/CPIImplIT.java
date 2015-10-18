@@ -95,12 +95,12 @@ public class CPIImplIT {
 //			  architecture: x86_64
 //			  auto_disk_config: true
 		
-		Map<String, String> cloud_properties=new HashMap<String, String>();
+		Map<String, Object> cloud_properties=new HashMap<String, Object>();
 		cloud_properties.put("name","bosh-cloudstack-xen-ubuntu-trusty-go_agent");
 		cloud_properties.put("version","3033");		
 		cloud_properties.put("infrastructure","cloudstack");
 		cloud_properties.put("hypervisor","xen");		
-		cloud_properties.put("disk","3072");
+		cloud_properties.put("disk",3072);
 		cloud_properties.put("disk_format","raw");		
 		cloud_properties.put("container_format","bare");
 		cloud_properties.put("os_type","linux");		

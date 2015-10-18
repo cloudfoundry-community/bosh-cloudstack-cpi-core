@@ -57,7 +57,7 @@ public class CPIFlowIT {
 		String agent_id="xxxxx";
 		
 		String image_path="/tmp/image.vhd";
-		Map<String, String> cloud_properties=new HashMap<String, String>();
+		Map<String, Object> cloud_properties=new HashMap<String, Object>();
 		String stemcell_id=cpi.create_stemcell(image_path, cloud_properties);
 
 		

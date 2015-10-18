@@ -100,7 +100,7 @@ public interface CPI {
 	@return [String] opaque id later used by {#create_vm} and {#delete_stemcell}
 	 * @throws CpiErrorException 
 	 */
-    String create_stemcell(String image_path, Map<String,String>cloud_properties) throws CpiErrorException;
+    String create_stemcell(String image_path, Map<String,Object>cloud_properties) throws CpiErrorException;
     
     
     
