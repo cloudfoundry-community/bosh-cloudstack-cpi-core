@@ -422,25 +422,35 @@ public class CPIImpl implements CPI{
 	private void waitForTemplateReady(String stemcellId) throws CpiErrorException {
 		//FIXME: wait for the template to be ready
 		long startTime=System.currentTimeMillis();
-		long timeoutTime=startTime+1000*60*5; //5 min wait for template publication
+		long timeoutTime=startTime+1000*60*5; //FIXME: set a property, here 5 min wait for template publication
 		
 		boolean templateReady=false;
 		boolean templateError=false;
 		boolean timeout=false;
 		while ((!timeout)&&(!templateReady) &&(!templateError)){
+			
+			logger.info("polling template registration status for stemcell: {}",stemcellId);			
 			timeout=System.currentTimeMillis()> timeoutTime;
 			Set<Template> matchingTemplates=api.getTemplateApi().listTemplates(ListTemplatesOptions.Builder.name(stemcellId));
 			Assert.isTrue(matchingTemplates.size()==1,"found multiple templates matching stemcellid "+stemcellId);
 			Template t=matchingTemplates.iterator().next();
+
 			Status templateStatus=t.getStatus();
-				
-			switch (templateStatus) {
-				case DOWNLOADED : templateReady=true; break;
-				case DOWNLOAD_ERROR: t.getStatus();break;
-				case UPLOAD_ERROR: templateError=true;break;
-				default: 
-					logger.warn("unknown template status {}"+templateStatus);
+			logger.info("template status: {}",templateStatus);
+			
+			if (templateStatus!=null) {
+				switch (templateStatus) {
+					case DOWNLOADED : templateReady=true; break;
+					case DOWNLOAD_ERROR: t.getStatus();break;
+					case UPLOAD_ERROR: templateError=true;break;
+					default: 
+						logger.warn("unknown template status {}"+templateStatus);
+				}
 			}
+			
+			//tempo before next polling
+			try {Thread.sleep(2000);} catch (InterruptedException e) {}
+			
 		}
 		
 		if (templateError){
@@ -543,7 +553,7 @@ public class CPIImpl implements CPI{
 
 	@Override
 	public void delete_stemcell(String stemcell_id) {
-		logger.info("delete_stemcell");
+		logger.info("delete_stemcell {}",stemcell_id);
 		
 		//FIXME: assert stemcell_id template exists and is unique
 		
@@ -876,6 +886,7 @@ public class CPIImpl implements CPI{
 		//Dont fail if disk is already detached		
 		if (csDisk.getVirtualMachineId()==null){
 			logger.warn("CPI requests Detach volume {}, but disk not attached. Ignoring ..." );
+			//FIXME: should update registry anyway ?
 			return;
 		}
 		
