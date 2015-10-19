@@ -96,7 +96,7 @@ public class CPIImplIT {
 //			  auto_disk_config: true
 		
 		Map<String, Object> cloud_properties=new HashMap<String, Object>();
-		cloud_properties.put("name","bosh-cloudstack-xen-ubuntu-trusty-go_agent");
+		cloud_properties.put("name","light-bosh-cloudstack-xen-ubuntu-trusty-go_agent");
 		cloud_properties.put("version","3033");		
 		cloud_properties.put("infrastructure","cloudstack");
 		cloud_properties.put("hypervisor","xen");		
