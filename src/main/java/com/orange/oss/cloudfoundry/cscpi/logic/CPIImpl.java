@@ -880,8 +880,11 @@ public class CPIImpl implements CPI{
 		Set<Volume> volumes = api.getVolumeApi().listVolumes(ListVolumesOptions.Builder.name(disk_id).type(Type.DATADISK));
 		Assert.isTrue(volumes.size()<2,"attach_disk: Fatal, Found multiple volume with name  "+disk_id);
 		Assert.isTrue(volumes.size()==1,"attach_disk: Unable to find volume "+disk_id);
-		String csDiskId=volumes.iterator().next().getId();
 		
+		Volume csDisk = volumes.iterator().next();
+		Assert.isTrue(csDisk.getVmName()==null,"attach_disk: volume already attached to vm "+csDisk.getVmName());
+		
+		String csDiskId=csDisk.getId();
 		
 		Set<VirtualMachine> vms = api.getVirtualMachineApi().listVirtualMachines(ListVirtualMachinesOptions.Builder.name(vm_id));
 		Assert.isTrue(vms.size()==1, "attach_disk: Unable to find vm "+vm_id);
@@ -932,9 +935,6 @@ public class CPIImpl implements CPI{
 			return;
 		}
 		
-
-		
-		
 		AsyncCreateResponse resp=api.getVolumeApi().detachVolume(csDiskId);
 		
 		jobComplete = retry(new JobComplete(api), 1200, 3, 5, SECONDS);
@@ -946,7 +946,7 @@ public class CPIImpl implements CPI{
 		String previousSetting=this.boshRegistry.getRaw(vm_id);
 		String newSetting=this.vmSettingGenerator.updateVmSettingForDetachDisk(previousSetting, disk_id);
 		this.boshRegistry.put(vm_id, newSetting);
-		logger.info("==> attach disk updated in bosh registry");
+		logger.info("==> detach disk updated in bosh registry");
 		
 		
 	}

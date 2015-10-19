@@ -6,9 +6,13 @@ import org.jclouds.cloudstack.CloudStackApi;
 import org.jclouds.cloudstack.domain.NIC;
 import org.jclouds.cloudstack.domain.Template;
 import org.jclouds.cloudstack.domain.VirtualMachine;
+import org.jclouds.cloudstack.domain.Volume;
 import org.jclouds.cloudstack.domain.Zone;
+import org.jclouds.cloudstack.domain.Volume.Type;
 import org.jclouds.cloudstack.features.TemplateApi;
+import org.jclouds.cloudstack.options.ListTemplatesOptions;
 import org.jclouds.cloudstack.options.ListVirtualMachinesOptions;
+import org.jclouds.cloudstack.options.ListVolumesOptions;
 import org.jclouds.cloudstack.options.ListZonesOptions;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -58,6 +62,46 @@ public class CloudStackIT {
 			logger.info("vm {}, ip {}, mac {}",name, ip,mac);
 		}
 	}
+	
+
+	
+	@Test
+	public void testTemplatesList(){
+		String zoneId=this.findZoneId();
+		
+		Set<Template>  templates=api.getTemplateApi().listTemplates(ListTemplatesOptions.Builder.zoneId(zoneId));
+		
+		
+		logger.info("name\tisReady\tStatus\t");
+
+		for (Template template:templates){
+			logger.info("{}\t{}\t{}",
+					template.getName(),
+					template.isReady(),
+					template.getStatus());
+		}
+	}		
+		
+	@Test
+	public void listVolumes(){
+		String zoneId=this.findZoneId();
+		Set<Volume> vols=api.getVolumeApi().listVolumes(ListVolumesOptions.Builder.type(Type.DATADISK).zoneId(zoneId));
+		
+		logger.info("name\t attached\t offering\t type\t vm");
+		for (Volume v:vols){
+			logger.info("{}\t{}\t{}\t{}\t{}\t",
+					v.getName(),
+					v.getAttached(),
+					v.getDiskOfferingDisplayText(),
+					v.getStorageType(),
+					v.getVmName());
+			
+		}
+	
+	}
+
+	
+	
 	
 	private String findZoneId() {
 		//TODO: select the exact zone if multiple available
