@@ -62,6 +62,7 @@ import com.orange.oss.cloudfoundry.cscpi.domain.Networks;
 import com.orange.oss.cloudfoundry.cscpi.domain.ResourcePool;
 import com.orange.oss.cloudfoundry.cscpi.exceptions.CpiErrorException;
 import com.orange.oss.cloudfoundry.cscpi.exceptions.VMCreationFailedException;
+import com.orange.oss.cloudfoundry.cscpi.exceptions.VMNotFoundException;
 import com.orange.oss.cloudfoundry.cscpi.webdav.WebdavServerAdapter;
 import com.orange.oss.cloudfoundry.cspi.cloudstack.NativeCloudstackConnector;
 
@@ -309,7 +310,7 @@ public class CPIImpl implements CPI{
 		this.boshRegistry.put(vmName, settings);
 		
 		
-		logger.info("vm creation completed, now running ! {}");
+		logger.info("vm creation completed, now running ! {}",vmName);
 	}
 
 
@@ -518,10 +519,10 @@ public class CPIImpl implements CPI{
 		String network_name="DefaultIsolatedNetworkOfferingWithSourceNatService";	
 		
 		
-		logger.info("CREATING work vm for template generation");
+
 		//map stemcell to cloudstack template concept.
 		String workVmName="cpi-stemcell-work-"+UUID.randomUUID();
-		
+		logger.info("CREATING work vm {} for template generation",workVmName);		
 		
 		//FIXME : temporay network config (dynamic)
 		Networks fakeDirectorNetworks=new Networks();
@@ -543,7 +544,7 @@ public class CPIImpl implements CPI{
 		jobComplete = retry(new JobComplete(api), 1200, 3, 5, SECONDS);
 		jobComplete.apply(stopJob);
 		
-		logger.info("Work vm stopped. now creating template from it its ROOT Volume");
+		logger.info("Work vm stopped {}. now creating template from it its ROOT Volume",workVmName);
 		
 		
 		Volume rootVolume=api.getVolumeApi().listVolumes(ListVolumesOptions.Builder.virtualMachineId(m.getId()).type(Type.ROOT)).iterator().next();
@@ -579,7 +580,7 @@ public class CPIImpl implements CPI{
 
 		logger.info("Template successfully created ! {} - {}",stemcellId);
 		
-		logger.info("now cleaning work vm");
+		logger.info("now cleaning work vm {}",workVmName);
 		
 		String jobId=api.getVirtualMachineApi().destroyVirtualMachine(m.getId());
 		jobComplete = retry(new JobComplete(api), 1200, 3, 5, SECONDS);
