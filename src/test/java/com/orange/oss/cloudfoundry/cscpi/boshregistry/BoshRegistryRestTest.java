@@ -26,22 +26,21 @@ public class BoshRegistryRestTest {
 	
 	@Test
 	public void testCrud(){
-		String  vm_id="xxxx";	
+		//create
+		String  vm_id="xxxx";
 		String settings="zzzz";
 		client.put(vm_id,settings);
 		String foundSetting=client.getRaw(vm_id);
 		Assert.assertEquals(settings, foundSetting);
-		
+
 		//update
 		String updateSetting="wwww";
 		client.put(vm_id,updateSetting);
 		String updatedFoundSetting=client.getRaw(vm_id);
 		Assert.assertEquals(updateSetting, updatedFoundSetting);
-		
-		
-		
-		
-		client.delete(vm_id);		
+
+		//delete
+		client.delete(vm_id);
 	}
 	
 	@Test(expected=HttpClientErrorException.class)
@@ -55,9 +54,5 @@ public class BoshRegistryRestTest {
 		String vm_id="zzzz";
 		client.delete(vm_id);
 	}
-	
-	
-	
-	
-	
+
 }
