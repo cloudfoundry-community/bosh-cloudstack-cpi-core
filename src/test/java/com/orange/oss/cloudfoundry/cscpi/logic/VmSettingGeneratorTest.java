@@ -29,11 +29,8 @@ public class VmSettingGeneratorTest {
 	@Autowired
 	VmSettingGenerator generator;
 
-	
-	
-	
-	
-	
+
+
 	@Test
 	public void test_create_setting() throws JsonProcessingException, IOException {
 		
@@ -59,14 +56,54 @@ public class VmSettingGeneratorTest {
 		
 		//When
 		String setting=this.generator.createsettingForVM(agent_id, vmName, vm, networks);
-		
+
 		//Then
+
+		String expectedSettings = "{\n" +
+				"  \"agent_id\": \"agent-xxxxxx\",\n" +
+				"  \"blobstore\": {\n" +
+				"    \"provider\": \"local\",\n" +
+				"    \"options\": {\n" +
+				"      \"endpoint\": \"http://xx.xx.xx.xx:25250\",\n" +
+				"      \"password\": \"password\",\n" +
+				"      \"blobstore_path\": \"/var/vcap/micro_bosh/data/cache\",\n" +
+				"      \"user\": \"agent\"\n" +
+				"    }\n" +
+				"  },\n" +
+				"  \"disks\": {\n" +
+				"    \"system\": \"/dev/xvda\",\n" +
+				"    \"ephemeral\": \"/dev/sdb\",\n" +
+				"    \"persistent\": {}\n" +
+				"  },\n" +
+				"  \"env\": {},\n" +
+				"  \"networks\": {\n" +
+				"    \"default\": {\n" +
+				"      \"type\": \"manual\",\n" +
+				"      \"ip\": \"10.234.228.158\",\n" +
+				"      \"netmask\": \"255.255.255.192\",\n" +
+				"      \"cloud_properties\": {\"name\": \"3112 - preprod - back\"},\n" +
+				"      \"dns\": [\n" +
+				"        \"10.234.50.180\",\n" +
+				"        \"10.234.71.124\"\n" +
+				"      ],\n" +
+				"      \"gateway\": \"10.234.228.129\",\n" +
+				"      \"mac\": null\n" +
+				"    }\n" +
+				"  },\n" +
+				"  \"ntp\": [],\n" +
+				"  \"mbus\": \"nats://nats:nats-password@yy.yy.yyy:4222\",\n" +
+				"  \"vm\": {\"name\": \"vm-yyyy\"},\n" +
+				"  \"trusted_certs\": null\n" +
+				"}\n";
+		assertEquals(expectedSettings, setting);
+
 	   ObjectMapper mapper = new ObjectMapper();
 	   JsonNode settingObj = mapper.readTree(setting);
 
 	   //network is ok
-	   
+
 	   JsonNode network=settingObj.get("networks");
+
 	   
 	   //mbus is ok
 	   

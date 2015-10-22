@@ -8,6 +8,11 @@ Includes Spring Boot Actuator (eg: can use /health, /trace, /metrics endpoints)
 
 The cpi json execution command must be sent (POST) to /cpi (Accept / Content type must be "application/json"
 
+# Running unit tests
+
+Enable the qa spring profile to leverage default properties set in src/test/resources/application.yml 
+
+``-Dspring.profiles.active=qa``
 
 # TODO
 leverage cloudstack simulator

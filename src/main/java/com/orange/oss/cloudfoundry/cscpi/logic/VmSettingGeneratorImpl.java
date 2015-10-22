@@ -123,8 +123,8 @@ public class VmSettingGeneratorImpl implements VmSettingGenerator {
 		if (vm!=null) {
 			logger.debug("setting mac address in setting");
 			String macAddress=vm.getNICs().iterator().next().getMacAddress();
-		settingObject.networks.values().iterator().next().mac=macAddress;
-		//FIXME only support single NIC
+			settingObject.networks.values().iterator().next().mac=macAddress;
+			//FIXME only support single NIC
 		}
 		
 
