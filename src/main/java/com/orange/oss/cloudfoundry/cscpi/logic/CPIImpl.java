@@ -369,7 +369,10 @@ public class CPIImpl implements CPI{
 		String stemcellArchitecture=cloud_properties.get("architecture").toString();//,"x86_64"		
 		String stemcellAutoDiskConfig=cloud_properties.get("auto_disk_config").toString();//,"true"
 		
-		String stemcellLightTemplate=cloud_properties.get("light_template").toString(); //bosh-stemcell-3033-po10.vhd.bz2
+		String stemcellLightTemplate=null;
+		if( cloud_properties.get("light_template") != null ) {
+			stemcellLightTemplate=cloud_properties.get("light_template").toString();
+		}
 		
 		logger.info("stemcell cloud_properties:\n stemcellName {}\n stemcellVersion {}\n stemcellInfrastructure  {}\n stemcellHypervisor  {}\n",
 				stemcellName,
