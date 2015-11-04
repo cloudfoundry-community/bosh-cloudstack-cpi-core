@@ -341,21 +341,6 @@ public class CPIImpl implements CPI{
 			Map<String, Object> cloud_properties) throws CpiErrorException {
 		logger.info("create_stemcell");
 		
-		
-		//mock mode enables tests with an existing template (copied as a new template)
-		
-		if (this.cloudstackConfig.mockCreateStemcell){
-			logger.warn("USING MOCK STEMCELL TRANSFORMATION TO CLOUDSTAK TEMPLATE)");
-			String stemcellId;
-			try {
-				stemcellId = mockTemplateGeneration(cloudstackConfig.existingTemplateName); //use globaly configured mock template name
-			} catch (VMCreationFailedException e) {
-				throw new RuntimeException(e);
-			}
-			return stemcellId;
-
-		}
-		
 		//read cloud properties to get template information
 		String stemcellName=cloud_properties.get("name").toString(); //,"bosh-cloudstack-xen-ubuntu-trusty-go_agent"
 		String stemcellVersion =cloud_properties.get("version").toString();//,"3033"
@@ -369,7 +354,7 @@ public class CPIImpl implements CPI{
 		String stemcellArchitecture=cloud_properties.get("architecture").toString();//,"x86_64"		
 		String stemcellAutoDiskConfig=cloud_properties.get("auto_disk_config").toString();//,"true"
 		
-		String stemcellLightTemplate=cloud_properties.get("light_template").toString(); //bosh-stemcell-3033-po10.vhd.bz2
+		String stemcellLightTemplate=(String) cloud_properties.get("light_template"); //bosh-stemcell-3033-po10.vhd.bz2
 		
 		logger.info("stemcell cloud_properties:\n stemcellName {}\n stemcellVersion {}\n stemcellInfrastructure  {}\n stemcellHypervisor  {}\n",
 				stemcellName,

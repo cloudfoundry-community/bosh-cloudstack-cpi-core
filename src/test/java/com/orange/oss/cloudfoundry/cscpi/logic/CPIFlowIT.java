@@ -58,6 +58,27 @@ public class CPIFlowIT {
 		
 		String image_path="/tmp/image.vhd";
 		Map<String, Object> cloud_properties=new HashMap<String, Object>();
+		
+		
+		//simulate light stemcell provisionning from director
+		
+		cloud_properties.put("name","bosh-cloudstack-xen-ubuntu-trusty-go_agent");
+		
+		cloud_properties.put("version","3033");
+		cloud_properties.put("infrastructure","cloudstack");
+		cloud_properties.put("hypervisor","xen");		
+		cloud_properties.put("disk",3072);
+		cloud_properties.put("disk_format","raw");	
+		cloud_properties.put("container_format","bare");
+		cloud_properties.put("os_type","linux");		
+		cloud_properties.put("os_distro","ubuntu");
+		cloud_properties.put("architecture","x86_64");		
+		cloud_properties.put("auto_disk_config",true);
+		
+		//this activates light stemcell support (the original template in cloudstack is copied as a new template)
+		cloud_properties.put("light_template","bosh-stemcell-dp12");
+
+		
 		String stemcell_id=cpi.create_stemcell(image_path, cloud_properties);
 
 		
