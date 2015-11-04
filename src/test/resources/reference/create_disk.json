@@ -3,7 +3,7 @@
    "arguments":[
       1024,
       {
-         "disk_offering":"DO2 - Medium STD"
+         "disk_offering":"Medium"
       },
       "cpivm-172775c3-4df7-4ccd-8661-0310aee117c8"
    ],

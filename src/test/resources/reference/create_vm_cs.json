@@ -5,7 +5,7 @@
       "cpitemplate-15380",
       {
          "compute_offering":"CO1 - Small STD",
-         "ephemeral_disk_offering":"DO2 - Medium STD"
+         "ephemeral_disk_offering":"Medium"
       },
       {
          "concourse":{

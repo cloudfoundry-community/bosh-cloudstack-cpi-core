@@ -64,7 +64,7 @@ public class CPIFlowIT {
 		ResourcePool resource_pool=new ResourcePool();
 		resource_pool.compute_offering="CO1 - Small STD";
 		resource_pool.disk=8192;
-		resource_pool.ephemeral_disk_offering="custom_size_disk_offering2"; //shared is ko, use local disk offering
+		resource_pool.ephemeral_disk_offering="Custom"; 
 		
 		Networks networks=new Networks();
 		Network net=new Network();
@@ -89,7 +89,7 @@ public class CPIFlowIT {
 		//Integer size=new Integer(10); 
 		Integer size=new Integer(1); //ignored if fix disk size offering		
 		Map<String, String> diskcloud_properties=new HashMap<String, String>();
-		diskcloud_properties.put("disk_offering","DO2 - Medium STD");
+		diskcloud_properties.put("disk_offering","Medium");
 		
 		
 		String disk_id=cpi.create_disk(size, diskcloud_properties);
