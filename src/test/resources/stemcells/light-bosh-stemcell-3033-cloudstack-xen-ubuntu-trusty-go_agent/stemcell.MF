@@ -16,7 +16,7 @@ cloud_properties:
   os_distro: ubuntu
   architecture: x86_64
   auto_disk_config: true
-  light_template: bosh-stemcell-3033-dp12.vhd.bz2 
+  light_template: bosh-stemcell-dp12 
   ami:
     us-west-2: ami-c2e607f1
     eu-west-1: ami-79f0c30e
