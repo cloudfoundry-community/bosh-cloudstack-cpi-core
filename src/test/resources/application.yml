@@ -55,9 +55,6 @@ cloudstack:
   default_zone: yyy
     
 cpi:
-  mock_create_stemcell: true
- 
-  existing_template_name: "bosh-stemcell-3033-po10.vhd.bz2"
   vm_expunge_delay: 30
 
   webdav_host: 127.0.0.1

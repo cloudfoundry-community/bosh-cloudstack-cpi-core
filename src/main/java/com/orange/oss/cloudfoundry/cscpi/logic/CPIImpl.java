@@ -811,9 +811,10 @@ public class CPIImpl implements CPI{
 		
 		AsyncCreateResponse resp=null;
 		if (csDiskOffering.isCustomized()){
-			logger.info("creating disk with specified size (custom size offering)");			
+			int csSizeGb=size/1024;
+			logger.info("creating disk with specified size (custom size offering): {} Go",csSizeGb);
 			
-			resp=api.getVolumeApi().createVolumeFromCustomDiskOfferingInZone(name, diskOfferingId, zoneId, size);			
+			resp=api.getVolumeApi().createVolumeFromCustomDiskOfferingInZone(name, diskOfferingId, zoneId, csSizeGb);			
 			
 		} else {
 			Assert.isTrue(size<=csDiskOffering.getDiskSize()*1024, "specified persistent disk size "+size+" too big for offering "+diskOfferingName);
@@ -972,7 +973,7 @@ public class CPIImpl implements CPI{
 		Zone zone=zones.iterator().next();
 		String zoneId = zone.getId();
 		
-		Assert.isTrue(zone.getName().equals(this.cloudstackConfig.default_zone));
+		Assert.isTrue(zone.getName().equals(this.cloudstackConfig.default_zone),"Zone not found "+this.cloudstackConfig.default_zone);
 		
 		return zoneId;
 	}
