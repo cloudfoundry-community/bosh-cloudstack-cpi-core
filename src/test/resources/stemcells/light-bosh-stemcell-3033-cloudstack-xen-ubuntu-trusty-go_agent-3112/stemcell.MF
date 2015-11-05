@@ -1,0 +1,29 @@
+---
+name: light-bosh-cloudstack-xen-ubuntu-trusty-go_agent-3112
+version: '3033'
+bosh_protocol: 1
+sha1: e819bdb22ea889dbf69739d4b678504b47343b38
+operating_system: ubuntu-trusty
+cloud_properties:
+  name: light-bosh-cloudstack-xen-ubuntu-trusty-go_agent-3112
+  version: '3033'
+  infrastructure: cloudstack
+  hypervisor: xen
+  disk: 3072
+  disk_format: raw
+  container_format: bare
+  os_type: linux
+  os_distro: ubuntu
+  architecture: x86_64
+  auto_disk_config: true
+  light_template: bosh-stemcell-dp12-3112 
+  ami:
+    us-west-2: ami-c2e607f1
+    eu-west-1: ami-79f0c30e
+    eu-central-1: ami-5a919c47
+    ap-southeast-1: ami-5802120a
+    sa-east-1: ami-3b23b526
+    ap-northeast-1: ami-f495f3f4
+    ap-southeast-2: ami-a9a1ea93
+    us-west-1: ami-57a76713
+    us-east-1: ami-15d78270
