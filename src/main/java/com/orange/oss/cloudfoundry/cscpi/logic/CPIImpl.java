@@ -146,17 +146,10 @@ public class CPIImpl implements CPI{
         	logger.info("an affinity group {} has been specified for create_vm",affinityGroup);
         }
         
-        String vmName=CPI_VM_PREFIX+UUID.randomUUID().toString();
-		
-		logger.info("now creating cloudstack vm");
-        //cloudstack userdata generation for bootstrap
-        String userData=this.userDataGenerator.userMetadata(vmName,networks);
 
-		this.vmCreation(stemcell_id, compute_offering, networks, vmName,agent_id,userData);
-
-		
 		//create ephemeral disk, read the disk size from properties, attach it to the vm.
 		//NB: if base ROOT disk is large enough, bosh agent can use it to hold swap / ephemeral data. CPI forces an external vol for ephemeral
+        //NB: begin with ephemeral disk to avoid vm leaks is disk creation is KO
 	    String ephemeralDiskServiceOfferingName=resource_pool.ephemeral_disk_offering;
 	    if (ephemeralDiskServiceOfferingName==null) {
 	    	ephemeralDiskServiceOfferingName=this.cloudstackConfig.defaultEphemeralDiskOffering;
@@ -168,6 +161,15 @@ public class CPIImpl implements CPI{
 	    int ephemeralDiskSize=resource_pool.disk/1024; //cloudstack size api is Go
 		String name=CPI_EPHEMERAL_DISK_PREFIX+UUID.randomUUID().toString();
 		String ephemeralDiskName=this.diskCreate(name,ephemeralDiskSize,ephemeralDiskServiceOfferingName);
+       
+        
+        
+        String vmName=CPI_VM_PREFIX+UUID.randomUUID().toString();
+		logger.info("now creating cloudstack vm");
+        //cloudstack userdata generation for bootstrap
+        String userData=this.userDataGenerator.userMetadata(vmName,networks);
+		this.vmCreation(stemcell_id, compute_offering, networks, vmName,agent_id,userData);
+		
 		
 		//NOW attache the ephemeral disk to the vm (need reboot ?)
 		//FIXME : placement constraint local disk offering / vm
@@ -175,8 +177,6 @@ public class CPIImpl implements CPI{
 		this.diskAttachment(vmName, ephemeralDiskName);
 		
 		//FIXME: if attach fails, clean both vm and ephemeral disk ??
-		
-		
 		
 		//FIXME: registry feeding in vmCreation method. refactor here ?
 		
