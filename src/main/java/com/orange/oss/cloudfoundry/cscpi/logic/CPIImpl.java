@@ -267,7 +267,8 @@ public class CPIImpl implements CPI{
         	logger.debug("static / manual ip vm creation. bosh director has chosen a specific IP");
         	
         	//check ip is available
-        	Assert.isTrue(!this.vmWithIpExists(directorNetwork.ip), "The required IP "+directorNetwork.ip +" is not available");
+        	String vmUsingIp=this.vmWithIpExists(directorNetwork.ip);
+        	Assert.isTrue(vmUsingIp==null, "The required IP "+directorNetwork.ip +" is not available: used by vm "+vmUsingIp);
         	
 			options=DeployVirtualMachineOptions.Builder
 			.name(vmName)
@@ -980,23 +981,22 @@ public class CPIImpl implements CPI{
 	/**
 	 * utility method to check ip conflict (scope is Zone)
 	 * @param ip
-	 * @return
+	 * @return Vm name using this ip
 	 */
-	public boolean vmWithIpExists(String ip) {
+	public String  vmWithIpExists(String ip) {
 		logger.debug("check vm exist with ip {}", ip);
 		Set<VirtualMachine> listVirtualMachines = api.getVirtualMachineApi().listVirtualMachines(ListVirtualMachinesOptions.Builder.zoneId(this.findZoneId()));
-		boolean ipExists = false;
 		for (VirtualMachine vm : listVirtualMachines) {
 			Set<NIC> nics = vm.getNICs();
 			for (NIC nic : nics) {
 				String vmIp = nic.getIPAddress();
 				if ((vmIp != null) && (vmIp.equals(ip))) {
 					logger.warn("vm {} already uses ip {}", vm.getName(), ip);
-					ipExists = true;
+					return vm.getName();
 				}
 			}
 		}
-		return ipExists;
+		return null;
 	}	
     
 }
