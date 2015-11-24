@@ -834,11 +834,18 @@ public class CPIImpl implements CPI{
 	public void delete_disk(String disk_id) {
 		logger.info("delete_disk");
 		
-		//FIXME; check disk exists
+
 		//FIXME: check disk is detached
 		
-		String csDiskId=api.getVolumeApi().listVolumes(ListVolumesOptions.Builder.name(disk_id).type(Type.DATADISK)).iterator().next().getId();
+		Set<Volume> listVolumes = api.getVolumeApi().listVolumes(ListVolumesOptions.Builder.name(disk_id).type(Type.DATADISK));
+		if (listVolumes.size()==0){
+			logger.warn("delete_disk {}. No disk exist with this name");
+			return;
+		}
+		Assert.isTrue(listVolumes.size()==1,"WARNING: found multiple disk with name "+disk_id);
+		String csDiskId=listVolumes.iterator().next().getId();
 		api.getVolumeApi().deleteVolume(csDiskId);
+		logger.debug("disk {} has been deleted",disk_id);
 	}
 
 	@Override
