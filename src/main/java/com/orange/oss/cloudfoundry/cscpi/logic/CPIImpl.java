@@ -158,7 +158,7 @@ public class CPIImpl implements CPI{
 	    logger.debug("ephemeral disk offering is {}",ephemeralDiskServiceOfferingName);
 
 	    logger.info("now creating ephemeral disk");
-	    int ephemeralDiskSize=resource_pool.disk/1024; //cloudstack size api is Go
+	    int ephemeralDiskSize=resource_pool.disk/1024+1; //cloudstack size api is Go
 		String name=CPI_EPHEMERAL_DISK_PREFIX+UUID.randomUUID().toString();
 		String ephemeralDiskName=this.diskCreate(name,ephemeralDiskSize,ephemeralDiskServiceOfferingName);
        
@@ -813,9 +813,8 @@ public class CPIImpl implements CPI{
 		AsyncCreateResponse resp=null;
 		if (csDiskOffering.isCustomized()){
 			Assert.isTrue(size>0, "Must specify a disk size for custom disk offering "+diskOfferingName);			
-			int csSizeGb=size/1024;
-			logger.info("creating disk with specified size (custom size offering): {} Go",csSizeGb);
-			resp=api.getVolumeApi().createVolumeFromCustomDiskOfferingInZone(name, diskOfferingId, zoneId, csSizeGb);			
+			logger.info("creating disk with specified size (custom size offering): {} Go",size);
+			resp=api.getVolumeApi().createVolumeFromCustomDiskOfferingInZone(name, diskOfferingId, zoneId, size);			
 		} else {
 			Assert.isTrue(size<=csDiskOffering.getDiskSize()*1024, "specified persistent disk size "+size+" too big for offering "+diskOfferingName);
 			logger.info("creating disk -  ignoring specified size {} Mo for cloudstack volume creation (fixed by offering {}: {} Go )",size,diskOfferingName,csDiskOffering.getDiskSize());
