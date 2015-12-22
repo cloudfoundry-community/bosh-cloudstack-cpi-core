@@ -246,6 +246,10 @@ public class CPIImpl implements CPI{
 		// 					need metadata service for userData
 		//					need dns ?
 		
+		
+		//TODO check keypair existence cloudstackConfig.default_key_name
+		
+		
 		logger.info("associated Network Offering is {}", networkOffering.getName());
 		
         
@@ -260,6 +264,7 @@ public class CPIImpl implements CPI{
 			.name(vmName)
 			.networkId(network.getId())
 			.userData(userData.getBytes())
+			.keyPair(cloudstackConfig.default_key_name)
 			//.dataDiskSize(dataDiskSize)
 			;
 			break;
@@ -274,6 +279,7 @@ public class CPIImpl implements CPI{
 			.name(vmName)
 			.networkId(network.getId())
 			.userData(userData.getBytes())
+			.keyPair(cloudstackConfig.default_key_name)
 			//.dataDiskSize(dataDiskSize)
 			.ipOnDefaultNetwork(directorNetwork.ip)
 			;
