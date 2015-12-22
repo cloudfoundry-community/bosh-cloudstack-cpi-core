@@ -4,6 +4,7 @@ import java.util.Set;
 
 import org.jclouds.cloudstack.CloudStackApi;
 import org.jclouds.cloudstack.domain.NIC;
+import org.jclouds.cloudstack.domain.SshKeyPair;
 import org.jclouds.cloudstack.domain.Template;
 import org.jclouds.cloudstack.domain.VirtualMachine;
 import org.jclouds.cloudstack.domain.Volume;
@@ -115,6 +116,19 @@ public class CloudStackIT {
 		
 		return zoneId;
 	}
+	
+	@Test
+	public void createKeyPair(){
+		
+		String keyPairName="test-keypair";
+		SshKeyPair keypair=api.getSSHKeyPairApi().createSSHKeyPair(keyPairName);
+		String privateKey=keypair.getPrivateKey();
+		logger.info("Private Key :\n"+privateKey);
+		Assert.isTrue(privateKey!=null);
+		api.getSSHKeyPairApi().deleteSSHKeyPair(keyPairName);
+	}
+	
+	
 
 	
 }
