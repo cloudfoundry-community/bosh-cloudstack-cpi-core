@@ -57,7 +57,7 @@ public class BoshRegistryRestControler {
 	@RequestMapping(method=RequestMethod.GET,value = "/{vm_id}/settings",produces="application/json")
 	@ResponseBody
 	public String getSettingForVmId(@PathVariable String vm_id) {
-		logger.info("registry setting request for {}",vm_id);
+		logger.debug("registry setting request for {}",vm_id);
 		
 		
 		RegistryInstance instance=repository.findOne(vm_id);
