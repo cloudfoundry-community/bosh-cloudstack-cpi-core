@@ -57,6 +57,7 @@ public class VmSettingGeneratorImpl implements VmSettingGenerator {
 		public VM vm = new VM();
 		public String trusted_certs;
 		public boolean use_dhcp=true; //necessary on cloudstack see https://github.com/cloudfoundry/bosh/issues/911
+		public boolean resolved=true;
 	}
 
 	public static class BlobStore {
