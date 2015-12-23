@@ -56,6 +56,7 @@ public class VmSettingGeneratorImpl implements VmSettingGenerator {
 		public String mbus = "https://mbus:mbus-password@0.0.0.0:6868";
 		public VM vm = new VM();
 		public String trusted_certs;
+		public boolean use_dhcp=true; //necessary on cloudstack see https://github.com/cloudfoundry/bosh/issues/911
 	}
 
 	public static class BlobStore {
