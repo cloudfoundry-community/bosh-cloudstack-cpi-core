@@ -48,6 +48,7 @@ import org.jclouds.cloudstack.options.ListVolumesOptions;
 import org.jclouds.cloudstack.options.ListZonesOptions;
 import org.jclouds.cloudstack.options.RegisterTemplateOptions;
 import org.jclouds.cloudstack.predicates.JobComplete;
+import org.jclouds.http.HttpResponse;
 import org.jclouds.http.HttpResponseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -293,9 +294,14 @@ public class CPIImpl implements CPI{
         	jobComplete = retry(new JobComplete(api), 1200, 3, 5, SECONDS);
         	jobComplete.apply(job.getJobId());
         } catch (HttpResponseException hjce){
-        	int statusCode=hjce.getResponse().getStatusCode();
-        	String message=hjce.getResponse().getMessage();
-        	logger.error("Error while creating vm. Status code {}, Message : {} ",statusCode,message);
+        	logger.info("Exception: {}",hjce.toString());
+
+        	HttpResponse response = hjce.getResponse();
+        	if (response!=null) {
+        		int statusCode=response.getStatusCode();
+        		String message=response.getMessage();
+        		logger.error("Error while creating vm. Status code {}, Message : {} ",statusCode,message);
+        	}
         	throw new VMCreationFailedException("Error while creating vm",hjce);
         }
 		
