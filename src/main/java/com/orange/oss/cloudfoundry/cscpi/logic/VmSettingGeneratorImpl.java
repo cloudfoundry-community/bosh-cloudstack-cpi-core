@@ -137,7 +137,7 @@ public class VmSettingGeneratorImpl implements VmSettingGenerator {
 			//Dynamic network always is using DHCP. Manual network will use DHCP only if
 			//IP or Netmask are not provided required for static configuration.
 
-			settingObject.networks.values().iterator().next().resolved=true; //Check ?
+			settingObject.networks.values().iterator().next().resolved=false; //Check ?
 		
 		//FIXME only support single NIC
 		}
