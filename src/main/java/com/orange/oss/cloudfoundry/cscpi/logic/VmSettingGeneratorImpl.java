@@ -56,8 +56,6 @@ public class VmSettingGeneratorImpl implements VmSettingGenerator {
 		public String mbus = "https://mbus:mbus-password@0.0.0.0:6868";
 		public VM vm = new VM();
 		public String trusted_certs;
-		public boolean use_dhcp=true; //necessary on cloudstack see https://github.com/cloudfoundry/bosh/issues/911
-		public boolean resolved=true;
 	}
 
 	public static class BlobStore {
@@ -109,6 +107,9 @@ public class VmSettingGeneratorImpl implements VmSettingGenerator {
 
 		// networks
 		settingObject.networks = networks.networks;
+		
+		//set use_dhcp=true for the first single network
+		
 
 		// ntp
 		
@@ -125,7 +126,19 @@ public class VmSettingGeneratorImpl implements VmSettingGenerator {
 		if (vm!=null) {
 			logger.debug("setting mac address in setting");
 			String macAddress=vm.getNICs().iterator().next().getMacAddress();
-		settingObject.networks.values().iterator().next().mac=macAddress;
+			settingObject.networks.values().iterator().next().mac=macAddress;
+			
+			//necessary on cloudstack see https://github.com/cloudfoundry/bosh/issues/911
+			settingObject.networks.values().iterator().next().use_dhcp=true;
+
+			//Keep track if network was resolved via DHCP
+			//Add Resolved flag to network to indicate that it was resolved via
+			//DHCP so that on subsequent checks it continues to use DHCP.
+			//Dynamic network always is using DHCP. Manual network will use DHCP only if
+			//IP or Netmask are not provided required for static configuration.
+
+			settingObject.networks.values().iterator().next().resolved=true; //Check ?
+		
 		//FIXME only support single NIC
 		}
 		
