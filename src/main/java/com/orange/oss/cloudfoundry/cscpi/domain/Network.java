@@ -27,8 +27,12 @@ public class Network {
 	    public List<String> dns=new ArrayList<String>();
 	    public String gateway;
 
-	    //added for Setting generation (added by CPI, not from manifest)
+	    //properties added for Setting generation (added by CPI for bosh-agent, not from manifest)
 	    public String mac;
+	    public Boolean use_dhcp;
+	    public Boolean resolved; 
+	    
+	    
 	    
 	    public boolean equals(Object obj) {
 	        return EqualsBuilder.reflectionEquals(this, obj);
