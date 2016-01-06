@@ -29,8 +29,8 @@ public class Network {
 
 	    //properties added for Setting generation (added by CPI for bosh-agent, not from manifest)
 	    public String mac;
-	    public Boolean use_dhcp;
-	    public Boolean resolved; 
+	    public boolean use_dhcp;
+	    public boolean resolved; 
 	    
 	    
 	    

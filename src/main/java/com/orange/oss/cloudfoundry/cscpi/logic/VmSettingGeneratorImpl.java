@@ -70,6 +70,7 @@ public class VmSettingGeneratorImpl implements VmSettingGenerator {
 		// use sdb due to parsing issue with /dev/xvdb see
 		// https://github.com/cloudfoundry/bosh-agent/blob/master/infrastructure/devicepathresolver/mapped_device_path_resolver.go
 		// (line 45)
+		//fixed by https://github.com/cloudfoundry/bosh-agent/commit/565f89329bcf9416d1d2771f618c6b1b804ecc93
 		Map<String, PersistentDisk> persistent = new HashMap<String, PersistentDisk>();
 	}
 
@@ -128,19 +129,19 @@ public class VmSettingGeneratorImpl implements VmSettingGenerator {
 			String macAddress=vm.getNICs().iterator().next().getMacAddress();
 			settingObject.networks.values().iterator().next().mac=macAddress;
 			
-			//necessary on cloudstack see https://github.com/cloudfoundry/bosh/issues/911
-			settingObject.networks.values().iterator().next().use_dhcp=true;
-
-			//Keep track if network was resolved via DHCP
-			//Add Resolved flag to network to indicate that it was resolved via
-			//DHCP so that on subsequent checks it continues to use DHCP.
-			//Dynamic network always is using DHCP. Manual network will use DHCP only if
-			//IP or Netmask are not provided required for static configuration.
-
-			settingObject.networks.values().iterator().next().resolved=false; //Check ?
 		
 		//FIXME only support single NIC
 		}
+		//director level configuration for cloudstack see https://github.com/cloudfoundry/bosh/issues/911
+		settingObject.networks.values().iterator().next().use_dhcp=directorConfig.use_dhcp;
+
+		//Keep track if network was resolved via DHCP
+		//Add Resolved flag to network to indicate that it was resolved via
+		//DHCP so that on subsequent checks it continues to use DHCP.
+		//Dynamic network always is using DHCP. Manual network will use DHCP only if
+		//IP or Netmask are not provided required for static configuration.
+
+		settingObject.networks.values().iterator().next().resolved=false; //Check ?
 		
 
 		// serialize to json

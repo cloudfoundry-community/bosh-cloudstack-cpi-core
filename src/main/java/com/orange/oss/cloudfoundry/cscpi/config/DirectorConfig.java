@@ -48,5 +48,10 @@ public class DirectorConfig {
 	@Value("${cpi.ntp}")
 	public String ntp;
 	
+	@Value("${cpi.use_dhcp}")	
+	public boolean  use_dhcp;
+
+
+	
 	
 }
