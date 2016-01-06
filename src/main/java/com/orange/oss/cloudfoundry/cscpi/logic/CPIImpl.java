@@ -990,7 +990,7 @@ public class CPIImpl implements CPI{
 				PersistentDisk dsk=new PersistentDisk();
 				dsk.volumeId=v.getDeviceId();
 				//calculate vol path letter /dev/xvdX
-				int driveIndex=Integer.valueOf(v.getDeviceId())-1;
+				int driveIndex=Integer.valueOf(v.getDeviceId());
 				char drive=(char) ('a'+driveIndex);
 			    dsk.path="/dev/xvd"+drive;
 			    
