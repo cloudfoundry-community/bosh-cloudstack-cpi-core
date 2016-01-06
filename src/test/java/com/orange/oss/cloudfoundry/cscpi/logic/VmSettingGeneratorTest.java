@@ -104,7 +104,7 @@ public class VmSettingGeneratorTest {
 		
 		Map<String, PersistentDisk> disks=new HashMap<String, PersistentDisk>();
 		PersistentDisk d1=new PersistentDisk();
-		d1.path="/dev/sdc";
+		d1.path="/dev/xvdc";
 		d1.volumeId="3";
 		disks.put("cpidisk-xx", d1); // 1 persistent disk attached
 		
@@ -114,7 +114,7 @@ public class VmSettingGeneratorTest {
 	   JsonNode updatedSetting = mapper.readTree(newSetting);
 	   JsonNode persistentDisk=updatedSetting.get("disks").get("persistent").get("cpidisk-xx");
 	   String path=persistentDisk.get("path").toString();
-	   assertEquals("\"/dev/sdc\"",path);
+	   assertEquals("\"/dev/xvdc\"",path);
 	   
 	   //Then detach the disk shoud result in intial setting
 	   Map<String, PersistentDisk> disksEmpty=new HashMap<String, PersistentDisk>(); // empty, persistent disk detached

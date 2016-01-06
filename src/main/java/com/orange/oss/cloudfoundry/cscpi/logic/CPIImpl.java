@@ -989,7 +989,11 @@ public class CPIImpl implements CPI{
 			if ((v.getType()==Type.DATADISK) && (v.getName().startsWith(CPI_PERSISTENT_DISK_PREFIX))){
 				PersistentDisk dsk=new PersistentDisk();
 				dsk.volumeId=v.getDeviceId();
-			    dsk.path=""; //TODO remove if unused
+				//calculate vol path letter /dev/xvdX
+				int driveIndex=Integer.valueOf(v.getDeviceId())-1;
+				char drive=(char) ('a'+driveIndex);
+			    dsk.path="/dev/xvd"+drive;
+			    
 				attachedDisks.put(v.getName(), dsk);
 			}
 		}
