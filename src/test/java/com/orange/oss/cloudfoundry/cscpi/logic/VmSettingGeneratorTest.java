@@ -3,6 +3,8 @@ package com.orange.oss.cloudfoundry.cscpi.logic;
 import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.jclouds.cloudstack.domain.VirtualMachine;
 import org.junit.Test;
@@ -18,6 +20,7 @@ import com.orange.oss.cloudfoundry.cscpi.BoshCloudstackCpiCoreApplication;
 import com.orange.oss.cloudfoundry.cscpi.domain.Network;
 import com.orange.oss.cloudfoundry.cscpi.domain.NetworkType;
 import com.orange.oss.cloudfoundry.cscpi.domain.Networks;
+import com.orange.oss.cloudfoundry.cscpi.domain.PersistentDisk;
 import com.orange.oss.cloudfoundry.cscpi.logic.VmSettingGenerator;
 
 
@@ -99,17 +102,24 @@ public class VmSettingGeneratorTest {
 		//When
 		String setting=this.generator.createsettingForVM(agent_id, vmName, vm, networks);
 		
-		String newSetting=this.generator.updateVmSettingForAttachDisk(setting, "new_disk_id");
+		Map<String, PersistentDisk> disks=new HashMap<String, PersistentDisk>();
+		PersistentDisk d1=new PersistentDisk();
+		d1.path="/dev/sdc";
+		d1.volumeId="3";
+		disks.put("cpidisk-xx", d1); // 1 persistent disk attached
+		
+		String newSetting=this.generator.updateVmSettingForDisks(setting, disks);
 		//Then
 	   ObjectMapper mapper = new ObjectMapper();
 	   JsonNode updatedSetting = mapper.readTree(newSetting);
-	   JsonNode persistentDisk=updatedSetting.get("disks").get("persistent").get("new_disk_id");
+	   JsonNode persistentDisk=updatedSetting.get("disks").get("persistent").get("cpidisk-xx");
 	   String path=persistentDisk.get("path").toString();
 	   assertEquals("\"/dev/sdc\"",path);
 	   
 	   //Then detach the disk shoud result in intial setting
+	   Map<String, PersistentDisk> disksEmpty=new HashMap<String, PersistentDisk>(); // empty, persistent disk detached
 	   
-	   String settingAfterAtachDetach=this.generator.updateVmSettingForDetachDisk(newSetting, "new_disk_id");
+	   String settingAfterAtachDetach=this.generator.updateVmSettingForDisks(newSetting, disksEmpty);
 	   assertEquals(setting, settingAfterAtachDetach);
 	   
 	   
