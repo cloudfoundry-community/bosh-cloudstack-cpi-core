@@ -47,7 +47,7 @@ cloudstack:
   api_key: xxx
   secret_access_key: yyy
 
-  default_key_name: xx
+  default_key_name: bosh-keypair
   private_key: zz
   state_timeout: 600
   state_timeout_volume: 600
@@ -56,6 +56,7 @@ cloudstack:
     
 cpi:
   vm_expunge_delay: 30
+  use_dhcp: false
 
   webdav_host: 127.0.0.1
   webdav_port: 8080

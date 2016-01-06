@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -22,6 +23,7 @@ import org.jclouds.cloudstack.domain.Network;
 import org.jclouds.cloudstack.domain.NetworkOffering;
 import org.jclouds.cloudstack.domain.OSType;
 import org.jclouds.cloudstack.domain.ServiceOffering;
+import org.jclouds.cloudstack.domain.SshKeyPair;
 import org.jclouds.cloudstack.domain.Tag;
 import org.jclouds.cloudstack.domain.Template;
 import org.jclouds.cloudstack.domain.Template.Status;
@@ -40,6 +42,7 @@ import org.jclouds.cloudstack.options.DeployVirtualMachineOptions;
 import org.jclouds.cloudstack.options.ListDiskOfferingsOptions;
 import org.jclouds.cloudstack.options.ListNetworkOfferingsOptions;
 import org.jclouds.cloudstack.options.ListNetworksOptions;
+import org.jclouds.cloudstack.options.ListSSHKeyPairsOptions;
 import org.jclouds.cloudstack.options.ListServiceOfferingsOptions;
 import org.jclouds.cloudstack.options.ListTagsOptions;
 import org.jclouds.cloudstack.options.ListTemplatesOptions;
@@ -60,6 +63,7 @@ import com.google.common.collect.ImmutableMap;
 import com.orange.oss.cloudfoundry.cscpi.config.CloudStackConfiguration;
 import com.orange.oss.cloudfoundry.cscpi.domain.NetworkType;
 import com.orange.oss.cloudfoundry.cscpi.domain.Networks;
+import com.orange.oss.cloudfoundry.cscpi.domain.PersistentDisk;
 import com.orange.oss.cloudfoundry.cscpi.domain.ResourcePool;
 import com.orange.oss.cloudfoundry.cscpi.exceptions.CpiErrorException;
 import com.orange.oss.cloudfoundry.cscpi.exceptions.VMCreationFailedException;
@@ -248,7 +252,11 @@ public class CPIImpl implements CPI{
 		//					need dns ?
 		
 		
-		//TODO check keypair existence cloudstackConfig.default_key_name
+
+		Set<SshKeyPair> keyPairs=api.getSSHKeyPairApi().listSSHKeyPairs(ListSSHKeyPairsOptions.Builder.name(cloudstackConfig.default_key_name));
+
+		//check keypair existence cloudstackConfig.default_key_name (for clear error message)
+		Assert.isTrue(keyPairs.size()>0,"ERROR: no keypair "+ cloudstackConfig.default_key_name +" found in cloudstack. create one");
 		
 		
 		logger.info("associated Network Offering is {}", networkOffering.getName());
@@ -356,7 +364,7 @@ public class CPIImpl implements CPI{
 		
 		//read cloud properties to get template information
 		String stemcellName=cloud_properties.get("name").toString(); //,"bosh-cloudstack-xen-ubuntu-trusty-go_agent"
-		String stemcellVersion =cloud_properties.get("version").toString();//,"3033"
+		String stemcellVersion =cloud_properties.get("version").toString();//,"3165"
 		String stemcellInfrastructure =cloud_properties.get("infrastructure").toString();//,"cloudstack"
 		String stemcellHypervisor =cloud_properties.get("hypervisor").toString();//,"xen"		
 		Integer stemcellDisk=(Integer)cloud_properties.get("disk");//,"3072"
@@ -639,20 +647,6 @@ public class CPIImpl implements CPI{
 		logger.info("vm {} stopped before destroying");
 
 		
-		//remove NIC (free the IP before expunge delay
-		NIC nic=csVm.getNICs().iterator().next();
-		logger.info("NIC to delete : {}",nic.toString());
-		//TODO: can use jclouds to remove the nic?
-
-		
-		String jobId=api.getVirtualMachineApi().destroyVirtualMachine(csVmId);
-		
-		jobComplete = retry(new JobComplete(api), 1200, 3, 5, SECONDS);
-		jobComplete.apply(jobId);
-		
-		//FIXME : should force expunge VM (bosh usually recreates a vm shortly, expunge is necessary to avoid ip / vols reuse conflicts).
-		
-		
 		//remove  vm_id /settings from bosh registry		
 		logger.info("remove vm {} from registry", vm_id );
 		this.boshRegistry.delete(vm_id);
@@ -677,6 +671,14 @@ public class CPIImpl implements CPI{
 		
 		//delete disk
 		api.getVolumeApi().deleteVolume(ephemeralVol.getId());
+
+		//destroy vm
+		String jobId=api.getVirtualMachineApi().destroyVirtualMachine(csVmId);
+		
+		jobComplete = retry(new JobComplete(api), 1200, 3, 5, SECONDS);
+		jobComplete.apply(jobId);
+		
+		//FIXME : should force expunge VM (bosh usually recreates a vm shortly, expunge is necessary to avoid ip / vols reuse conflicts).
 		
 		
 		//wait expunge delay
@@ -795,7 +797,6 @@ public class CPIImpl implements CPI{
 	@Override
 	public String create_disk(Integer size, Map<String, String> cloud_properties) {
 		String diskOfferingName=cloud_properties.get("disk_offering");
-//		Assert.isTrue(diskOfferingName!=null, "no disk_offering attribute specified for disk creation !");
 		if (diskOfferingName==null){
 			diskOfferingName=this.cloudstackConfig.defaultDiskOffering;
 			logger.info("no disk_offering attribute specified for disk creation. use  CPI global default disk offering: {}",diskOfferingName);
@@ -834,7 +835,7 @@ public class CPIImpl implements CPI{
 			logger.info("creating disk with specified size (custom size offering): {} Mo => {} Go",sizeMo,sizeGo);
 			resp=api.getVolumeApi().createVolumeFromCustomDiskOfferingInZone(name, diskOfferingId, zoneId, sizeGo);			
 		} else {
-			Assert.isTrue(sizeMo<=csDiskOffering.getDiskSize()*1024, "specified persistent disk size "+sizeMo+" too big for offering "+diskOfferingName);
+			Assert.isTrue(sizeMo<=csDiskOffering.getDiskSize()*1024, "specified persistent disk size "+sizeMo+" too big for offering "+diskOfferingName + "=> "+csDiskOffering.getDiskSize()+ "Go");
 			logger.info("creating disk - ignoring specified size {} Mo for cloudstack volume creation (fixed by offering {}: {} Go )",sizeMo,diskOfferingName,csDiskOffering.getDiskSize());
 			resp=api.getVolumeApi().createVolumeFromDiskOfferingInZone(name, diskOfferingId, zoneId);
 		}
@@ -916,7 +917,7 @@ public class CPIImpl implements CPI{
 	@Override
 	public String snapshot_disk(String disk_id, Map<String, String> metadata) {
 		logger.info("snapshot disk");
-		
+		//TODO: only for persistent disk
 		String csDiskId=api.getVolumeApi().getVolume(disk_id).getId();
 		AsyncCreateResponse async = api.getSnapshotApi().createSnapshot(csDiskId,CreateSnapshotOptions.Builder.domainId("domain"));
 		
@@ -955,10 +956,9 @@ public class CPIImpl implements CPI{
 		
 		//now update registry
 		String previousSetting=this.boshRegistry.getRaw(vm_id);
-		String newSetting=this.vmSettingGenerator.updateVmSettingForDetachDisk(previousSetting, disk_id);
+		String newSetting=this.vmSettingGenerator.updateVmSettingForDetachDisk(previousSetting, disk_id);//FIXME : ? should remove
 		this.boshRegistry.put(vm_id, newSetting);
 		logger.info("==> detach disk updated in bosh registry");
-		
 		
 	}
 
@@ -966,23 +966,44 @@ public class CPIImpl implements CPI{
 	public List<String> get_disks(String vm_id) {
 		logger.info("get_disks");
 
-		VirtualMachine vm=api.getVirtualMachineApi().listVirtualMachines(ListVirtualMachinesOptions.Builder.name(vm_id)).iterator().next();		
+		ArrayList<String> diskList = new ArrayList<String>();
+
+		Map<String,PersistentDisk> disks=this.getPersistentDisks(vm_id);
+		diskList.addAll(disks.keySet());
+		return diskList;
+	}
+	
+	/**
+	 * get the persistent disk list from iaas. catch the mounted disk deviceid
+	 * Possible values for a Linux OS are:* 0 - /dev/xvda* 1 - /dev/xvdb* 2 - /dev/xvdc* 4 - /dev/xvde* 5 - /dev/xvdf* 6 - /dev/xvdg* 7 - /dev/xvdh* 8 - /dev/xvdi* 9 - /dev/xvdj
+	 * see https://cloudstack.apache.org/api/apidocs-4.6/user/attachVolume.html
+	 * 
+	 */
+	private Map<String,PersistentDisk> getPersistentDisks(String vm_id){
+		VirtualMachine vm=api.getVirtualMachineApi().listVirtualMachines(ListVirtualMachinesOptions.Builder.name(vm_id)).iterator().next();
 
 		VolumeApi vol = this.api.getVolumeApi();
 		Set<Volume> vols=vol.listVolumes(ListVolumesOptions.Builder.virtualMachineId(vm.getId()));
+		Map<String,PersistentDisk> attachedDisks=new HashMap<String,PersistentDisk>();
 		
-		ArrayList<String> disks = new ArrayList<String>();
 		Iterator<Volume> it=vols.iterator();
 		while (it.hasNext()){
 			Volume v=it.next();
 			//only DATA disk  - persistent disk. No ROOT disk,no ephemeral disk ?			
 			if ((v.getType()==Type.DATADISK) && (v.getName().startsWith(CPI_PERSISTENT_DISK_PREFIX))){
-				String disk_id=v.getName();
-				disks.add(disk_id);
+				PersistentDisk dsk=new PersistentDisk();
+				dsk.volumeId=v.getDeviceId();
+			    dsk.path=""; //TODO remove if unused
+				attachedDisks.put(v.getName(), dsk);
 			}
 		}
-		return disks;
+		
+		return attachedDisks;
+		
 	}
+	
+	
+	
 
   
 	/**

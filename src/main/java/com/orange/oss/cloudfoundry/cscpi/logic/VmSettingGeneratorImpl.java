@@ -20,7 +20,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.orange.oss.cloudfoundry.cscpi.config.DirectorConfig;
 import com.orange.oss.cloudfoundry.cscpi.domain.Network;
 import com.orange.oss.cloudfoundry.cscpi.domain.Networks;
-
+import com.orange.oss.cloudfoundry.cscpi.domain.PersistentDisk;
 /**
  * generates setting.json description to be exposed in bosh registry. Manages
  * setting.json update with attach / detach persistent disk (add disk_id
@@ -74,11 +74,6 @@ public class VmSettingGeneratorImpl implements VmSettingGenerator {
 		Map<String, PersistentDisk> persistent = new HashMap<String, PersistentDisk>();
 	}
 
-	public static class PersistentDisk {
-		String path;
-		@JsonProperty(value="volume_id")
-		String volumeId;
-	}
 
 	public static class Env {
 		// FIXME: describe env properly
