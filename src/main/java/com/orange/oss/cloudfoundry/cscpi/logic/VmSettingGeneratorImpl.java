@@ -156,8 +156,8 @@ public class VmSettingGeneratorImpl implements VmSettingGenerator {
 	}
 
 	@Override
-	public String updateVmSettingForAttachDisk(String previousSetting,
-			String disk_id) {
+	public String updateVmSettingForDisks(String previousSetting,
+			Map<String,PersistentDisk> newDisks) {
 		// parse setting
 
 		ObjectMapper mapper = new ObjectMapper();
@@ -167,80 +167,24 @@ public class VmSettingGeneratorImpl implements VmSettingGenerator {
 		try {
 			Setting setting = mapper.readValue(previousSetting, Setting.class);
 
-			Map<String, PersistentDisk> disks = setting.disks.persistent;
-			if (disks.get(disk_id) != null) {
-				logger.warn(
-						"Trying to add a disk {} to setting {}, but disk already in setting ! => Ignoring",
-						disk_id, previousSetting);
-				return previousSetting;
+			//rewrite the persistent disks list
+			setting.disks.persistent=newDisks;
 
-			}
-			// add disk to persistent structure (if not existing). calculate
-			// unique device path.
-			// FIXME : now use device. a is root, b is ephemeral, start from c.
-			// Might night better algorithm, using cloudstack disk attachement info
-			if (disks.size() != 0) {
-				throw new IllegalArgumentException(
-						"CPI not yet able to managed more than 1 persistent disk");
-			}
-
-			PersistentDisk newDisk = new PersistentDisk();
-			newDisk.path = "/dev/sdc"; // FIXME : booooo. hardcoded in bosh agent, here too.
-			newDisk.volumeId="3";
-			disks.put(disk_id, newDisk);
+//			PersistentDisk newDisk = new PersistentDisk();
+//			newDisk.path = "/dev/sdc"; // FIXME : booooo. hardcoded in bosh agent, here too.
+//			newDisk.volumeId="3";
+//			disks.put(disk_id, newDisk);
 
 			// new setting
 			String newSetting = mapper.writeValueAsString(setting);
+			
+			logger.info("generated updated vm setting : \n{}", newSetting);			
 			return newSetting;
 
 		} catch (IOException e) {
 			throw new IllegalArgumentException(
 					"Cant deserialize JSON setting for attach \n"+previousSetting, e);
 		}
-
-	}
-
-	@Override
-	public String updateVmSettingForDetachDisk(String previousSetting,
-			String disk_id) {
-
-		// parse setting
-
-		ObjectMapper mapper = new ObjectMapper();
-		mapper.setVisibility(PropertyAccessor.FIELD, Visibility.ANY);		
-		mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
-
-		try {
-			Setting setting = mapper.readValue(previousSetting, Setting.class);
-
-			Map<String, PersistentDisk> disks = setting.disks.persistent;
-			if (disks.get(disk_id) == null) {
-				logger.warn(
-						"Trying to remove a disk {} to setting {}, but disk not defined in setting ! => Ignoring",
-						disk_id, previousSetting);
-				return previousSetting;
-
-			}
-			// remove disk from persistent structure. keep existing
-			// disk path (should not dynamically change ??)
-			// Might night better algorithm, using cloudstack disk attachement
-			if (disks.size() >1) {
-				throw new IllegalArgumentException(
-						"CPI not yet able to managed more than 1 persistent disk");
-			}
-					
-			disks.remove(disk_id);
-
-			// new setting
-			String newSetting = mapper.writeValueAsString(setting);
-			return newSetting;
-
-		} catch (IOException e) {
-			throw new IllegalArgumentException(
-					"Cant deserialize JSON setting for detach", e);
-		}
-
-
 
 	}
 

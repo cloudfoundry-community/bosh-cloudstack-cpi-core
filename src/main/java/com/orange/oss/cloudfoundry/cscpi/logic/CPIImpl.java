@@ -873,9 +873,7 @@ public class CPIImpl implements CPI{
 		this.diskAttachment(vm_id, disk_id);
 		
 		//now update registry
-		String previousSetting=this.boshRegistry.getRaw(vm_id);
-		String newSetting=this.vmSettingGenerator.updateVmSettingForAttachDisk(previousSetting, disk_id);
-		this.boshRegistry.put(vm_id, newSetting);
+		this.updatePersistentDisksInRegistry(vm_id);
 		logger.info("==> attach disk updated in bosh registry");
 		
 	}
@@ -954,10 +952,8 @@ public class CPIImpl implements CPI{
 		
 		logger.info("==> detach disk successfull");
 		
-		//now update registry
-		String previousSetting=this.boshRegistry.getRaw(vm_id);
-		String newSetting=this.vmSettingGenerator.updateVmSettingForDetachDisk(previousSetting, disk_id);//FIXME : ? should remove
-		this.boshRegistry.put(vm_id, newSetting);
+		this.updatePersistentDisksInRegistry(vm_id);
+		
 		logger.info("==> detach disk updated in bosh registry");
 		
 	}
@@ -1003,6 +999,19 @@ public class CPIImpl implements CPI{
 	}
 	
 	
+
+	/**
+	 * update the persistent disk in registry, from cloudstack iaas api
+	 * 
+	 */
+	private void updatePersistentDisksInRegistry(String vm_id){
+		Map<String,PersistentDisk> disks=this.getPersistentDisks(vm_id);
+		
+		String previousSetting=this.boshRegistry.getRaw(vm_id);
+		String newSetting=this.vmSettingGenerator.updateVmSettingForDisks(previousSetting, disks);
+		this.boshRegistry.put(vm_id, newSetting);
+		
+	}
 	
 
   
