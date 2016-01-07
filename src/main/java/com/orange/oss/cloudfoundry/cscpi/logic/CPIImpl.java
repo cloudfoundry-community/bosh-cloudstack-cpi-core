@@ -647,9 +647,6 @@ public class CPIImpl implements CPI{
 		logger.info("vm {} stopped before destroying");
 
 		
-		//remove  vm_id /settings from bosh registry		
-		logger.info("remove vm {} from registry", vm_id );
-		this.boshRegistry.delete(vm_id);
 		
 		
 		//delete ephemeral disk !! Unmount then delete.
@@ -659,27 +656,33 @@ public class CPIImpl implements CPI{
 			logger.warn("No ephemeral disk found while deleting vm {}. Ignoring ...",vm_id);
 			return;
 		} 
-		Assert.isTrue(vols.size()==1,"Should only have a single data disk mounted (ephemeral disk) when deleting, found "+vols.size());
-		Volume ephemeralVol=vols.iterator().next();
-		Assert.isTrue(ephemeralVol.getName().startsWith(CPI_EPHEMERAL_DISK_PREFIX),"mounted disk is not ephemeral disk. Name is "+ephemeralVol.getName());
 		
-		//detach disk
-		AsyncCreateResponse resp=api.getVolumeApi().detachVolume(ephemeralVol.getId());
-		
-		jobComplete = retry(new JobComplete(api), 1200, 3, 5, SECONDS);
-		jobComplete.apply(resp.getJobId());
-		
-		//delete disk
-		api.getVolumeApi().deleteVolume(ephemeralVol.getId());
+		if (vols.size()>1){
+			logger.warn("Should only have a single data disk mounted (ephemeral disk) when deleting, found "+vols.size());
+		}
+
+		//iterate to identify the ephemeral disk
+		for (Volume vol:vols){
+			if (!vol.getName().startsWith(CPI_EPHEMERAL_DISK_PREFIX)){
+				logger.warn("mounted disk is not ephemeral disk, ignoring. Name is "+vol.getName());
+			} else {
+				logger.warn("unmount and delete ephemeral disk "+vol.getName());
+				//detach disk
+				AsyncCreateResponse resp=api.getVolumeApi().detachVolume(vol.getId());
+				
+				jobComplete = retry(new JobComplete(api), 1200, 3, 5, SECONDS);
+				jobComplete.apply(resp.getJobId());
+				
+				//delete disk
+				api.getVolumeApi().deleteVolume(vol.getId());
+			}
+		}
 
 		//destroy vm
 		String jobId=api.getVirtualMachineApi().destroyVirtualMachine(csVmId);
 		
 		jobComplete = retry(new JobComplete(api), 1200, 3, 5, SECONDS);
 		jobComplete.apply(jobId);
-		
-		//FIXME : should force expunge VM (bosh usually recreates a vm shortly, expunge is necessary to avoid ip / vols reuse conflicts).
-		
 		
 		//wait expunge delay
 		try {
@@ -689,8 +692,14 @@ public class CPIImpl implements CPI{
 		} catch (InterruptedException e) {
 			throw new CpiErrorException(e.getMessage(),e); 
 			};
-		
-		logger.info("deleted successfully vm {} and ephemeral disk {}",vm_id,ephemeralVol.getName());
+
+			
+		//remove  vm_id /settings from bosh registry. last step to avoid losing registry if delete vm fails		
+		logger.info("remove vm {} from registry", vm_id );
+		this.boshRegistry.delete(vm_id);
+			
+			
+		logger.info("deleted successfully vm {} and ephemeral disk ",vm_id);
 	}
 
 	@Override
