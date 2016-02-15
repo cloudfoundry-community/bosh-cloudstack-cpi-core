@@ -1,38 +1,9 @@
 language: java
 jdk:
-  - oraclejdk8
-
-#env:
-#  global:
-#    - "HOST_IP=$(/sbin/ifconfig venet0:0 | grep 'inet addr' | awk -F: '{print $2}' | awk '{print $1}')"
-#    - DOCKER_HOST=tcp://$HOST_IP:2375
-#    - DOCKER_PORT_RANGE=2400:2500
-#    - SLIRP_PORTS=$(seq 2375 2500)
-
-#before_install:
-#  - sudo sh -c "wget -qO- https://get.docker.com/gpg | apt-key add -"
-#  - sudo sh -c "echo deb http://get.docker.com/ubuntu docker main > /etc/apt/sources.list.d/docker.list"
-#  - echo exit 101 | sudo tee /usr/sbin/policy-rc.d
-#  - sudo chmod +x /usr/sbin/policy-rc.d
-
-  
-#install:
-#  - sudo apt-get update  
-#  - sudo sh -c "wget -qO- https://get.docker.com/gpg | apt-key add -"
-#  - sudo sh -c "echo deb http://get.docker.com/ubuntu docker main > /etc/apt/sources.list.d/docker.list"
-#  - sudo mkdir -p /var/lib/docker
-#  - echo exit 101 | sudo tee /usr/sbin/policy-rc.d
-#  - sudo chmod +x /usr/sbin/policy-rc.d
-#  - sudo apt-get install -y slirp lxc lxc-docker aufs-tools cgroup-lite
-#  - curl -sLo linux https://github.com/jpetazzo/sekexe/raw/master/uml
-#  - chmod +x linux
-#
-#before_script:
-#  - ./linux quiet mem=2G rootfstype=hostfs rw eth0=slirp,,/usr/bin/slirp-fullbolt init=$(pwd)/uml.sh WORKDIR=$(pwd) HOME=$HOME; exit `cat $(pwd)/$DIR/exit.status`  
-#  - "while ! docker info &> /dev/null ; do sleep 1; done"
-    #  - docker pull rocker/r-base
-
-#script:
-#  - docker version
-#  - docker build -t local/r-base r-base
-#  - docker run local/r-base r -e 'sapply(installed.packages()[,"Package"], tools::testInstalledPackage)'
+- oraclejdk8
+env:
+  global:
+  #CLOUDSTACK_API_KEY
+  #CLOUDSTACK_SECRET_ACCESS_KEY
+  - secure: M1D25nDJYGhuOJA7WS2q1QTMPF4GtAkm4I+PW+WhaYoR8fiT++NOhnJ1krsH1rv9qk1hvqQv8KntizT56pYq0BDcT8NfuJIv7eg1ANhjLBMk4vlKHXwVqglcinAGhdhsSKxWvJWMf+gVB2xiuKmZ6EMqTHxO7tRTkS1zlr0GOiI0ftYQOn0cQR+9CJUiOazHaVtdURahRy18P90g6mceZpkTSWJoB5BkJltq56bZXcAqGRIYeoEaic6vTaUR49tXglBkl9G6s/jBiuT4nXFWWJFnDT4IiR/VSQqoirUsmmYUb9VEGc3J0TZeRNUN4ggpkF4vvhE0TfanVNhe4x11ulvQGCPtJwWCc95CvJktYP60ghBuoim6OL/fJBq/eJ+C6TMizqpApyaU939M04xALSVoIl6nfmkRrnUU8cI9TlM982IBV7b7XJbcsmbdU+VHED4ItpnDhJm9z3X1B/G+mYkqQNFoOX6V8FdPnLkW3+BrU82m0xU//1A5ff+ZdthpxNUdtuUGt/SEHUr5sqPNOkU7bLCtH4lz8Acdt+gDwR15Y1qVLowJuWvvcEXO6eWEfeUgFRrZKKfWwi08AqVXL+Gn+AujVqkfNrJxL3DjYY7H+WnT1Zv/lPnRKou93IqZ7oPJ6LMlUCQqcyOczwUUOmuDcaJ4H8oQgC7hQvTEg2k=
+  - secure: 498yfdnzklqEF7gq7WuxffwfGE5SokMzYIgiZff9dm3wAKgA8oSdX7o0CgxUrd/tBoKjU+IWb9aMq2CYbP/24J8qJDFdDG7YI3YZxfMPblryTjZe7nvhhfEDoghHq3nG3sQFayMvmESHF5xnEoAnfAr08Nq6xMCrUzljY6WjFHSI6ZRYVfOIe9p9tLfxYMNZOPTmD+7Q8/4dQzbLkFTckO/ahXkj8RkZYh9wKfD2wLgiZVG9bPFqUalsG9Ju4ZmjV/yqEZDWRQ5qSAB9+SInZcADS2PFigTzge/dUzj0aZw+YGcVMDrKJgIE52zHKRxqpJ2NF+vQW1CZwWNKiciAZGEtfRt8H1O+qCMRQQfpbfmrhJAHft2WY8SbLNwPTr2nrP9/cTCP4fbWWr7vaaecEwSPnyvDKOruwNg9UfNk4GSxwtvaiCJIr9UBFZaByfnqpdR5TeltzITZvfTUd25sSC02rJBHsNfuw/7zrYxqFGx6eI9ZRQ6wPT8DNOorBpcx33MZJTalzITkWK7JCzkx7fcWV/3cM85FnjUHpfDfrEGZVs9cYSn8qPoFXjJu8bdM19FmAfrPTaR4do4iTuQNdcWP+hdJD+R/15doiPaSmw45ra/7etkPuvCaM8ynG1laRAJ9Xeecu8LgsQO5xWezJTf0MM5ex10bijrm7xN0e1A=
