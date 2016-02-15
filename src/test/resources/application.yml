@@ -15,7 +15,7 @@ spring:
     hibernate:
       ddl-auto: none          
   profiles:
-    active: orange
+    active: ikoula
   pidfile: ./target/application.pid
   
  
@@ -35,11 +35,11 @@ server:
     
 ---
 spring:
-  profiles: qa    
+  profiles: ikoula    
 cloudstack:
-  endpoint:  http://xx.xx.xx:8080/client/api
+  endpoint:  https://cloudstack.ikoula.com/client/api
   
-  proxy_host: yy.yy.yy
+  proxy_host: 
   proxy_port: 8080
   proxy_user: zz
   proxy_password: www
@@ -52,7 +52,8 @@ cloudstack:
   state_timeout: 600
   state_timeout_volume: 600
   stemcell_public_visibility: true
-  default_zone: yyy
+  default_zone: EU-FR-IKDC1-Z1-ADV
+  
     
 cpi:
   vm_expunge_delay: 30
@@ -62,8 +63,12 @@ cpi:
   webdav_port: 8080
   webdav_directory: "/tmp"
   
-  default_disk_offering: "ww" 
-  default_ephemeral_disk_offering: "xxx"  
+  default_disk_offering: "" 
+  default_ephemeral_disk_offering: ""  
+
+  lightstemcell:
+    network_name: "orange-private"
+    instance_type: "m1.small"
       
   registry:
     endpoint: http://127.0.0.1:8080
