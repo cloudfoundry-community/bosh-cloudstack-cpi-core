@@ -14,8 +14,8 @@ public class TestDriveCalculation {
 	
 	@Test
 	public void calculateDrivePath(){
-		int deviceid=3;
-		int driveIndex=deviceid-1;
+		int deviceid=2;
+		int driveIndex=deviceid;
 		char drive=(char) ('a'+driveIndex);
 	    String path="/dev/xvd"+drive;
 	    
