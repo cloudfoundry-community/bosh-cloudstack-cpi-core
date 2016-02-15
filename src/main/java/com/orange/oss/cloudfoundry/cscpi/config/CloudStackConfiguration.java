@@ -76,6 +76,13 @@ public class CloudStackConfiguration {
 
 	@Value("${cpi.default_ephemeral_disk_offering}")	
 	public String defaultEphemeralDiskOffering;
+
+	@Value("${cpi.lightstemcell.instance_type}")
+	public String light_stemcell_instance_type;//"CO1 - Small STD";
+	
+	@Value("${cpi.lightstemcell.network_name}")
+	public String lightStemcellNetworkName; //"3112 - preprod - back";
+	
 	
 	
 	@Bean

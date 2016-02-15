@@ -56,6 +56,7 @@ import org.jclouds.http.HttpResponseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.Assert;
 
 import com.google.common.base.Predicate;
@@ -117,6 +118,8 @@ public class CPIImpl implements CPI{
 
 	
 	private  Predicate<String> jobComplete;
+	
+	
 	
 	/**
 	 * creates a vm.
@@ -455,6 +458,9 @@ public class CPIImpl implements CPI{
 		this.waitForTemplateReady(stemcellId);
 		
 		logger.info("done registering cloudstack template for stemcell {}",stemcellId);
+		
+		//FIXME: purge template in webdav
+		
 		return stemcellId;
 	}
 
@@ -518,12 +524,9 @@ public class CPIImpl implements CPI{
 	 * @return
 	 */
 	private String mockTemplateGeneration(String existingTemplateName) throws VMCreationFailedException {
-		//String instance_type="Ultra Tiny";
-		String instance_type="CO1 - Small STD";
-		
+	
 		//FIXME : should parameter the network offering
-		String network_name="DefaultIsolatedNetworkOfferingWithSourceNatService";	
-		
+//		String network_name="DefaultIsolatedNetworkOfferingWithSourceNatService";	
 		
 
 		//map stemcell to cloudstack template concept.
@@ -534,15 +537,13 @@ public class CPIImpl implements CPI{
 		Networks fakeDirectorNetworks=new Networks();
 		com.orange.oss.cloudfoundry.cscpi.domain.Network net=new com.orange.oss.cloudfoundry.cscpi.domain.Network();
 		net.type=NetworkType.dynamic;
-		net.cloud_properties.put("name", "3112 - preprod - back");
-		net.dns.add("10.234.50.180");
-		net.dns.add("10.234.71.124");
+		net.cloud_properties.put("name", this.cloudstackConfig.lightStemcellNetworkName);
+//		net.dns.add("10.234.50.180");
+//		net.dns.add("10.234.71.124");
 		
 		fakeDirectorNetworks.networks.put("default",net);
-		
-		
 
-		this.vmCreation(existingTemplateName, instance_type, fakeDirectorNetworks, workVmName,"fakeagent","fakeuserdata");
+		this.vmCreation(existingTemplateName, cloudstackConfig.light_stemcell_instance_type, fakeDirectorNetworks, workVmName,"fakeagent","fakeuserdata");
 		VirtualMachine m=api.getVirtualMachineApi().listVirtualMachines(ListVirtualMachinesOptions.Builder.name(workVmName)).iterator().next();
 		
 		logger.info("STOPPING work vm for template generation");
@@ -1034,7 +1035,7 @@ public class CPIImpl implements CPI{
 	 */
 	private String findZoneId() {
 		//TODO: select the exact zone if multiple available
-        ListZonesOptions zoneOptions=ListZonesOptions.Builder.available(true);
+        ListZonesOptions zoneOptions=ListZonesOptions.Builder.available(false);
 		Set<Zone> zones = api.getZoneApi().listZones(zoneOptions);
 		Assert.notEmpty(zones, "No Zone available");
 		Zone zone=zones.iterator().next();
@@ -1042,7 +1043,7 @@ public class CPIImpl implements CPI{
 		
 		Assert.isTrue(zone.getName().equals(this.cloudstackConfig.default_zone),"Zone not found "+this.cloudstackConfig.default_zone);
 		
-		return zoneId;
+			return zoneId;
 	}
 
 	/**
