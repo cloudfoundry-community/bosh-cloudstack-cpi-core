@@ -4,6 +4,6 @@ import java.util.Map;
 
 public interface NativeCloudstackConnector {
 
-	String nativeCall(Map<String, String> apiParameters);
+	String nativeCall(String command,Map<String, String> apiParameters);
 
 }
