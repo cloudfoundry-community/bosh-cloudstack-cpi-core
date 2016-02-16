@@ -76,28 +76,36 @@ public class CPIFlowIT {
 		cloud_properties.put("auto_disk_config",true);
 		
 		//this activates light stemcell support (the original template in cloudstack is copied as a new template)
-		cloud_properties.put("light_template","bosh-stemcell-dp12");
+		cloud_properties.put("light_template","stemcell-3192"); //FIX ME: get from test property
 
 		
 		String stemcell_id=cpi.create_stemcell(image_path, cloud_properties);
 
 		
 		ResourcePool resource_pool=new ResourcePool();
-		resource_pool.compute_offering="CO1 - Small STD";
+		resource_pool.compute_offering="m1.small";
 		resource_pool.disk=8192;
-		resource_pool.ephemeral_disk_offering="Custom"; 
+		resource_pool.ephemeral_disk_offering="Data disk"; 
 		
 		Networks networks=new Networks();
 		Network net=new Network();
 		networks.networks.put("default", net);
 		//net.type=NetworkType.dynamic;
 		net.type=NetworkType.manual;
-		net.ip="10.234.228.155";
-		net.gateway="10.234.228.129";
-		net.netmask="255.255.255.192";
-		net.cloud_properties.put("name", "3112 - preprod - back");
-		net.dns.add("10.234.50.180");
-		net.dns.add("10.234.71.124");
+//		net.ip="10.234.228.155";
+//		net.gateway="10.234.228.129";
+//		net.netmask="255.255.255.192";
+//		net.cloud_properties.put("name","orange-csp10" );//FIX ME: use test props "3112 - preprod - back"
+//		net.dns.add("10.234.50.180");
+//		net.dns.add("10.234.71.124");
+		
+		net.ip="10.1.1.5";
+		net.gateway="10.1.1.1";
+		net.netmask="255.255.255.0";
+		net.cloud_properties.put("name","orange-csp10" );//FIX ME: use test props "3112 - preprod - back"
+		net.dns.add("8.8.8.8");
+		
+		
 		
 		List<String> disk_locality=new ArrayList<String>();
 		Map<String, String> env=new HashMap<String, String>();
@@ -108,10 +116,10 @@ public class CPIFlowIT {
 		
 		
 		//Integer size=new Integer(10); 
-		Integer size=new Integer(1); //ignored if fix disk size offering		
+		Integer size=new Integer(100); //ignored if fix disk size offering		
 		Map<String, String> diskcloud_properties=new HashMap<String, String>();
-		diskcloud_properties.put("disk_offering","Medium");
-		
+		//diskcloud_properties.put("disk_offering","Medium");  //FIXME: use test props
+		diskcloud_properties.put("disk_offering","Disk data");
 		
 		String disk_id=cpi.create_disk(size, diskcloud_properties);
 		

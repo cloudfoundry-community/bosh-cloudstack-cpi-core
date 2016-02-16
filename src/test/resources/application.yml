@@ -63,8 +63,8 @@ cpi:
   webdav_port: 8080
   webdav_directory: "/tmp"
   
-  default_disk_offering: "" 
-  default_ephemeral_disk_offering: ""  
+  default_disk_offering: "Data disk" 
+  default_ephemeral_disk_offering: "Data disk"  
 
   lightstemcell:
     network_name: "orange-private"
