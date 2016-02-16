@@ -1,8 +1,14 @@
 package com.orange.oss.cloudfoundry.cspi.cloudstack;
 
+import java.net.URI;
+import java.net.URL;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import javax.annotation.PostConstruct;
 import javax.crypto.Mac;
@@ -20,6 +26,7 @@ import org.apache.http.impl.client.ProxyAuthenticationStrategy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.web.client.RestTemplate;
@@ -85,38 +92,97 @@ public class NativeCloudstackConnectorImpl implements NativeCloudstackConnector 
 			restTemplate.setRequestFactory(requestFactory);
 		}
 	}
-
+	
 	@Override
-	public String nativeCall(Map<String, String> apiParameters) {
-		String secret = this.secret_access_key;
-
-		String request = "apiKey=" + this.api_key;
-
+	public String nativeCall(String command,Map<String, String> apiParameters) {
+		
+		apiParameters.put("response", "json");
+		apiParameters.put("apiKey",this.api_key);
+		apiParameters.put("command",command);
+		
+		String request="";
 		for (String key : apiParameters.keySet()) {
 			request += "&" + key + "=" + apiParameters.get(key);
 		}
-		logger.debug("request {}", request);
+		
+		logger.debug("request {}", request);;
+		String signature = computeSignature(command, apiParameters);		
+		String httpRequest = this.endpoint + "?" + request + "&signature=" + signature;
+		logger.info("http request {}", httpRequest);
+		String result = restTemplate.getForObject(httpRequest, String.class);
+		return result;
+}
+	
 
-		Mac mac;
+	//@Override
+	public String nativeCallPost(String command, Map<String, String> apiParameters) {
+
+		Map<String,String> urlVariables=new HashMap<String, String>();
+		urlVariables.put("apiKey", this.api_key);
+		urlVariables.put("command", command);		
+
+		for (String key : apiParameters.keySet()) {
+			urlVariables.put(key, apiParameters.get(key));
+		}
+		String signature = computeSignature(command, apiParameters);		
+		urlVariables.put("signature",signature);
+		
+		logger.debug("request {}", urlVariables.toString());
+
+
+		//String httpRequest = this.endpoint + "?" + request + "&signature=" + signature;
+		//logger.info("http request {}", httpRequest);
+		//String result = restTemplate.postForObject(httpRequest,"", String.class);
+		
+		
+		ResponseEntity<String> rep= restTemplate.postForEntity(this.endpoint, "", String.class, urlVariables);
+		rep.getStatusCode();
+		
+		
+		
+		
+		String result="xx";
+		return result;
+
+	}
+
+	private String computeSignature(String command,
+			Map<String, String> apiParameters ) {
+		
+		String signature="";
 		try {
+			
+			TreeMap<String, String> sortedLowerCaseCommand=new TreeMap<String, String>();
+			for (String key:apiParameters.keySet()){
+				sortedLowerCaseCommand.put(key.toLowerCase(),apiParameters.get(key).toLowerCase().replace("+", "%20"));
+			}
+			sortedLowerCaseCommand.put("command", command.toLowerCase()); 
+			sortedLowerCaseCommand.put("apikey", this.api_key.toLowerCase());
+			
+			List<String> params = new ArrayList<String>();
+			
+			for (String key : sortedLowerCaseCommand.keySet()) {
+				params.add(key + "=" + sortedLowerCaseCommand.get(key));
+			}
+			String[] par=new String[sortedLowerCaseCommand.keySet().size()];
+			params.toArray(par);
+			String sortedCommand=String.join("&", par);
+			logger.debug("sorted command {}", sortedCommand);
+			
+			Mac mac;
+			
 			mac = Mac.getInstance("HmacSHA1");
-			SecretKeySpec keySpec = new SecretKeySpec(secret.getBytes(), "HmacSHA1");
+			SecretKeySpec keySpec = new SecretKeySpec(this.secret_access_key.getBytes(), "HmacSHA1");
 			mac.init(keySpec);
-			mac.update(request.toLowerCase().getBytes());
+			
+			mac.update(sortedCommand.getBytes());
 			byte[] encryptedBytes = mac.doFinal();
-
-			String signature = Base64.encodeBase64String(encryptedBytes);// result
-
-			String httpRequest = this.endpoint + "?" + request + "&signature=" + signature;
-			logger.info("http request {}", httpRequest);
-			String result = restTemplate.getForObject(httpRequest, String.class);
-
-			return result;
-		} catch (NoSuchAlgorithmException | InvalidKeyException e) {
+			signature = Base64.encodeBase64String(encryptedBytes);// result
+		} catch (NoSuchAlgorithmException | InvalidKeyException e) { 
 			logger.error("Fatal :Invalid crypto keys {}", e.getMessage());
 			throw new IllegalArgumentException(e);
 		}
-
+		return signature;
 	}
 
 }

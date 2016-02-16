@@ -1,9 +1,7 @@
 package com.orange.oss.cloudfoundry.cscpi.cloudstack;
 
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.TreeMap;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -27,21 +25,24 @@ public class TestDirectCsApi {
 	NativeCloudstackConnectorImpl nativeCsConnector;
 
 	@Test
-	public void testRawRestApiCall() throws NoSuchAlgorithmException, InvalidKeyException {
-		Map<String,String> apiParameters=new TreeMap<String, String>();
-		apiParameters.put("command","listZones");
-		
-		String result=this.nativeCsConnector.nativeCall(apiParameters);
+	public void testRawRestApiCall()  {
+		Map<String,String> apiParameters=new HashMap<String, String>();
+		String result=this.nativeCsConnector.nativeCall("listZones",apiParameters);
 		logger.info("response from native call {}",result);
 
 	}
 	
 	@Test
 	public void testRawAsyncApiCall(){
-		Map<String,String> apiParameters=new TreeMap<String, String>();
-		apiParameters.put("command","listZones");
+		Map<String, String> params=new HashMap<String, String>();
+		params.put("name","testdisk");
+		params.put("size",Integer.toString(5));
+		params.put("diskofferingid", "e921b8e8-f043-491f-9732-9c847fe0fadd"); //"Disk data" offering
+		params.put("zoneId","a41b82a0-78d8-4a8f-bb79-303a791bb8a7"); 
+
+		String jobId=this.nativeCsConnector.nativeCall("createVolume",params);
 		
-		
+		logger.info("disk {} successfully created");
 		
 	}
 	
