@@ -17,5 +17,8 @@
 	<logger name="jclouds.wire" level="DEBUG" />
 	<logger name="liquibase" level="DEBUG" />	
 		
+	<root level="WARN">
+		<appender-ref ref="STDOUT" />
+	</root>
 
 </configuration>
