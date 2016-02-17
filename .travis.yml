@@ -1,6 +1,13 @@
 language: java
 jdk:
 - oraclejdk8
+install:
+-
+script:
+- mvn verify
+cache:
+  directories:
+    - '$HOME/.m2/repository'
 env:
   global:
   #CLOUDSTACK_API_KEY
