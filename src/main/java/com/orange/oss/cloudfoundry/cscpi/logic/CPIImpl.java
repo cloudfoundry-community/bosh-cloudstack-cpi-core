@@ -419,7 +419,7 @@ public class CPIImpl implements CPI{
 		
 		String webDavUrl=null;
 		try {
-			webDavUrl=this.webdav.pushFile(new FileInputStream(f), stemcellId+".vhd");
+			webDavUrl=this.webdav.pushFile(new FileInputStream(f), stemcellId+".vhd.bz2");
 			
 		} catch (FileNotFoundException e) {
 			logger.error("Unable to read file");
