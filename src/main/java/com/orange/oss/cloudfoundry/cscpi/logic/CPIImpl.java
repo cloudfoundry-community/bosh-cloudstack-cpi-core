@@ -56,7 +56,6 @@ import org.jclouds.http.HttpResponseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.Assert;
 
 import com.google.common.base.Predicate;
@@ -68,7 +67,6 @@ import com.orange.oss.cloudfoundry.cscpi.domain.PersistentDisk;
 import com.orange.oss.cloudfoundry.cscpi.domain.ResourcePool;
 import com.orange.oss.cloudfoundry.cscpi.exceptions.CpiErrorException;
 import com.orange.oss.cloudfoundry.cscpi.exceptions.VMCreationFailedException;
-import com.orange.oss.cloudfoundry.cscpi.exceptions.VMNotFoundException;
 import com.orange.oss.cloudfoundry.cscpi.webdav.WebdavServerAdapter;
 import com.orange.oss.cloudfoundry.cspi.cloudstack.NativeCloudstackConnector;
 
@@ -118,6 +116,7 @@ public class CPIImpl implements CPI{
 
 	
 	private  Predicate<String> jobComplete;
+
 	
 	
 	
@@ -476,7 +475,9 @@ public class CPIImpl implements CPI{
 	private void waitForTemplateReady(String stemcellId) throws CpiErrorException {
 		//FIXME: wait for the template to be ready
 		long startTime=System.currentTimeMillis();
-		long timeoutTime=startTime+1000*60*5; //FIXME: set a property, here 5 min wait for template publication
+		
+
+		long timeoutTime=startTime+1000*this.cloudstackConfig.publishTemplateTimeoutMinutes*60;
 		
 		boolean templateReady=false;
 		boolean templateError=false;
@@ -620,7 +621,7 @@ public class CPIImpl implements CPI{
 		jobComplete.apply(asyncTemplateDeleteJob.getJobId());
 		
 		//clean the webdav 
-		this.webdav.delete(stemcell_id+".vhd");
+		this.webdav.delete(stemcell_id+".vhd.bz2"); //stemcell builder uses bzip2 to compress the vhd template
 		
 		logger.info("stemcell {} successfully deleted",stemcell_id);
 	}
