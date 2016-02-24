@@ -99,10 +99,10 @@ public class CPIFlowIT {
 //		net.dns.add("10.234.50.180");
 //		net.dns.add("10.234.71.124");
 		
-		net.ip="10.1.1.5";
+		net.ip="10.1.1.55";
 		net.gateway="10.1.1.1";
 		net.netmask="255.255.255.0";
-		net.cloud_properties.put("name","orange-csp10" );//FIX ME: use test props "3112 - preprod - back"
+		net.cloud_properties.put("name","100mb-net" );//FIX ME: use test props "3112 - preprod - back"
 		net.dns.add("8.8.8.8");
 		
 		
@@ -119,7 +119,7 @@ public class CPIFlowIT {
 		Integer size=new Integer(100); //ignored if fix disk size offering		
 		Map<String, String> diskcloud_properties=new HashMap<String, String>();
 		//diskcloud_properties.put("disk_offering","Medium");  //FIXME: use test props
-		diskcloud_properties.put("disk_offering","Disk data");
+		diskcloud_properties.put("disk_offering","Data disk");
 		
 		String disk_id=cpi.create_disk(size, diskcloud_properties);
 		

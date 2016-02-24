@@ -52,6 +52,7 @@ cloudstack:
   state_timeout: 600
   state_timeout_volume: 600
   stemcell_public_visibility: true
+  stemcell_publish_timeout: 5  
   default_zone: EU-FR-IKDC1-Z1-ADV
   
     
