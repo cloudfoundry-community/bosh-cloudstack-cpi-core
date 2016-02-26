@@ -74,6 +74,10 @@ public class CloudStackConfiguration {
 	@Value("${cpi.vm_expunge_delay}")
 	public int vmExpungeDelaySeconds;
 	
+	@Value("${cpi.force_expunge}")
+	public boolean forceVmExpunge;
+	
+	
 	@Value("${cpi.default_disk_offering}")
 	public String defaultDiskOffering;
 
