@@ -58,6 +58,7 @@ cloudstack:
     
 cpi:
   vm_expunge_delay: 30
+  force_expunge: true
   use_dhcp: false
 
   webdav_host: 127.0.0.1
