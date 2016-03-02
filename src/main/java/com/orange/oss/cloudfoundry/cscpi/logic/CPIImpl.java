@@ -438,7 +438,7 @@ public class CPIImpl implements CPI{
 		TemplateMetadata templateMetadata=TemplateMetadata.builder()
 				.name(stemcellId)
 				.osTypeId(osType.getId())
-				.displayText(stemcellId+" : cpi stemcell template")
+				.displayText(stemcellId+" : cpi stemcell template") //TODO add the stemcell properties from MANIFEST
 				.build();
 		
 		RegisterTemplateOptions options=RegisterTemplateOptions.Builder
@@ -1048,7 +1048,7 @@ public class CPIImpl implements CPI{
 	 */
 	private String findZoneId() {
 		//TODO: select the exact zone if multiple available
-        ListZonesOptions zoneOptions=ListZonesOptions.Builder.available(false);
+        ListZonesOptions zoneOptions=ListZonesOptions.Builder.available(true);
 		Set<Zone> zones = api.getZoneApi().listZones(zoneOptions);
 		Assert.notEmpty(zones, "No Zone available");
 		Zone zone=zones.iterator().next();
