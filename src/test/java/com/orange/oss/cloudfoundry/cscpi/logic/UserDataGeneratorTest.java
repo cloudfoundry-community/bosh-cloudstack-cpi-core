@@ -2,6 +2,7 @@ package com.orange.oss.cloudfoundry.cscpi.logic;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.skyscreamer.jsonassert.JSONAssert;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -38,8 +39,9 @@ public class UserDataGeneratorTest {
 		
 		String userData=this.generator.userMetadata("my-vm",networks);
 		
-		
-		//TODO parse json and add assertions
+		String expected="{\"server\":{\"name\":\"my-vm\"},\"registry\":{\"endpoint\":\"http://127.0.0.1:8080\"},\"dns\":{\"nameserver\":[\"10.234.50.180\"]}}";
+
+		JSONAssert.assertEquals(expected,userData,true);
 		
 	}
 
