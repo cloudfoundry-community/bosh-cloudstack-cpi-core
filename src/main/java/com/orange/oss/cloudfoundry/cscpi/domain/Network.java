@@ -10,6 +10,7 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 
 
@@ -30,7 +31,11 @@ public class Network {
 	    //properties added for Setting generation (added by CPI for bosh-agent, not from manifest)
 	    public String mac;
 	    public boolean use_dhcp;
-	    public boolean resolved; 
+	    public boolean resolved;
+	    
+	    //set this network default gateway AND OR default dns
+	    @JsonProperty(value="default")
+	    public List<String> default_prop=new ArrayList<String>();
 	    
 	    
 	    
