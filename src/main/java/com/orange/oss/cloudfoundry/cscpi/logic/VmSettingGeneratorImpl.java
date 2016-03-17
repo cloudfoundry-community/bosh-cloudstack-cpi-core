@@ -104,9 +104,6 @@ public class VmSettingGeneratorImpl implements VmSettingGenerator {
 		// networks
 		settingObject.networks = networks.networks;
 		
-		//set use_dhcp=true for the first single network
-		
-
 		// ntp
 		
 		//FIXME parse from directorCondif and set ntp server list
@@ -129,6 +126,12 @@ public class VmSettingGeneratorImpl implements VmSettingGenerator {
 		}
 		//director level configuration for cloudstack see https://github.com/cloudfoundry/bosh/issues/911
 		settingObject.networks.values().iterator().next().use_dhcp=directorConfig.use_dhcp;
+		
+		
+		//set default: [gateway,dns], hardcoded as long as single NIC support
+		settingObject.networks.values().iterator().next().default_prop.add("gateway");
+		settingObject.networks.values().iterator().next().default_prop.add("dns");		
+		
 
 		//Keep track if network was resolved via DHCP
 		//Add Resolved flag to network to indicate that it was resolved via
