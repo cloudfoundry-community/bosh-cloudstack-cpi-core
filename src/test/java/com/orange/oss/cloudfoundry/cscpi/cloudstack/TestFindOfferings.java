@@ -1,9 +1,5 @@
 package com.orange.oss.cloudfoundry.cscpi.cloudstack;
 
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Set;
 
 import org.jclouds.cloudstack.CloudStackApi;
@@ -18,7 +14,6 @@ import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.orange.oss.cloudfoundry.cscpi.BoshCloudstackCpiCoreApplication;
-import com.orange.oss.cloudfoundry.cspi.cloudstack.NativeCloudstackConnectorImpl;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = BoshCloudstackCpiCoreApplication.class)
