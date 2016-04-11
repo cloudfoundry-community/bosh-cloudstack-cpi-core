@@ -90,6 +90,7 @@ public class CPIImpl implements CPI{
 	private static final String HYPERVISOR="XenServer";
 	private static final String TEMPLATE_FORMAT="VHD"; // QCOW2, RAW, and VHD.
 
+	private static final long JOBCOMPLETE_TIMEOUT = 3600l;
 
 	private static Logger logger=LoggerFactory.getLogger(CPIImpl.class);
 	
@@ -301,7 +302,7 @@ public class CPIImpl implements CPI{
         logger.info("Now launching VM {} creation !",vmName);
         try {
         	AsyncCreateResponse job = api.getVirtualMachineApi().deployVirtualMachineInZone(csZoneId, so.getId(), csTemplateId, options);
-        	jobComplete = retry(new JobComplete(api), 1200, 3, 5, SECONDS);
+        	jobComplete = retry(new JobComplete(api), JOBCOMPLETE_TIMEOUT, 3, 5, SECONDS);
         	jobComplete.apply(job.getJobId());
         } catch (HttpResponseException hjce){
         	logger.info("Exception: {}",hjce.toString());
@@ -550,7 +551,7 @@ public class CPIImpl implements CPI{
 		
 		logger.info("STOPPING work vm for template generation");
 		String stopJob=api.getVirtualMachineApi().stopVirtualMachine(m.getId());
-		jobComplete = retry(new JobComplete(api), 1200, 3, 5, SECONDS);
+		jobComplete = retry(new JobComplete(api), JOBCOMPLETE_TIMEOUT, 3, 5, SECONDS);
 		jobComplete.apply(stopJob);
 		
 		logger.info("Work vm stopped {}. now creating template from it its ROOT Volume",workVmName);
@@ -584,7 +585,7 @@ public class CPIImpl implements CPI{
 				.isFeatured(true);
 		
 		AsyncCreateResponse asyncTemplateCreateJob =api.getTemplateApi().createTemplate(templateMetadata, options);
-		jobComplete = retry(new JobComplete(api), 1200, 3, 5, SECONDS);
+		jobComplete = retry(new JobComplete(api), JOBCOMPLETE_TIMEOUT, 3, 5, SECONDS);
 		jobComplete.apply(asyncTemplateCreateJob.getJobId());
 
 		logger.info("Template successfully created ! {} - {}",stemcellId);
@@ -592,7 +593,7 @@ public class CPIImpl implements CPI{
 		logger.info("now cleaning work vm {}",workVmName);
 		
 		String jobId=api.getVirtualMachineApi().destroyVirtualMachine(m.getId());
-		jobComplete = retry(new JobComplete(api), 1200, 3, 5, SECONDS);
+		jobComplete = retry(new JobComplete(api), JOBCOMPLETE_TIMEOUT, 3, 5, SECONDS);
 		jobComplete.apply(jobId);
 		
 		logger.info("work vm cleaned work vm");
@@ -618,7 +619,7 @@ public class CPIImpl implements CPI{
 		String zoneId=findZoneId();
 		DeleteTemplateOptions options=DeleteTemplateOptions.Builder.zoneId(zoneId);
 		AsyncCreateResponse asyncTemplateDeleteJob =api.getTemplateApi().deleteTemplate(csTemplateId, options);
-		jobComplete = retry(new JobComplete(api), 1200, 3, 5, SECONDS);
+		jobComplete = retry(new JobComplete(api), JOBCOMPLETE_TIMEOUT, 3, 5, SECONDS);
 		jobComplete.apply(asyncTemplateDeleteJob.getJobId());
 		
 		//clean the webdav 
@@ -645,7 +646,7 @@ public class CPIImpl implements CPI{
 		
 		//stop the vm
 		String stopJobId=api.getVirtualMachineApi().stopVirtualMachine(csVmId);
-		jobComplete = retry(new JobComplete(api), 1200, 3, 5, SECONDS);
+		jobComplete = retry(new JobComplete(api), JOBCOMPLETE_TIMEOUT, 3, 5, SECONDS);
 		jobComplete.apply(stopJobId);
 		logger.info("vm {} stopped before destroying");
 
@@ -673,7 +674,7 @@ public class CPIImpl implements CPI{
 				//detach disk
 				AsyncCreateResponse resp=api.getVolumeApi().detachVolume(vol.getId());
 				
-				jobComplete = retry(new JobComplete(api), 1200, 3, 5, SECONDS);
+				jobComplete = retry(new JobComplete(api), JOBCOMPLETE_TIMEOUT, 3, 5, SECONDS);
 				jobComplete.apply(resp.getJobId());
 				
 				//delete disk
@@ -684,7 +685,7 @@ public class CPIImpl implements CPI{
 		//destroy vm
 		String jobId=api.getVirtualMachineApi().destroyVirtualMachine(csVmId);
 		
-		jobComplete = retry(new JobComplete(api), 1200, 3, 5, SECONDS);
+		jobComplete = retry(new JobComplete(api), JOBCOMPLETE_TIMEOUT, 3, 5, SECONDS);
 		jobComplete.apply(jobId);
 		
 		//wait expunge delay
@@ -748,7 +749,7 @@ public class CPIImpl implements CPI{
 		VirtualMachine vm=api.getVirtualMachineApi().listVirtualMachines(ListVirtualMachinesOptions.Builder.name(vm_id)).iterator().next();
 		String rebootJob=api.getVirtualMachineApi().rebootVirtualMachine(vm.getId());
 		
-		jobComplete = retry(new JobComplete(api), 1200, 3, 5, SECONDS);
+		jobComplete = retry(new JobComplete(api), JOBCOMPLETE_TIMEOUT, 3, 5, SECONDS);
 		jobComplete.apply(rebootJob);
 		
 		logger.info("done rebooting vm {}",vm_id);
@@ -798,7 +799,7 @@ public class CPIImpl implements CPI{
 		CreateTagsOptions tagOptions = CreateTagsOptions.Builder.resourceIds(vm.getId()).resourceType(Tag.ResourceType.USER_VM).tags(tags);
 		AsyncCreateResponse tagJob = api.getTagApi().createTags(tagOptions);				
 		 		
-		jobComplete = retry(new JobComplete(api), 1200, 3, 5, SECONDS);
+		jobComplete = retry(new JobComplete(api), JOBCOMPLETE_TIMEOUT, 3, 5, SECONDS);
 		jobComplete.apply(tagJob.getJobId());
 		
 		logger.info("done settings metadata on vm ",vm_id);
@@ -863,7 +864,7 @@ public class CPIImpl implements CPI{
 			resp=api.getVolumeApi().createVolumeFromDiskOfferingInZone(name, diskOfferingId, zoneId);
 		}
 		
-		jobComplete = retry(new JobComplete(api), 1200, 3, 5, SECONDS);
+		jobComplete = retry(new JobComplete(api), JOBCOMPLETE_TIMEOUT, 3, 5, SECONDS);
 		jobComplete.apply(resp.getJobId());
 		
 		logger.info("disk {} successfully created ",name);
@@ -929,7 +930,7 @@ public class CPIImpl implements CPI{
 		VolumeApi vol = this.api.getVolumeApi();
 		AsyncCreateResponse resp=vol.attachVolume(csDiskId, csVmId);
 		//TODO:  need to restart vm ?
-		jobComplete = retry(new JobComplete(api), 1200, 3, 5, SECONDS);
+		jobComplete = retry(new JobComplete(api), JOBCOMPLETE_TIMEOUT, 3, 5, SECONDS);
 		jobComplete.apply(resp.getJobId());
 		
 		logger.info("==> attach disk successfull");
@@ -942,7 +943,7 @@ public class CPIImpl implements CPI{
 		String csDiskId=api.getVolumeApi().getVolume(disk_id).getId();
 		AsyncCreateResponse async = api.getSnapshotApi().createSnapshot(csDiskId,CreateSnapshotOptions.Builder.domainId("domain"));
 		
-		jobComplete = retry(new JobComplete(api), 1200, 3, 5, SECONDS);
+		jobComplete = retry(new JobComplete(api), JOBCOMPLETE_TIMEOUT, 3, 5, SECONDS);
 		jobComplete.apply(async.getJobId());
 		
 		//FIXME
@@ -970,7 +971,7 @@ public class CPIImpl implements CPI{
 		
 		AsyncCreateResponse resp=api.getVolumeApi().detachVolume(csDiskId);
 		
-		jobComplete = retry(new JobComplete(api), 1200, 3, 5, SECONDS);
+		jobComplete = retry(new JobComplete(api), JOBCOMPLETE_TIMEOUT, 3, 5, SECONDS);
 		jobComplete.apply(resp.getJobId());
 		
 		logger.info("==> detach disk successfull");
