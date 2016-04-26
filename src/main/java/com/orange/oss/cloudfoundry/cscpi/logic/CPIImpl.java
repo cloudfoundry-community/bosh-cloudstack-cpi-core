@@ -444,6 +444,7 @@ public class CPIImpl implements CPI{
 		RegisterTemplateOptions options=RegisterTemplateOptions.Builder
 				.bits(64)
 				.isExtractable(true)
+				.requiresHVM(cloudstackConfig.stemcell_requires_hvm);
 				//.isPublic(false) //true is KO
 				//.isFeatured(false)
 				//.domainId(domainId) 

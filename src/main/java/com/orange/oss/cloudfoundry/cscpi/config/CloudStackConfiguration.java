@@ -64,7 +64,11 @@ public class CloudStackConfiguration {
 	public boolean stemcell_public_visibility;
 	
 	@Value("${cloudstack.stemcell_publish_timeout}")
-	public int publishTemplateTimeoutMinutes;	
+	public int publishTemplateTimeoutMinutes;
+	
+	@Value("${cloudstack.stemcell_requires_hvm}")
+	public boolean stemcell_requires_hvm;
+	
 
 	@Value("${cloudstack.default_zone}")	
 	public String  default_zone;
