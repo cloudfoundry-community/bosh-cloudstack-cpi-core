@@ -69,6 +69,11 @@ public class CloudStackConfiguration {
 	@Value("${cloudstack.stemcell_requires_hvm}")
 	public boolean stemcell_requires_hvm;
 	
+	
+	@Value("${cloudstack.stemcell_os_type}")
+	public String stemcell_os_type;
+	
+	
 
 	@Value("${cloudstack.default_zone}")	
 	public String  default_zone;
