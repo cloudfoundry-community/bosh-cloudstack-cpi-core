@@ -54,6 +54,8 @@ cloudstack:
   stemcell_public_visibility: true
   stemcell_publish_timeout: 5
   stemcell_requires_hvm: true
+  stemcell_os_type: Other PV (64-bit)
+  # stemcell_os_type: Ubuntu 14.04 (64-bit)  
   default_zone: EU-FR-IKDC1-Z1-ADV
   
     

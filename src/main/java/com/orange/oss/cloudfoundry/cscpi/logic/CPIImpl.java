@@ -86,7 +86,7 @@ public class CPIImpl implements CPI{
 	public static final String CPI_PERSISTENT_DISK_PREFIX = "cpi-disk-";
 	public static final String CPI_EPHEMERAL_DISK_PREFIX = "cpi-ephemeral-disk-";
 	
-	private static final String CPI_OS_TYPE = "Other PV (64-bit)";
+//	private static final String CPI_OS_TYPE = "Other PV (64-bit)";
 	private static final String HYPERVISOR="XenServer";
 	private static final String TEMPLATE_FORMAT="VHD"; // QCOW2, RAW, and VHD.
 
@@ -427,10 +427,10 @@ public class CPIImpl implements CPI{
 		}
 		logger.debug("template pushed to webdav, url {}",webDavUrl);
 
-		//FIXME: find correct os type (PVM 64 bits)
+		//FIXME: find correct os type, as defined by CPI (default is PVM 64 bits)
 		OSType osType=null;
 		for (OSType ost:api.getGuestOSApi().listOSTypes()){
-			if (ost.getDescription().equals(CPI_OS_TYPE)) osType=ost;
+			if (ost.getDescription().equals(cloudstackConfig.stemcell_os_type)) osType=ost;
 		}
 		
 		Assert.notNull(osType, "Unable to find OsType");
@@ -568,7 +568,7 @@ public class CPIImpl implements CPI{
 		//find correct os type (PVM 64 bits)
 		OSType osType=null;
 		for (OSType ost:api.getGuestOSApi().listOSTypes()){
-			if (ost.getDescription().equals(CPI_OS_TYPE)) osType=ost;
+			if (ost.getDescription().equals(cloudstackConfig.stemcell_os_type)) osType=ost;
 		}
 		
 		Assert.notNull(osType, "Unable to find OsType");
