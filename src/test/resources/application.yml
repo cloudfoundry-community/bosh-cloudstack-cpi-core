@@ -16,6 +16,7 @@ spring:
       ddl-auto: none          
   profiles:
     active: ikoula
+   
   pidfile: ./target/application.pid
   
  
@@ -67,6 +68,11 @@ cpi:
   webdav_host: 127.0.0.1
   webdav_port: 8080
   webdav_directory: "/tmp"
+
+  core:
+    user: cpi
+    password: cpipassword
+
   
   default_disk_offering: "Data disk" 
   default_ephemeral_disk_offering: "Data disk"  
