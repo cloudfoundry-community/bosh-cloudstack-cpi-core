@@ -1,6 +1,5 @@
 package com.orange.oss.cloudfoundry.cscpi.logic;
 
-import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -12,6 +11,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.util.Base64Utils;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
+
+import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
+
+
 
 /**
  * bosh registry client see
@@ -36,6 +39,7 @@ public class BoshRegistryClientImpl implements BoshRegistryClient {
 	String password;
 
 	@Override
+	@HystrixCommand	
 	public void put(String vm_id, String settings) {
 
 		String uri = this.endpoint + "/instances/" + vm_id;
@@ -46,7 +50,9 @@ public class BoshRegistryClientImpl implements BoshRegistryClient {
 		restTemplate.exchange(uri,HttpMethod.POST,request, String.class);
 	}
 
+	
 	@Override
+	@HystrixCommand	
 	public String get(String vm_id) {
 		String uri = this.endpoint + "/instances/" + vm_id + "/settings";
 		HttpHeaders headers=this.basicAuthEntityHeader();
@@ -58,6 +64,7 @@ public class BoshRegistryClientImpl implements BoshRegistryClient {
 	}
 
 	@Override
+	@HystrixCommand	
 	public String getRaw(String vm_id) {
 		String uri = this.endpoint + "/instances/" + vm_id + "/rawsettings";
 
@@ -70,6 +77,7 @@ public class BoshRegistryClientImpl implements BoshRegistryClient {
 	}
 	
 	@Override
+	@HystrixCommand	
 	public void delete(String vm_id) {
 		String uri = this.endpoint + "instances/" + vm_id;
 		HttpHeaders headers=this.basicAuthEntityHeader();

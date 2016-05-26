@@ -60,6 +60,7 @@ import org.springframework.util.Assert;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableMap;
+import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 import com.orange.oss.cloudfoundry.cscpi.config.CloudStackConfiguration;
 import com.orange.oss.cloudfoundry.cscpi.domain.NetworkType;
 import com.orange.oss.cloudfoundry.cscpi.domain.Networks;
@@ -352,7 +353,7 @@ public class CPIImpl implements CPI{
 	
 	/**
 	 * 
-	 * first try : create a vm from an existing template, stop it, create template from vm, delete work vm
+	 * create a vm from an existing template, stop it, create template from vm, delete work vm
 	 * 
 	 * @param image_path
 	 * @param cloud_properties
@@ -360,6 +361,7 @@ public class CPIImpl implements CPI{
 	 * @throws CpiErrorException 
 	 */
 	@Override
+	@HystrixCommand
 	public String create_stemcell(String image_path,
 			Map<String, Object> cloud_properties) throws CpiErrorException {
 		logger.info("create_stemcell");
@@ -605,6 +607,7 @@ public class CPIImpl implements CPI{
 
 
 	@Override
+	@HystrixCommand
 	public void delete_stemcell(String stemcell_id) {
 		logger.info("delete_stemcell {}",stemcell_id);
 		
@@ -629,6 +632,7 @@ public class CPIImpl implements CPI{
 	}
 
 	@Override
+	@HystrixCommand
 	public void delete_vm(String vm_id) throws CpiErrorException {
 		logger.info("delete_vm");
 		
@@ -718,6 +722,7 @@ public class CPIImpl implements CPI{
 	}
 
 	@Override
+	@HystrixCommand
 	public boolean has_vm(String vm_id) {
 		logger.info("has_vm ?");
 		Set<VirtualMachine> listVirtualMachines = api.getVirtualMachineApi().listVirtualMachines(ListVirtualMachinesOptions.Builder.name(vm_id));
@@ -731,6 +736,7 @@ public class CPIImpl implements CPI{
 	
 
 	@Override
+	@HystrixCommand
 	public boolean has_disk(String disk_id) {
 		logger.info("has_disk ?");
 		Set<Volume> vols=api.getVolumeApi().listVolumes(ListVolumesOptions.Builder.name(disk_id).type(Type.DATADISK));
@@ -743,6 +749,7 @@ public class CPIImpl implements CPI{
 	}
 
 	@Override
+	@HystrixCommand
 	public void reboot_vm(String vm_id) {
 		logger.info("reboot_vm");
 		
@@ -760,6 +767,7 @@ public class CPIImpl implements CPI{
 	 * add metadata to the VM. CPI should not rely on the presence of specific ket
 	 */
 	@Override
+	@HystrixCommand
 	public void set_vm_metadata(String vm_id, Map<String, String> metadata) {
 		logger.info("set vm metadata");
 		VirtualMachine vm=api.getVirtualMachineApi().listVirtualMachines(ListVirtualMachinesOptions.Builder.name(vm_id)).iterator().next();
@@ -819,6 +827,7 @@ public class CPIImpl implements CPI{
 	
 
 	@Override
+	@HystrixCommand
 	public String create_disk(Integer size, Map<String, String> cloud_properties) {
 		String diskOfferingName=cloud_properties.get("disk_offering");
 		if (diskOfferingName==null){
@@ -873,6 +882,7 @@ public class CPIImpl implements CPI{
 	}
 
 	@Override
+	@HystrixCommand
 	public void delete_disk(String disk_id) {
 		logger.info("delete_disk");
 		
@@ -891,6 +901,7 @@ public class CPIImpl implements CPI{
 	}
 
 	@Override
+	@HystrixCommand
 	public void attach_disk(String vm_id, String disk_id) {
 		logger.info("attach disk");
 		
@@ -937,6 +948,7 @@ public class CPIImpl implements CPI{
 	}
 
 	@Override
+	@HystrixCommand
 	public String snapshot_disk(String disk_id, Map<String, String> metadata) {
 		logger.info("snapshot disk");
 		//TODO: only for persistent disk
@@ -951,12 +963,14 @@ public class CPIImpl implements CPI{
 	}
 
 	@Override
+	@HystrixCommand
 	public void delete_snapshot(String snapshot_id) {
 		logger.info("delete snapshot");
 		//TODO
 	}
 
 	@Override
+	@HystrixCommand
 	public void detach_disk(String vm_id, String disk_id) {
 		logger.info("detach disk");
 		Volume csDisk = api.getVolumeApi().listVolumes(ListVolumesOptions.Builder.name(disk_id).type(Type.DATADISK)).iterator().next();
@@ -983,6 +997,7 @@ public class CPIImpl implements CPI{
 	}
 
 	@Override
+	@HystrixCommand
 	public List<String> get_disks(String vm_id) {
 		logger.info("get_disks");
 
