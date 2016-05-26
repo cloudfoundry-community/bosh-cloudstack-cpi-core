@@ -10,6 +10,7 @@ import org.springframework.boot.test.WebIntegrationTest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.web.client.HttpClientErrorException;
 
+import com.netflix.hystrix.exception.HystrixRuntimeException;
 import com.orange.oss.cloudfoundry.cscpi.BoshCloudstackCpiCoreApplication;
 import com.orange.oss.cloudfoundry.cscpi.logic.BoshRegistryClient;
 
@@ -44,7 +45,7 @@ public class BoshRegistryRestTest {
 		client.delete(vm_id);		
 	}
 	
-	@Test(expected=HttpClientErrorException.class)
+	@Test(expected=HystrixRuntimeException.class)
 	public void test_404_if_unknow_vm_id(){
 		String  vm_id="xxxx";		
 		client.get(vm_id);

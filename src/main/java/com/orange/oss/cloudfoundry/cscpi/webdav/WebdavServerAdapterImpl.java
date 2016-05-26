@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 
 import com.github.sardine.Sardine;
 import com.github.sardine.SardineFactory;
+import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 
 
 /**
@@ -28,6 +29,7 @@ public class WebdavServerAdapterImpl implements WebdavServerAdapter {
 	String webDavPort;
 	
 	@Override
+	@HystrixCommand	
 	public String pushFile(InputStream is, String ressourceName) {
 		logger.info("begin pushing file  {} to webdav server",ressourceName);
 		
@@ -50,6 +52,7 @@ public class WebdavServerAdapterImpl implements WebdavServerAdapter {
 	}
 
 	@Override
+	@HystrixCommand	
 	public void delete(String ressourceName) {
 		logger.info("begin deleting file  {} to webdav server",ressourceName);
 		
