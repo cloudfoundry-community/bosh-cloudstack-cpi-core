@@ -68,5 +68,25 @@ public class WebSecurityConfig {
                     .csrf().disable();
         }
     }
+
+    @Configuration
+    @Order(3)
+    public static class AdminSecurity extends WebSecurityConfigurerAdapter {
+
+        @Override
+        protected void configure(HttpSecurity http) throws Exception {
+            http
+                    .antMatcher("/admin/**")
+                    .authorizeRequests()
+                    .anyRequest()
+                    .hasRole("CORE")
+                    .and()
+                    .httpBasic()
+                    .and()
+                    .csrf().disable();
+        }
+    }
+    
+    
     
 }
