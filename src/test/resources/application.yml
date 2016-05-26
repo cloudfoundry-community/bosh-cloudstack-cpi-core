@@ -4,8 +4,13 @@ logging:
     org.springframework: INFO
     org.springframework.boot.actuate: DEBUG
     org.apache.http.client: DEBUG
+
+management:
+  context-path: /admin
     
 spring:
+  application:
+    name: cloudstack-cpi
   main:
     show-banner: true
   jackson:
