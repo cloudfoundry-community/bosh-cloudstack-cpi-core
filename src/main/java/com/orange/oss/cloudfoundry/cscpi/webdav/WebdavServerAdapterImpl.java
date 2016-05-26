@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Value;
 import com.github.sardine.Sardine;
 import com.github.sardine.SardineFactory;
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
+import com.netflix.hystrix.contrib.javanica.annotation.HystrixProperty;
 
 
 /**
@@ -29,7 +30,7 @@ public class WebdavServerAdapterImpl implements WebdavServerAdapter {
 	String webDavPort;
 	
 	@Override
-	@HystrixCommand	
+	@HystrixCommand(commandProperties = @HystrixProperty(name = "execution.isolation.thread.timeoutInMilliseconds", value = "300000"))	
 	public String pushFile(InputStream is, String ressourceName) {
 		logger.info("begin pushing file  {} to webdav server",ressourceName);
 		
@@ -52,7 +53,7 @@ public class WebdavServerAdapterImpl implements WebdavServerAdapter {
 	}
 
 	@Override
-	@HystrixCommand	
+	@HystrixCommand(commandProperties = @HystrixProperty(name = "execution.isolation.thread.timeoutInMilliseconds", value = "300000"))	
 	public void delete(String ressourceName) {
 		logger.info("begin deleting file  {} to webdav server",ressourceName);
 		
