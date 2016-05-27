@@ -39,7 +39,7 @@ public class UserDataGeneratorTest {
 		
 		String userData=this.generator.userMetadata("my-vm",networks);
 		
-		String expected="{\"server\":{\"name\":\"my-vm\"},\"registry\":{\"endpoint\":\"http://127.0.0.1:8080\"},\"dns\":{\"nameserver\":[\"10.234.50.180\"]}}";
+		String expected="{\"server\":{\"name\":\"my-vm\"},\"registry\":{\"endpoint\":\"http://admin:admin@127.0.0.1:8080\"},\"dns\":{\"nameserver\":[\"10.234.50.180\"]}}";
 
 		JSONAssert.assertEquals(expected,userData,true);
 		
