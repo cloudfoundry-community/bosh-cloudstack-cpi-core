@@ -3,6 +3,9 @@ package com.orange.oss.cloudfoundry.cscpi.config;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * class to group properties from Director (ie: not passed to CPI verbs, got those props from director bosh release)
  *
@@ -45,8 +48,6 @@ public class DirectorConfig {
 	@Value("${cpi.agent.mbus}")
 	public String mbus;
 	
-	@Value("${cpi.ntp}")
-	public String ntp;
 	
 	@Value("${cpi.use_dhcp}")	
 	public boolean  use_dhcp;
