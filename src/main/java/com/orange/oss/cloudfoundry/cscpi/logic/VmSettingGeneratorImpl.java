@@ -6,18 +6,20 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.PostConstruct;
+
 import org.jclouds.cloudstack.domain.VirtualMachine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.orange.oss.cloudfoundry.cscpi.config.DirectorConfig;
+import com.orange.oss.cloudfoundry.cscpi.config.DirectorConfigNtp;
 import com.orange.oss.cloudfoundry.cscpi.domain.Network;
 import com.orange.oss.cloudfoundry.cscpi.domain.Networks;
 import com.orange.oss.cloudfoundry.cscpi.domain.PersistentDisk;
@@ -41,6 +43,10 @@ public class VmSettingGeneratorImpl implements VmSettingGenerator {
 	 */
 	@Autowired
 	DirectorConfig directorConfig;
+	
+	@Autowired
+	DirectorConfigNtp ntpConfig;
+	
 
 	private static Logger logger = LoggerFactory
 			.getLogger(VmSettingGeneratorImpl.class.getName());
@@ -105,9 +111,7 @@ public class VmSettingGeneratorImpl implements VmSettingGenerator {
 		settingObject.networks = networks.networks;
 		
 		// ntp
-		
-		//FIXME parse from directorCondif and set ntp server list
-			
+		settingObject.ntp=ntpConfig.getNtp();
 
 		// mbus url
 		settingObject.mbus=directorConfig.mbus;
