@@ -6,6 +6,7 @@ import static org.jclouds.util.Predicates2.retry;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -23,7 +24,6 @@ import org.jclouds.cloudstack.domain.Network;
 import org.jclouds.cloudstack.domain.NetworkOffering;
 import org.jclouds.cloudstack.domain.OSType;
 import org.jclouds.cloudstack.domain.ServiceOffering;
-import org.jclouds.cloudstack.domain.SshKeyPair;
 import org.jclouds.cloudstack.domain.Tag;
 import org.jclouds.cloudstack.domain.Template;
 import org.jclouds.cloudstack.domain.Template.Status;
@@ -32,7 +32,6 @@ import org.jclouds.cloudstack.domain.VirtualMachine;
 import org.jclouds.cloudstack.domain.VirtualMachine.State;
 import org.jclouds.cloudstack.domain.Volume;
 import org.jclouds.cloudstack.domain.Volume.Type;
-import org.jclouds.cloudstack.domain.Zone;
 import org.jclouds.cloudstack.features.VolumeApi;
 import org.jclouds.cloudstack.options.CreateSnapshotOptions;
 import org.jclouds.cloudstack.options.CreateTagsOptions;
@@ -40,15 +39,10 @@ import org.jclouds.cloudstack.options.CreateTemplateOptions;
 import org.jclouds.cloudstack.options.DeleteTemplateOptions;
 import org.jclouds.cloudstack.options.DeployVirtualMachineOptions;
 import org.jclouds.cloudstack.options.ListDiskOfferingsOptions;
-import org.jclouds.cloudstack.options.ListNetworkOfferingsOptions;
-import org.jclouds.cloudstack.options.ListNetworksOptions;
-import org.jclouds.cloudstack.options.ListSSHKeyPairsOptions;
-import org.jclouds.cloudstack.options.ListServiceOfferingsOptions;
 import org.jclouds.cloudstack.options.ListTagsOptions;
 import org.jclouds.cloudstack.options.ListTemplatesOptions;
 import org.jclouds.cloudstack.options.ListVirtualMachinesOptions;
 import org.jclouds.cloudstack.options.ListVolumesOptions;
-import org.jclouds.cloudstack.options.ListZonesOptions;
 import org.jclouds.cloudstack.options.RegisterTemplateOptions;
 import org.jclouds.cloudstack.predicates.JobComplete;
 import org.jclouds.http.HttpResponse;
@@ -70,6 +64,7 @@ import com.orange.oss.cloudfoundry.cscpi.domain.ResourcePool;
 import com.orange.oss.cloudfoundry.cscpi.exceptions.CpiErrorException;
 import com.orange.oss.cloudfoundry.cscpi.exceptions.VMCreationFailedException;
 import com.orange.oss.cloudfoundry.cscpi.webdav.WebdavServerAdapter;
+import com.orange.oss.cloudfoundry.cspi.cloudstack.CacheableCloudstackConnector;
 import com.orange.oss.cloudfoundry.cspi.cloudstack.NativeCloudstackConnector;
 
 /**
@@ -81,8 +76,6 @@ import com.orange.oss.cloudfoundry.cspi.cloudstack.NativeCloudstackConnector;
  * 
  */
 public class CPIImpl implements CPI{
-
-	
 	
 	public static final String CPI_VM_PREFIX = "cpivm-";
 	public static final String CPI_PERSISTENT_DISK_PREFIX = "cpi-disk-";
@@ -91,7 +84,6 @@ public class CPIImpl implements CPI{
 //	private static final String CPI_OS_TYPE = "Other PV (64-bit)";
 	private static final String HYPERVISOR="XenServer";
 	private static final String TEMPLATE_FORMAT="VHD"; // QCOW2, RAW, and VHD.
-
 
 	private static Logger logger=LoggerFactory.getLogger(CPIImpl.class);
 	
@@ -115,12 +107,12 @@ public class CPIImpl implements CPI{
 	
 	@Autowired
 	private NativeCloudstackConnector nativeCloudstackConnector;
+	
+	@Autowired
+	private CacheableCloudstackConnector cacheableCloudstackConnector;	
 
 	
 	private  Predicate<String> jobComplete;
-
-	
-	
 	
 	/**
 	 * creates a vm.
@@ -140,6 +132,7 @@ public class CPIImpl implements CPI{
 	 * @return
 	 * @throws VMCreationFailedException 
 	 */
+	@HystrixCommand(commandProperties = @HystrixProperty(name = "execution.isolation.thread.timeoutInMilliseconds", value = "3600000"))	
     public String create_vm(String agent_id,
                             String stemcell_id,
                             ResourcePool resource_pool,
@@ -170,8 +163,6 @@ public class CPIImpl implements CPI{
 	    int ephemeralDiskSize=resource_pool.disk;
 		String name=CPI_EPHEMERAL_DISK_PREFIX+UUID.randomUUID().toString();
 		String ephemeralDiskName=this.diskCreate(name,ephemeralDiskSize,ephemeralDiskServiceOfferingName);
-       
-        
         
         String vmName=CPI_VM_PREFIX+UUID.randomUUID().toString();
 		logger.info("now creating cloudstack vm");
@@ -179,8 +170,7 @@ public class CPIImpl implements CPI{
         String userData=this.userDataGenerator.userMetadata(vmName,networks);
 		this.vmCreation(stemcell_id, compute_offering, networks, vmName,agent_id,userData);
 		
-		
-		//NOW attache the ephemeral disk to the vm (need reboot ?)
+		//NOW attach the ephemeral disk to the vm (hot plug)
 		//FIXME : placement constraint local disk offering / vm
 		logger.info("now attaching ephemeral disk {} to cloudstack vm {}",ephemeralDiskName,vmName);		
 		this.diskAttachment(vmName, ephemeralDiskName);
@@ -192,9 +182,6 @@ public class CPIImpl implements CPI{
         return vmName;
     }
 
-
-
-
     /**
      * Cloudstack vm creation.
      * @param stemcell_id
@@ -205,25 +192,14 @@ public class CPIImpl implements CPI{
      */
 	private void vmCreation(String stemcell_id, String compute_offering,
 			Networks networks, String vmName,String agent_id,String userData) throws VMCreationFailedException {
-	
-		
-		
-		Set<Template> matchingTemplates=api.getTemplateApi().listTemplates(ListTemplatesOptions.Builder.name(stemcell_id));
-		Assert.isTrue(matchingTemplates.size()==1,"Did not find a single template with name "+stemcell_id);
-		Template stemCellTemplate=matchingTemplates.iterator().next();
-		
-		
+
+		Template stemCellTemplate = this.cacheableCloudstackConnector.findStemcell(stemcell_id);
 		String csTemplateId=stemCellTemplate.getId();
 		logger.info("found cloudstack template {} matching name / stemcell_id {}",csTemplateId,stemcell_id );
         
-		String csZoneId = findZoneId();
+		String csZoneId = this.cacheableCloudstackConnector.findZoneId();
 		
-		//find compute offering
-		Set<ServiceOffering> computeOfferings = api.getOfferingApi().listServiceOfferings(ListServiceOfferingsOptions.Builder.name(compute_offering));
-		
-		Assert.isTrue(computeOfferings.size()>0, "Unable to find compute offering "+compute_offering);
-		ServiceOffering so=computeOfferings.iterator().next();
-		
+		ServiceOffering so = this.cacheableCloudstackConnector.findComputeOffering(compute_offering);
 
 		//parse network from cloud_properties
 		Assert.isTrue(networks.networks.size()==1, "CPI currenly only support 1 network / nic per VM");
@@ -233,35 +209,8 @@ public class CPIImpl implements CPI{
 		com.orange.oss.cloudfoundry.cscpi.domain.Network directorNetwork=networks.networks.values().iterator().next();
 		
 		String network_name=directorNetwork.cloud_properties.get("name");
-
-		
-		//find the network with the provided name
-		Network network=null;
-		
-		Set<Network> listNetworks = api.getNetworkApi().listNetworks(ListNetworksOptions.Builder.zoneId(csZoneId));
-		for (Network n:listNetworks){
-			if (n.getName().equals(network_name)){
-				network=n;
-			}
-		}
-		Assert.notNull(network,"Could not find network "+network_name);
-
-
-		Set<NetworkOffering> listNetworkOfferings = api.getOfferingApi().listNetworkOfferings(ListNetworkOfferingsOptions.Builder.zoneId(csZoneId).id(network.getNetworkOfferingId()));		
-		NetworkOffering networkOffering=listNetworkOfferings.iterator().next();
-
-		//Requirements, check the provided network, must have a correct prerequisite in offering
-		// service offering need dhcp (for dhcp bootstrap, and getting vrouter ip, used for metadata access)
-		// 					need metadata service for userData
-		//					need dns ?
-		
-		
-
-		Set<SshKeyPair> keyPairs=api.getSSHKeyPairApi().listSSHKeyPairs(ListSSHKeyPairsOptions.Builder.name(cloudstackConfig.default_key_name));
-
-		//check keypair existence cloudstackConfig.default_key_name (for clear error message)
-		Assert.isTrue(keyPairs.size()>0,"ERROR: no keypair "+ cloudstackConfig.default_key_name +" found in cloudstack. create one");
-		
+		Network network = this.cacheableCloudstackConnector.findNetwork(csZoneId, network_name);
+		NetworkOffering networkOffering = this.cacheableCloudstackConnector.findNetworkOffering(csZoneId, network);
 		
 		logger.info("associated Network Offering is {}", networkOffering.getName());
 		
@@ -325,8 +274,6 @@ public class CPIImpl implements CPI{
 		//list NICS, check macs.
 		NIC nic=vm.getNICs().iterator().next();
 		logger.info("generated NIC : "+nic.toString());
-
-		
 		
 		//FIXME: move bosh registry in create_vm (no need of registry for stemcell generation work vms)
 		//populate bosh registry
@@ -338,7 +285,6 @@ public class CPIImpl implements CPI{
 		logger.info("vm creation completed, now running ! {}",vmName);
 	}
 
-
 	@Override
 	@Deprecated
 	public String current_vm_id() {
@@ -349,8 +295,6 @@ public class CPIImpl implements CPI{
 		// see http://cloudstack-administration.readthedocs.org/en/latest/api.html#user-data-and-meta-data
 		return null;
 	}
-
-	
 	
 	/**
 	 * 
@@ -430,13 +374,7 @@ public class CPIImpl implements CPI{
 		}
 		logger.debug("template pushed to webdav, url {}",webDavUrl);
 
-		//FIXME: find correct os type, as defined by CPI (default is PVM 64 bits)
-		OSType osType=null;
-		for (OSType ost:api.getGuestOSApi().listOSTypes()){
-			if (ost.getDescription().equals(cloudstackConfig.stemcell_os_type)) osType=ost;
-		}
-		
-		Assert.notNull(osType, "Unable to find OsType");
+		OSType osType = this.cacheableCloudstackConnector.findOsType(cloudstackConfig.stemcell_os_type);
 		
 		TemplateMetadata templateMetadata=TemplateMetadata.builder()
 				.name(stemcellId)
@@ -453,7 +391,7 @@ public class CPIImpl implements CPI{
 				//.domainId(domainId) 
 				;
 		//TODO: get from cloud properties ie  from stemcell MANIFEST file ?
-		Set<Template> registredTemplates = api.getTemplateApi().registerTemplate(templateMetadata, TEMPLATE_FORMAT, HYPERVISOR, webDavUrl, findZoneId(), options);
+		Set<Template> registredTemplates = api.getTemplateApi().registerTemplate(templateMetadata, TEMPLATE_FORMAT, HYPERVISOR, webDavUrl, this.cacheableCloudstackConnector.findZoneId(), options);
 		for (Template t: registredTemplates){
 			logger.debug("registred template "+t.toString());
 		}
@@ -468,8 +406,6 @@ public class CPIImpl implements CPI{
 	}
 
 
-
-
 	/**
 	 * Wait for a registered template to be ready for instanciation (downloaded by cloudstack, and replicated in secondadry storage)
 	 * 
@@ -479,8 +415,6 @@ public class CPIImpl implements CPI{
 	private void waitForTemplateReady(String stemcellId) throws CpiErrorException {
 		//FIXME: wait for the template to be ready
 		long startTime=System.currentTimeMillis();
-		
-
 		long timeoutTime=startTime+1000*this.cloudstackConfig.publishTemplateTimeoutMinutes*60;
 		
 		boolean templateReady=false;
@@ -521,7 +455,6 @@ public class CPIImpl implements CPI{
 			logger.error("Timeout publishing template {} in cloudstack",stemcellId);
 			throw new CpiErrorException("Timeout publishing template" +stemcellId);
 			}
-		
 	}
 
 	/**
@@ -604,9 +537,6 @@ public class CPIImpl implements CPI{
 		return stemcellId;
 	}
 
-	
-
-
 	@Override
 	@HystrixCommand(commandProperties = @HystrixProperty(name = "execution.isolation.thread.timeoutInMilliseconds", value = "3600000"))
 	public void delete_stemcell(String stemcell_id) {
@@ -620,7 +550,7 @@ public class CPIImpl implements CPI{
 		
 		String csTemplateId=listTemplates.iterator().next().getId();
 		
-		String zoneId=findZoneId();
+		String zoneId=this.cacheableCloudstackConnector.findZoneId();
 		DeleteTemplateOptions options=DeleteTemplateOptions.Builder.zoneId(zoneId);
 		AsyncCreateResponse asyncTemplateDeleteJob =api.getTemplateApi().deleteTemplate(csTemplateId, options);
 		jobComplete = retry(new JobComplete(api), 1200, 3, 5, SECONDS);
@@ -654,9 +584,6 @@ public class CPIImpl implements CPI{
 		jobComplete = retry(new JobComplete(api), 1200, 3, 5, SECONDS);
 		jobComplete.apply(stopJobId);
 		logger.info("vm {} stopped before destroying");
-
-		
-		
 		
 		//delete ephemeral disk !! Unmount then delete.
 		Set<Volume> vols=api.getVolumeApi().listVolumes(ListVolumesOptions.Builder.type(Type.DATADISK).virtualMachineId(csVmId));
@@ -701,7 +628,6 @@ public class CPIImpl implements CPI{
 		} catch (InterruptedException e) {
 			throw new CpiErrorException(e.getMessage(),e); 
 			};
-
 			
 		//if forceExpunge is set explicitly call cloudstack API to expunge (requires admin role)
 		if (this.cloudstackConfig.forceVmExpunge){
@@ -712,12 +638,9 @@ public class CPIImpl implements CPI{
 			logger.info("done Expunging of vm {}",vm_id);
 		}
 			
-			
-			
 		//remove  vm_id /settings from bosh registry. last step to avoid losing registry if delete vm fails		
 		logger.info("remove vm {} from registry", vm_id );
 		this.boshRegistry.delete(vm_id);
-			
 			
 		logger.info("deleted successfully vm {} and ephemeral disk ",vm_id);
 	}
@@ -730,11 +653,7 @@ public class CPIImpl implements CPI{
 		Assert.isTrue(listVirtualMachines.size() <=1, "INCONSISTENCY : multiple vms found for vm_id "+vm_id);		
 		if (listVirtualMachines.size()==0) return false;
 		return true;
-		
 	}
-	
-	
-	
 
 	@Override
 	@HystrixCommand(commandProperties = @HystrixProperty(name = "execution.isolation.thread.timeoutInMilliseconds", value = "3600000"))
@@ -761,7 +680,6 @@ public class CPIImpl implements CPI{
 		jobComplete.apply(rebootJob);
 		
 		logger.info("done rebooting vm {}",vm_id);
-		
 	}
 
 	/**
@@ -772,10 +690,8 @@ public class CPIImpl implements CPI{
 	public void set_vm_metadata(String vm_id, Map<String, String> metadata) {
 		logger.info("set vm metadata");
 		VirtualMachine vm=api.getVirtualMachineApi().listVirtualMachines(ListVirtualMachinesOptions.Builder.name(vm_id)).iterator().next();
-		
 		//set metadatas
 		setVmMetada(vm_id, metadata, vm);
-		
 	}
 
 
@@ -859,7 +775,7 @@ public class CPIImpl implements CPI{
 		DiskOffering csDiskOffering = listDiskOfferings.iterator().next();
 		String diskOfferingId=csDiskOffering.getId();
 		
-		String zoneId=this.findZoneId();
+		String zoneId=this.cacheableCloudstackConnector.findZoneId();
 		
 		AsyncCreateResponse resp=null;
 		if (csDiskOffering.isCustomized()){
@@ -1037,12 +953,8 @@ public class CPIImpl implements CPI{
 				attachedDisks.put(v.getName(), dsk);
 			}
 		}
-		
 		return attachedDisks;
-		
 	}
-	
-	
 
 	/**
 	 * update the persistent disk in registry, from cloudstack iaas api
@@ -1050,30 +962,9 @@ public class CPIImpl implements CPI{
 	 */
 	private void updatePersistentDisksInRegistry(String vm_id){
 		Map<String,PersistentDisk> disks=this.getPersistentDisks(vm_id);
-		
 		String previousSetting=this.boshRegistry.getRaw(vm_id);
 		String newSetting=this.vmSettingGenerator.updateVmSettingForDisks(previousSetting, disks);
 		this.boshRegistry.put(vm_id, newSetting);
-		
-	}
-	
-
-  
-	/**
-	 * utility to retrieve cloudstack zoneId
-	 * @return
-	 */
-	private String findZoneId() {
-		//TODO: select the exact zone if multiple available
-        ListZonesOptions zoneOptions=ListZonesOptions.Builder.available(true);
-		Set<Zone> zones = api.getZoneApi().listZones(zoneOptions);
-		Assert.notEmpty(zones, "No Zone available");
-		Zone zone=zones.iterator().next();
-		String zoneId = zone.getId();
-		
-		Assert.isTrue(zone.getName().equals(this.cloudstackConfig.default_zone),"Zone not found "+this.cloudstackConfig.default_zone);
-		
-			return zoneId;
 	}
 
 	/**
@@ -1083,18 +974,20 @@ public class CPIImpl implements CPI{
 	 */
 	public String  vmWithIpExists(String ip) {
 		logger.debug("check vm exist with ip {}", ip);
-		Set<VirtualMachine> listVirtualMachines = api.getVirtualMachineApi().listVirtualMachines(ListVirtualMachinesOptions.Builder.zoneId(this.findZoneId()));
+		Set<VirtualMachine> listVirtualMachines = api.getVirtualMachineApi().listVirtualMachines(ListVirtualMachinesOptions.Builder.zoneId(this.cacheableCloudstackConnector.findZoneId()));
 		for (VirtualMachine vm : listVirtualMachines) {
 			Set<NIC> nics = vm.getNICs();
 			for (NIC nic : nics) {
 				String vmIp = nic.getIPAddress();
 				if ((vmIp != null) && (vmIp.equals(ip))) {
 					logger.warn("vm {} already uses ip {}", vm.getName(), ip);
+					URI isolationURI=nic.getIsolationURI();
 					return vm.getName();
 				}
 			}
 		}
 		return null;
 	}	
-    
+
+	
 }

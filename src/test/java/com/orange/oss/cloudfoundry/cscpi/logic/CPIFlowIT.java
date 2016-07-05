@@ -4,11 +4,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.jclouds.cloudstack.CloudStackApi;
-import org.jclouds.cloudstack.domain.Zone;
-import org.jclouds.cloudstack.options.ListZonesOptions;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +13,6 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.boot.test.WebIntegrationTest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.util.Assert;
 
 import com.orange.oss.cloudfoundry.cscpi.BoshCloudstackCpiCoreApplication;
 import com.orange.oss.cloudfoundry.cscpi.config.CloudStackConfiguration;
@@ -26,7 +22,6 @@ import com.orange.oss.cloudfoundry.cscpi.domain.Networks;
 import com.orange.oss.cloudfoundry.cscpi.domain.ResourcePool;
 import com.orange.oss.cloudfoundry.cscpi.exceptions.CpiErrorException;
 import com.orange.oss.cloudfoundry.cscpi.exceptions.VMCreationFailedException;
-import com.orange.oss.cloudfoundry.cscpi.logic.CPI;
 
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -166,18 +161,5 @@ public class CPIFlowIT {
 	}
 
 	
-	
-	private String findZoneId() {
-		//TODO: select the exact zone if multiple available
-        ListZonesOptions zoneOptions=ListZonesOptions.Builder.available(true);
-		Set<Zone> zones = api.getZoneApi().listZones(zoneOptions);
-		Assert.notEmpty(zones, "No Zone available");
-		Zone zone=zones.iterator().next();
-		String zoneId = zone.getId();
-		
-		Assert.isTrue(zone.getName().equals(this.cloudstackConfig.default_zone));
-		
-		return zoneId;
-	}
 
 }

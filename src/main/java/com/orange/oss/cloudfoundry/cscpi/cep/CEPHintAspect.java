@@ -17,7 +17,7 @@ import org.springframework.stereotype.Component;
  * @author pierre
  *
  */
-@Component
+//@Component
 @Aspect
 public class CEPHintAspect {
 

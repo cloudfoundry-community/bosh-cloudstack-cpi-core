@@ -1,0 +1,35 @@
+<ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		 xsi:noNamespaceSchemaLocation="ehcache.xsd">
+	<cache name="networking-offering"
+		   maxEntriesLocalHeap="200"
+		   timeToLiveSeconds="1200">
+	</cache>
+	
+	<cache name="networking"
+		   maxEntriesLocalHeap="200"
+		   timeToLiveSeconds="1200">
+	</cache>
+
+
+	<cache name="service-offering"
+		   maxEntriesLocalHeap="200"
+		   timeToLiveSeconds="1200">
+	</cache>
+
+	<cache name="stemcell"
+		   maxEntriesLocalHeap="200"
+		   timeToLiveSeconds="1200">
+	</cache>
+
+	<cache name="zone"
+		   maxEntriesLocalHeap="200"
+		   timeToLiveSeconds="1200">
+	</cache>
+
+	<cache name="os-type"
+		   maxEntriesLocalHeap="200"
+		   timeToLiveSeconds="1200">
+	</cache>
+	
+</ehcache>
+
