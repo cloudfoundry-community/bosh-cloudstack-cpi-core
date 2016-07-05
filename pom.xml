@@ -58,9 +58,24 @@
 			<groupId>org.springframework.cloud</groupId>
 			<artifactId>spring-cloud-starter-hystrix</artifactId>
 		</dependency>
+
+		<!--  jcache library -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-cache</artifactId>
+		</dependency>
+
+
+		<dependency>
+		    <groupId>net.sf.ehcache</groupId>
+		    <artifactId>ehcache</artifactId>
+		</dependency>		
 		
 		
-		
+<!-- 		<dependency> -->
+<!-- 			<groupId>javax.cache</groupId> -->
+<!-- 			<artifactId>cache-api</artifactId> -->
+<!-- 		</dependency>		 -->
 		
 
 		<dependency>
@@ -68,8 +83,6 @@
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
-
-
 
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
@@ -200,7 +213,7 @@
 			<dependency>
 				<groupId>org.springframework.cloud</groupId>
 				<artifactId>spring-cloud-dependencies</artifactId>
-				<version>Brixton.RELEASE</version>
+				<version>Brixton.SR2</version>
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
