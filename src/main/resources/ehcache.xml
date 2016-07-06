@@ -16,9 +16,10 @@
 		   timeToLiveSeconds="1200">
 	</cache>
 
+	<!-- reduce caching for stemcell, as cpi publishes new stemcell -->
 	<cache name="stemcell"
 		   maxEntriesLocalHeap="200"
-		   timeToLiveSeconds="1200">
+		   timeToLiveSeconds="20">
 	</cache>
 
 	<cache name="zone"
