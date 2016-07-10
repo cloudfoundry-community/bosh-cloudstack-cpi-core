@@ -626,6 +626,15 @@ public class CPIImpl implements CPI{
 		
 		jobComplete = retry(new JobComplete(api), 1200, 3, 5, SECONDS);
 		jobComplete.apply(jobId);
+
+		//if forceExpunge is set explicitly call cloudstack API to expunge (requires admin role)
+		if (this.cloudstackConfig.forceVmExpunge){
+			logger.info("Force Expunge of vm {}",vm_id);
+			Map<String,String> params=new HashMap<String, String>();
+			params.put("id",csVmId);
+			this.nativeCloudstackConnector.nativeCall("expungeVirtualMachine", params);
+			logger.info("done Expunging of vm {}",vm_id);
+		}
 		
 		//wait expunge delay
 		try {
@@ -636,14 +645,6 @@ public class CPIImpl implements CPI{
 			throw new CpiErrorException(e.getMessage(),e); 
 			};
 			
-		//if forceExpunge is set explicitly call cloudstack API to expunge (requires admin role)
-		if (this.cloudstackConfig.forceVmExpunge){
-			logger.info("Force Expunge of vm {}",vm_id);
-			Map<String,String> params=new HashMap<String, String>();
-			params.put("id",csVmId);
-			this.nativeCloudstackConnector.nativeCall("expungeVirtualMachine", params);
-			logger.info("done Expunging of vm {}",vm_id);
-		}
 			
 		//remove  vm_id /settings from bosh registry. last step to avoid losing registry if delete vm fails		
 		logger.info("remove vm {} from registry", vm_id );
