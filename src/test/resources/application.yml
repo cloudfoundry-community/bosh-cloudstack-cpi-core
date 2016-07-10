@@ -72,6 +72,7 @@ cloudstack:
   
     
 cpi:
+  vm_create_delay: 15
   vm_expunge_delay: 30
   force_expunge: true
   use_dhcp: false

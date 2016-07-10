@@ -78,7 +78,11 @@ public class CloudStackConfiguration {
 	@Value("${cloudstack.default_zone}")	
 	public String  default_zone;
 	
+	
 
+	@Value("${cpi.vm_create_delay}")
+	public int vmCreateDelaySeconds;
+	
 	
 	@Value("${cpi.vm_expunge_delay}")
 	public int vmExpungeDelaySeconds;
