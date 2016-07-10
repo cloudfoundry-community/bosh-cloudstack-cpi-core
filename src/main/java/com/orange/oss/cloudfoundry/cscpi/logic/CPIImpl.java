@@ -281,6 +281,13 @@ public class CPIImpl implements CPI{
 		String settings=this.vmSettingGenerator.createsettingForVM(agent_id,vmName,vm,networks);
 		this.boshRegistry.put(vmName, settings);
 		
+		//waiting create delay
+		try {
+			logger.info("waiting create delay for vm {}",vmName);
+			Thread.sleep(this.cloudstackConfig.vmCreateDelaySeconds*1000);
+			logger.info("DONE waiting create delay for vm {}",vmName);
+		} catch (InterruptedException e) {
+			};
 		
 		logger.info("vm creation completed, now running ! {}",vmName);
 	}
