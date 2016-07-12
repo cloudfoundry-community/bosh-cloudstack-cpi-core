@@ -213,7 +213,7 @@
 			<dependency>
 				<groupId>org.springframework.cloud</groupId>
 				<artifactId>spring-cloud-dependencies</artifactId>
-				<version>Brixton.SR2</version>
+				<version>Brixton.SR3</version>
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
