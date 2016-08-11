@@ -29,7 +29,11 @@ public class UserDataGeneratorImpl implements UserDataGenerator {
 	@Value("${cpi.registry.endpoint}")
 	String endpoint;
 	
-	
+	@Value("${cpi.registry.user}")
+	String user;
+
+	@Value("${cpi.registry.password}")
+	String password;
 	
 	/**
 	 * see https://github.com/cloudfoundry/bosh-agent/blob/585d2cc3a47129aa875738f09a26101ec6e0b1d1/infrastructure/http_metadata_service.go
@@ -76,6 +80,12 @@ public class UserDataGeneratorImpl implements UserDataGenerator {
 		UserData datas=new UserData();
 		//compose the user data from cpi create vm call
 		
+		//Fix : Build uri injected into VMs with setted Basic Auth creds
+		if(this.endpoint.indexOf("@") == -1) {
+			StringBuffer auth_endpoint = new StringBuffer(this.endpoint);
+			auth_endpoint.insert(this.endpoint.indexOf("//")+2, this.user+":"+this.password+"@");
+			this.endpoint = auth_endpoint.toString();
+	    }
 		
 		try {
 			URL url=new URL(this.endpoint);
