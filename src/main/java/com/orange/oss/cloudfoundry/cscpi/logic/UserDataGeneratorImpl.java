@@ -89,7 +89,7 @@ public class UserDataGeneratorImpl implements UserDataGenerator {
 			Assert.isTrue(url.getUserInfo()!=null, "You must provide valid user auth creds in registry url");
 			
 			//validate that registry url endpoint creds match manifest creds
-			Assert.isTrue(url.getUserInfo().contains(this.user+"@"+this.password), 
+			Assert.isTrue(url.getUserInfo().contains(this.user+":"+this.password), 
 					"creds in registry endpoint do not match creds in registry user/password fields of manifest file");
 
 		} catch (MalformedURLException e) {
