@@ -8,6 +8,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.util.Assert;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
@@ -29,7 +30,11 @@ public class UserDataGeneratorImpl implements UserDataGenerator {
 	@Value("${cpi.registry.endpoint}")
 	String endpoint;
 	
+	@Value("${cpi.registry.user}")
+	String user;
 	
+	@Value("${cpi.registry.password}")
+	String password;
 	
 	/**
 	 * see https://github.com/cloudfoundry/bosh-agent/blob/585d2cc3a47129aa875738f09a26101ec6e0b1d1/infrastructure/http_metadata_service.go
@@ -79,6 +84,14 @@ public class UserDataGeneratorImpl implements UserDataGenerator {
 		
 		try {
 			URL url=new URL(this.endpoint);
+			
+			//validate that the basic auth is set by user in the registry url
+			Assert.isTrue(url.getUserInfo()!=null, "You must provide valid user auth creds in registry url");
+			
+			//validate that registry url endpoint creds match manifest creds
+			Assert.isTrue(url.getUserInfo().contains(this.user+"@"+this.password), 
+					"creds in registry endpoint do not match creds in registry user/password fields of manifest file");
+
 		} catch (MalformedURLException e) {
 			logger.error("Registry endpoint is malformed {} : {}",this.endpoint,e.getMessage());
 			throw new IllegalArgumentException("Registry Endpoint is incorrect : "+this.endpoint, e);
