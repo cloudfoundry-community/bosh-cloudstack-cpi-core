@@ -875,8 +875,12 @@ public class CPIImpl implements CPI{
 			logger.info("==> attach disk successfull");
 			return;
 			} catch ( Throwable e){
-				lastException=new IllegalArgumentException("Unable to attach disk");
-                                logger.warn("Attach failed. retrying...");
+				lastException=new IllegalArgumentException("Unable to attach disk."+e.getMessage());
+                logger.warn("Attach failed. "+e.getMessage()+"\nretrying");
+                try {
+					Thread.sleep(10000); //10s tempo
+				} catch (InterruptedException e1) {
+				}
                                 
 			}
 		}
