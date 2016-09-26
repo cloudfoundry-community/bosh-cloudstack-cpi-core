@@ -862,14 +862,24 @@ public class CPIImpl implements CPI{
 		
 		//FIXME: with local disk, should check the host and vm host id match ?
 		
+		IllegalArgumentException lastException=null;
 		
-		VolumeApi vol = this.api.getVolumeApi();
-		AsyncCreateResponse resp=vol.attachVolume(csDiskId, csVmId);
-		//TODO:  need to restart vm ?
-		jobComplete = retry(new JobComplete(api), 1200, 3, 5, SECONDS);
-		jobComplete.apply(resp.getJobId());
+		int attachRetryCount=10;
+		for (int i = 0; i < attachRetryCount; i++) {
+			try {
+			VolumeApi vol = this.api.getVolumeApi();
+			AsyncCreateResponse resp = vol.attachVolume(csDiskId, csVmId);
+			// TODO: need to restart vm ?
+			jobComplete = retry(new JobComplete(api), 1200, 3, 5, SECONDS);
+			jobComplete.apply(resp.getJobId());
+			logger.info("==> attach disk successfull");
+			return;
+			} catch (Exception e){
+				lastException=new IllegalArgumentException("Unable to attach disk");
+			}
+		}
+		throw lastException;
 		
-		logger.info("==> attach disk successfull");
 	}
 
 	@Override
