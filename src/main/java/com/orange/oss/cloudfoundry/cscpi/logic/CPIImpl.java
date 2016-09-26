@@ -864,7 +864,7 @@ public class CPIImpl implements CPI{
 		
 		IllegalArgumentException lastException=null;
 		
-		int attachRetryCount=10;
+		int attachRetryCount=100;
 		for (int i = 0; i < attachRetryCount; i++) {
 			try {
 			VolumeApi vol = this.api.getVolumeApi();
@@ -874,8 +874,10 @@ public class CPIImpl implements CPI{
 			jobComplete.apply(resp.getJobId());
 			logger.info("==> attach disk successfull");
 			return;
-			} catch (Exception e){
+			} catch ( Throwable e){
 				lastException=new IllegalArgumentException("Unable to attach disk");
+                                logger.warn("Attach failed. retrying...");
+                                
 			}
 		}
 		throw lastException;
