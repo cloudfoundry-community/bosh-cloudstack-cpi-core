@@ -22,6 +22,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.orange.oss.cloudfoundry.cscpi.BoshCloudstackCpiCoreApplication;
 import com.orange.oss.cloudfoundry.cscpi.CPIAdapter;
 import com.orange.oss.cloudfoundry.cscpi.domain.CPIResponse;
+import com.orange.oss.cloudfoundry.cscpi.domain.Env;
 import com.orange.oss.cloudfoundry.cscpi.exceptions.CpiErrorException;
 import com.orange.oss.cloudfoundry.cscpi.exceptions.VMCreationFailedException;
 import com.orange.oss.cloudfoundry.cscpi.logic.CPI;
@@ -68,9 +69,9 @@ public class JsonMappingTest {
 	public void testCreateVM() throws IOException, VMCreationFailedException{
 		TestData data=this.loadData("create_vm");
 		
-		Map<String, String> env=new HashMap<String, String>();
 		List<String> disk_locality=new ArrayList<String>();
 		String response = postRequest(data);
+		Env env=new Env();
 		
 		verify(cpi).create_vm("agent", "stemcell", null, null, disk_locality, env);		
 		assertEquals(data.response,response);

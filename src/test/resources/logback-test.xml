@@ -17,7 +17,9 @@
 	
 	<!-- jclouds wire debug -->	
 	<logger name="jclouds.wire" level="DEBUG" />
-	<logger name="jclouds.headers" level="debug"/>
+	
+	
+<!-- 	<logger name="jclouds.headers" level="debug"/> -->
 
 	<!-- native spring rest template wire debug -->
 	<logger name="org.apache.http.wire" level="DEBUG" />

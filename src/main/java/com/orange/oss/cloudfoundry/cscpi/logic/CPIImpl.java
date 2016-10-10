@@ -57,6 +57,7 @@ import com.google.common.collect.ImmutableMap;
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixProperty;
 import com.orange.oss.cloudfoundry.cscpi.config.CloudStackConfiguration;
+import com.orange.oss.cloudfoundry.cscpi.domain.Env;
 import com.orange.oss.cloudfoundry.cscpi.domain.NetworkType;
 import com.orange.oss.cloudfoundry.cscpi.domain.Networks;
 import com.orange.oss.cloudfoundry.cscpi.domain.PersistentDisk;
@@ -138,7 +139,7 @@ public class CPIImpl implements CPI{
                             ResourcePool resource_pool,
                             Networks networks,
                             List<String> disk_locality,
-                            Map<String,String> env) throws VMCreationFailedException {
+                            Env env) throws VMCreationFailedException {
         
         String compute_offering=resource_pool.compute_offering;
         Assert.isTrue(compute_offering!=null,"Must provide compute offering in vm ressource pool");
@@ -168,7 +169,7 @@ public class CPIImpl implements CPI{
 		logger.info("now creating cloudstack vm");
         //cloudstack userdata generation for bootstrap
         String userData=this.userDataGenerator.userMetadata(vmName,networks);
-		this.vmCreation(stemcell_id, compute_offering, networks, vmName,agent_id,userData);
+		this.vmCreation(stemcell_id, compute_offering, networks, vmName,agent_id,userData,env);
 		
 		//NOW attach the ephemeral disk to the vm (hot plug)
 		//FIXME : placement constraint local disk offering / vm
@@ -191,7 +192,7 @@ public class CPIImpl implements CPI{
      * @throws VMCreationFailedException 
      */
 	private void vmCreation(String stemcell_id, String compute_offering,
-			Networks networks, String vmName,String agent_id,String userData) throws VMCreationFailedException {
+			Networks networks, String vmName,String agent_id,String userData,Env env) throws VMCreationFailedException {
 
 		Template stemCellTemplate = this.cacheableCloudstackConnector.findStemcell(stemcell_id);
 		String csTemplateId=stemCellTemplate.getId();
@@ -278,7 +279,7 @@ public class CPIImpl implements CPI{
 		//FIXME: move bosh registry in create_vm (no need of registry for stemcell generation work vms)
 		//populate bosh registry
 		logger.info("add vm {} to registry", vmName );
-		String settings=this.vmSettingGenerator.createsettingForVM(agent_id,vmName,vm,networks);
+		String settings=this.vmSettingGenerator.createsettingForVM(agent_id,vmName,vm,networks,env);
 		this.boshRegistry.put(vmName, settings);
 		
 		//waiting create delay
@@ -489,7 +490,7 @@ public class CPIImpl implements CPI{
 		
 		fakeDirectorNetworks.networks.put("default",net);
 
-		this.vmCreation(existingTemplateName, cloudstackConfig.light_stemcell_instance_type, fakeDirectorNetworks, workVmName,"fakeagent","fakeuserdata");
+		this.vmCreation(existingTemplateName, cloudstackConfig.light_stemcell_instance_type, fakeDirectorNetworks, workVmName,"fakeagent","fakeuserdata",new Env());
 		VirtualMachine m=api.getVirtualMachineApi().listVirtualMachines(ListVirtualMachinesOptions.Builder.name(workVmName)).iterator().next();
 		
 		logger.info("STOPPING work vm for template generation");

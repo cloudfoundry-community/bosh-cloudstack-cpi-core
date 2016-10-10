@@ -16,6 +16,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.orange.oss.cloudfoundry.cscpi.BoshCloudstackCpiCoreApplication;
 import com.orange.oss.cloudfoundry.cscpi.config.CloudStackConfiguration;
+import com.orange.oss.cloudfoundry.cscpi.domain.Env;
 import com.orange.oss.cloudfoundry.cscpi.domain.Network;
 import com.orange.oss.cloudfoundry.cscpi.domain.NetworkType;
 import com.orange.oss.cloudfoundry.cscpi.domain.Networks;
@@ -103,8 +104,8 @@ public class CPIFlowIT {
 		
 		
 		List<String> disk_locality=new ArrayList<String>();
-		Map<String, String> env=new HashMap<String, String>();
-
+		Env env=new Env();
+		
 		String vm_id=cpi.create_vm(agent_id, stemcell_id, resource_pool, networks, disk_locality, env);
 		
 		boolean hasVM=cpi.has_vm(vm_id);
