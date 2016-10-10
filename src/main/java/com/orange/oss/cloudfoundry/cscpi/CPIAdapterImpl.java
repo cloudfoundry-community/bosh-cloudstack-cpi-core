@@ -19,11 +19,13 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.orange.oss.cloudfoundry.cscpi.domain.CPIResponse;
 import com.orange.oss.cloudfoundry.cscpi.domain.CPIResponse.CmdError;
+import com.orange.oss.cloudfoundry.cscpi.domain.Env;
 import com.orange.oss.cloudfoundry.cscpi.domain.Network;
 import com.orange.oss.cloudfoundry.cscpi.domain.Networks;
 import com.orange.oss.cloudfoundry.cscpi.domain.ResourcePool;
 import com.orange.oss.cloudfoundry.cscpi.exceptions.CPIException;
 import com.orange.oss.cloudfoundry.cscpi.logic.CPI;
+
 
 public class CPIAdapterImpl implements CPIAdapter {
 
@@ -104,12 +106,12 @@ public class CPIAdapterImpl implements CPIAdapter {
 				ResourcePool resource_pool=this.parseResourcePool(args.next());
 				Networks networks=this.parseNetwork(args.next());
 				
-				List<String> disk_locality=new ArrayList<String>();
+				List<String> disk_locality=mapper.convertValue(args.next(), List.class);
 				//TODO: log and parse if a disk hint is provided by director
 				//see: https://github.com/cloudfoundry/bosh/issues/945
 				
 				
-				Map<String, String> env=new HashMap<String, String>();
+				Env env=mapper.convertValue(args.next(),Env.class);
 
 				String vmId=this.cpi.create_vm(agent_id, stemcell_id, resource_pool, networks, disk_locality, env);
 				response.result.add(vmId);
@@ -151,7 +153,6 @@ public class CPIAdapterImpl implements CPIAdapter {
 				String vm_id=args.next().asText();
 				Networks networks=this.parseNetwork(args.next());				
 				this.cpi.configure_networks(vm_id, networks);
-				
 			} 
 			
 			else

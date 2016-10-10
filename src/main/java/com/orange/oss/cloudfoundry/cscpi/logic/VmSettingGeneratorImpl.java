@@ -6,8 +6,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.annotation.PostConstruct;
-
 import org.jclouds.cloudstack.domain.VirtualMachine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,6 +18,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.orange.oss.cloudfoundry.cscpi.config.DirectorConfig;
 import com.orange.oss.cloudfoundry.cscpi.config.DirectorConfigNtp;
+import com.orange.oss.cloudfoundry.cscpi.domain.Env;
 import com.orange.oss.cloudfoundry.cscpi.domain.Network;
 import com.orange.oss.cloudfoundry.cscpi.domain.Networks;
 import com.orange.oss.cloudfoundry.cscpi.domain.PersistentDisk;
@@ -55,8 +54,7 @@ public class VmSettingGeneratorImpl implements VmSettingGenerator {
 		public String agent_id;
 		public BlobStore blobstore = new BlobStore();
 		public Disks disks = new Disks();
-		public Map<String, String> env = new HashMap<String, String>();
-		// public NetworksSetting networks=new NetworksSetting();
+		public Env env = null;
 		public Map<String, Network> networks;
 		public List<String> ntp = new ArrayList<String>();
 		public String mbus = "https://mbus:mbus-password@0.0.0.0:6868";
@@ -81,10 +79,6 @@ public class VmSettingGeneratorImpl implements VmSettingGenerator {
 	}
 
 
-	public static class Env {
-		// FIXME: describe env properly
-		// public Map<String, String> options=new HashMap<String, String>();
-	}
 
 	public static class VM {
 		String name;
@@ -92,7 +86,7 @@ public class VmSettingGeneratorImpl implements VmSettingGenerator {
 
 	@Override
 	public String createsettingForVM(String agent, String vmName,
-			VirtualMachine vm, Networks networks) {
+			VirtualMachine vm, Networks networks,Env env) {
 		Setting settingObject = new Setting();
 		settingObject.agent_id = agent;
 
@@ -106,6 +100,7 @@ public class VmSettingGeneratorImpl implements VmSettingGenerator {
 		settingObject.blobstore.options.put("blobstore_path", directorConfig.path);
 
 		// env
+		settingObject.env=env;
 
 		// networks
 		settingObject.networks = networks.networks;
@@ -173,14 +168,8 @@ public class VmSettingGeneratorImpl implements VmSettingGenerator {
 
 		try {
 			Setting setting = mapper.readValue(previousSetting, Setting.class);
-
 			//rewrite the persistent disks list
 			setting.disks.persistent=newDisks;
-
-//			PersistentDisk newDisk = new PersistentDisk();
-//			newDisk.path = "/dev/sdc"; // FIXME : booooo. hardcoded in bosh agent, here too.
-//			newDisk.volumeId="3";
-//			disks.put(disk_id, newDisk);
 
 			// new setting
 			String newSetting = mapper.writeValueAsString(setting);

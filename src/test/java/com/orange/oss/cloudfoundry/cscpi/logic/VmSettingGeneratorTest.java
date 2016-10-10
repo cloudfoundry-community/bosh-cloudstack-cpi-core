@@ -18,6 +18,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.orange.oss.cloudfoundry.cscpi.BoshCloudstackCpiCoreApplication;
+import com.orange.oss.cloudfoundry.cscpi.domain.Env;
 import com.orange.oss.cloudfoundry.cscpi.domain.Network;
 import com.orange.oss.cloudfoundry.cscpi.domain.NetworkType;
 import com.orange.oss.cloudfoundry.cscpi.domain.Networks;
@@ -59,10 +60,12 @@ public class VmSettingGeneratorTest {
 		String agent_id="agent-xxxxxx";
 		String vmName="vm-yyyy";
 		VirtualMachine vm=null;
+		Env env=new Env();
+		env.env.put("key", "value");
 		
 		
 		//When
-		String setting=this.generator.createsettingForVM(agent_id, vmName, vm, networks);
+		String setting=this.generator.createsettingForVM(agent_id, vmName, vm, networks,env);
 		
 		//Then
 	   ObjectMapper mapper = new ObjectMapper();
@@ -98,10 +101,10 @@ public class VmSettingGeneratorTest {
 		String agent_id="agent-xxxxxx";
 		String vmName="vm-yyyy";
 		VirtualMachine vm=null;
-		
+		Env env=new Env();
 		
 		//When
-		String setting=this.generator.createsettingForVM(agent_id, vmName, vm, networks);
+		String setting=this.generator.createsettingForVM(agent_id, vmName, vm, networks,env);
 		
 		Map<String, PersistentDisk> disks=new HashMap<String, PersistentDisk>();
 		PersistentDisk d1=new PersistentDisk();
