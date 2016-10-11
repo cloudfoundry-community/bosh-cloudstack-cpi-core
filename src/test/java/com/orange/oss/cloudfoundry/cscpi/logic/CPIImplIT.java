@@ -18,6 +18,9 @@ import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.boot.test.WebIntegrationTest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.orange.oss.cloudfoundry.cscpi.BoshCloudstackCpiCoreApplication;
 import com.orange.oss.cloudfoundry.cscpi.domain.Env;
 import com.orange.oss.cloudfoundry.cscpi.domain.Network;
@@ -42,7 +45,7 @@ public class CPIImplIT {
 	
 	
 	@Test
-	public void testCreate_vm() throws VMCreationFailedException, CpiErrorException {
+	public void testCreate_vm() throws VMCreationFailedException, CpiErrorException, JsonProcessingException, IOException {
 		//should be template Id
 		String agent_id="123456789";
 		
@@ -62,8 +65,9 @@ public class CPIImplIT {
 		net.netmask="255.255.255.0";
 		net.cloud_properties.put("", "");
 		List<String> disk_locality=new ArrayList<String>();
-		Env env=new Env();
-		
+		String envString="{\"bosh\":{\"password\":\"zzzzzz\"}}";
+		ObjectMapper mapper=new ObjectMapper();
+		JsonNode env=mapper.readTree(envString);
 
 		String vm_id=cpi.create_vm(agent_id, stemcell_id, resource_pool, networks, disk_locality, env);
 		

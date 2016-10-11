@@ -1,5 +1,6 @@
 package com.orange.oss.cloudfoundry.cscpi.logic;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -14,6 +15,9 @@ import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.boot.test.WebIntegrationTest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.orange.oss.cloudfoundry.cscpi.BoshCloudstackCpiCoreApplication;
 import com.orange.oss.cloudfoundry.cscpi.config.CloudStackConfiguration;
 import com.orange.oss.cloudfoundry.cscpi.domain.Env;
@@ -45,10 +49,12 @@ public class CPIFlowIT {
 	 * see reference doc
 	 * @throws VMCreationFailedException 
 	 * @throws CpiErrorException 
+	 * @throws IOException 
+	 * @throws JsonProcessingException 
 	 * @see https://github.com/cloudfoundry/bosh-init/blob/master/docs/architecture.md
 	 */
 	@Test
-	public void testCompleteFlow() throws VMCreationFailedException, CpiErrorException{
+	public void testCompleteFlow() throws VMCreationFailedException, CpiErrorException, JsonProcessingException, IOException{
 		//provided by bosh ?
 		String agent_id="xxxxx";
 		
@@ -104,7 +110,10 @@ public class CPIFlowIT {
 		
 		
 		List<String> disk_locality=new ArrayList<String>();
-		Env env=new Env();
+		String envString="{\"bosh\":{\"password\":\"zzzzzz\"}}";
+		ObjectMapper mapper=new ObjectMapper();
+		JsonNode env=mapper.readTree(envString);
+
 		
 		String vm_id=cpi.create_vm(agent_id, stemcell_id, resource_pool, networks, disk_locality, env);
 		

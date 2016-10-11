@@ -3,7 +3,7 @@ package com.orange.oss.cloudfoundry.cscpi.logic;
 import java.util.List;
 import java.util.Map;
 
-import com.orange.oss.cloudfoundry.cscpi.domain.Env;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.orange.oss.cloudfoundry.cscpi.domain.Networks;
 import com.orange.oss.cloudfoundry.cscpi.domain.ResourcePool;
 import com.orange.oss.cloudfoundry.cscpi.exceptions.CpiErrorException;
@@ -80,7 +80,7 @@ public interface CPI {
 	 */
 	String create_vm(String agent_id, String stemcell_id,
 			ResourcePool resource_pool, Networks networks,
-			List<String> disk_locality, Env env) throws VMCreationFailedException;
+			List<String> disk_locality, JsonNode env) throws VMCreationFailedException;
 	
 	
 	

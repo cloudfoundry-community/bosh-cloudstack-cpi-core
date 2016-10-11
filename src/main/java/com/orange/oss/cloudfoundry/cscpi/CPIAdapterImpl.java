@@ -101,7 +101,7 @@ public class CPIAdapterImpl implements CPIAdapter {
 				this.cpi.detach_disk(vm_id, disk_id);
 
 			} else if (method.equals(CREATE_VM)) {
-				String agent_id=args.next().asText();;
+				String agent_id=args.next().asText();
 				String stemcell_id=args.next().asText();;
 				ResourcePool resource_pool=this.parseResourcePool(args.next());
 				Networks networks=this.parseNetwork(args.next());
@@ -111,7 +111,7 @@ public class CPIAdapterImpl implements CPIAdapter {
 				//see: https://github.com/cloudfoundry/bosh/issues/945
 				
 				
-				Env env=mapper.convertValue(args.next(),Env.class);
+				JsonNode env=args.next();
 
 				String vmId=this.cpi.create_vm(agent_id, stemcell_id, resource_pool, networks, disk_locality, env);
 				response.result.add(vmId);

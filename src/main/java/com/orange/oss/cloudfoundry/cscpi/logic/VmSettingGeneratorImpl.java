@@ -15,6 +15,7 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.orange.oss.cloudfoundry.cscpi.config.DirectorConfig;
 import com.orange.oss.cloudfoundry.cscpi.config.DirectorConfigNtp;
@@ -54,7 +55,7 @@ public class VmSettingGeneratorImpl implements VmSettingGenerator {
 		public String agent_id;
 		public BlobStore blobstore = new BlobStore();
 		public Disks disks = new Disks();
-		public Env env = null;
+		public JsonNode env = null;
 		public Map<String, Network> networks;
 		public List<String> ntp = new ArrayList<String>();
 		public String mbus = "https://mbus:mbus-password@0.0.0.0:6868";
@@ -86,7 +87,7 @@ public class VmSettingGeneratorImpl implements VmSettingGenerator {
 
 	@Override
 	public String createsettingForVM(String agent, String vmName,
-			VirtualMachine vm, Networks networks,Env env) {
+			VirtualMachine vm, Networks networks,JsonNode env) {
 		Setting settingObject = new Setting();
 		settingObject.agent_id = agent;
 
