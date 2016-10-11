@@ -71,8 +71,8 @@ public class VmSettingGeneratorImpl implements VmSettingGenerator {
 
 	public static class Disks {
 		String system = "/dev/xvda";
-		String ephemeral = "/dev/sdb";
-		// use sdb due to parsing issue with /dev/xvdb see
+		String ephemeral = "/dev/xvdb";
+		// previsously used sdb due to parsing issue with /dev/xvdb see
 		// https://github.com/cloudfoundry/bosh-agent/blob/master/infrastructure/devicepathresolver/mapped_device_path_resolver.go
 		// (line 45)
 		//fixed by https://github.com/cloudfoundry/bosh-agent/commit/565f89329bcf9416d1d2771f618c6b1b804ecc93
