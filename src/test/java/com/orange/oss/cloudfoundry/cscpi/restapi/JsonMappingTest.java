@@ -54,13 +54,26 @@ public class JsonMappingTest {
 	
 	
 	@Test
-	public void testCreateStemcell() throws IOException, CpiErrorException{
-		TestData data=this.loadData("create_stemcell");
-		
+	public void testCreateStemcell() throws IOException, CpiErrorException {
+		TestData data = this.loadData("create_stemcell");
+
 		String response = postRequest(data);
+
+		Map<String, Object> cloud_properties = new HashMap<String, Object>();
+
+		cloud_properties.put("disk", 3072);
+		cloud_properties.put("root_device_name", "/dev/sda1");
+		cloud_properties.put("infrastructure", "vcloud");
+		cloud_properties.put("hypervisor", "esxi");
+		cloud_properties.put("os_type", "linux");
+		cloud_properties.put("name", "bosh-vcloud-esxi-ubuntu-trusty-go_agent");
+		cloud_properties.put("disk_format", "ovf");
+		cloud_properties.put("os_distro", "ubuntu");
+		cloud_properties.put("version", 3016);
+		cloud_properties.put("container_format", "bare");
+		cloud_properties.put("architecture", "x86_64");		
 		
-		Map<String, Object> cloud_properties=new HashMap<String, Object>();
-		String image_path="/home/xx.gz";
+		String image_path="/var/vcap/data/tmp/director/stemcell20150731-6669-1s29owb/image";
 		verify(cpi).create_stemcell(image_path, cloud_properties);		
 		assertEquals(data.response,response);
 		}
@@ -71,7 +84,10 @@ public class JsonMappingTest {
 		
 		List<String> disk_locality=new ArrayList<String>();
 		String response = postRequest(data);
-		Env env=new Env();
+		String envString="{\"bosh\":{\"password\":\"zzzzzz\"}}";
+		ObjectMapper mapper=new ObjectMapper();
+		JsonNode env=mapper.readTree(envString);
+
 		
 		verify(cpi).create_vm("agent", "stemcell", null, null, disk_locality, env);		
 		assertEquals(data.response,response);

@@ -1,13 +1,22 @@
 package com.orange.oss.cloudfoundry.cscpi.domain;
 
-import java.util.HashMap;
-import java.util.Map;
+import com.fasterxml.jackson.databind.JsonNode;
 
 public class Env {
-	
+
+	private JsonNode envNode;
 	 
-	public Map<String, Object> env=new HashMap<String, Object>();
+	//public Map<String, Object> env=new HashMap<String, Object>();
+//	public Env(){
+//		this.env=new HashMap<String,Object>();
+//	}
+	
 	public Env(){
-		this.env=new HashMap<String,Object>();
+		
 	}
+	
+	public Env(JsonNode node){
+		this.envNode=node;
+	}
+
 }

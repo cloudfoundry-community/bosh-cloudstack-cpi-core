@@ -52,6 +52,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableMap;
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
@@ -139,7 +140,7 @@ public class CPIImpl implements CPI{
                             ResourcePool resource_pool,
                             Networks networks,
                             List<String> disk_locality,
-                            Env env) throws VMCreationFailedException {
+                            JsonNode env) throws VMCreationFailedException {
         
         String compute_offering=resource_pool.compute_offering;
         Assert.isTrue(compute_offering!=null,"Must provide compute offering in vm ressource pool");
@@ -192,7 +193,7 @@ public class CPIImpl implements CPI{
      * @throws VMCreationFailedException 
      */
 	private void vmCreation(String stemcell_id, String compute_offering,
-			Networks networks, String vmName,String agent_id,String userData,Env env) throws VMCreationFailedException {
+			Networks networks, String vmName,String agent_id,String userData,JsonNode env) throws VMCreationFailedException {
 
 		Template stemCellTemplate = this.cacheableCloudstackConnector.findStemcell(stemcell_id);
 		String csTemplateId=stemCellTemplate.getId();
@@ -490,7 +491,7 @@ public class CPIImpl implements CPI{
 		
 		fakeDirectorNetworks.networks.put("default",net);
 
-		this.vmCreation(existingTemplateName, cloudstackConfig.light_stemcell_instance_type, fakeDirectorNetworks, workVmName,"fakeagent","fakeuserdata",new Env());
+		this.vmCreation(existingTemplateName, cloudstackConfig.light_stemcell_instance_type, fakeDirectorNetworks, workVmName,"fakeagent","fakeuserdata",null);
 		VirtualMachine m=api.getVirtualMachineApi().listVirtualMachines(ListVirtualMachinesOptions.Builder.name(workVmName)).iterator().next();
 		
 		logger.info("STOPPING work vm for template generation");

@@ -107,8 +107,9 @@ public class UserDataGeneratorImpl implements UserDataGenerator {
 			logger.warn("No DNS configured for vm creation ?");
 		} else {
 			logger.info("set userData with the following Dns {}",dnsServer.toString() );
+			datas.dns=new DNS(dnsServer.get(0)); //FIXME: only set a single DNS server
 		}
-		datas.dns=new DNS(dnsServer.get(0)); //FIXME: only set a single DNS server
+		
 		
 		//serialize to json
 		ObjectMapper mapper = new ObjectMapper();

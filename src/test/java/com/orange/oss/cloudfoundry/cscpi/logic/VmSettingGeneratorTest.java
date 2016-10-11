@@ -60,16 +60,16 @@ public class VmSettingGeneratorTest {
 		String agent_id="agent-xxxxxx";
 		String vmName="vm-yyyy";
 		VirtualMachine vm=null;
-		Env env=new Env();
-		env.env.put("key", "value");
+		String envString="{\"bosh\":{\"password\":\"zzzzzz\"}}";
+		ObjectMapper mapper=new ObjectMapper();
+		JsonNode env=mapper.readTree(envString);
 		
 		
 		//When
 		String setting=this.generator.createsettingForVM(agent_id, vmName, vm, networks,env);
 		
 		//Then
-	   ObjectMapper mapper = new ObjectMapper();
-	   JsonNode settingObj = mapper.readTree(setting);
+	    JsonNode settingObj = mapper.readTree(setting);
 
 	   //network is ok
 	   
@@ -101,7 +101,10 @@ public class VmSettingGeneratorTest {
 		String agent_id="agent-xxxxxx";
 		String vmName="vm-yyyy";
 		VirtualMachine vm=null;
-		Env env=new Env();
+		String envString="{}";
+		ObjectMapper mapper=new ObjectMapper();
+		JsonNode env=mapper.readTree(envString);
+		
 		
 		//When
 		String setting=this.generator.createsettingForVM(agent_id, vmName, vm, networks,env);
@@ -114,7 +117,6 @@ public class VmSettingGeneratorTest {
 		
 		String newSetting=this.generator.updateVmSettingForDisks(setting, disks);
 		//Then
-	   ObjectMapper mapper = new ObjectMapper();
 	   JsonNode updatedSetting = mapper.readTree(newSetting);
 	   JsonNode persistentDisk=updatedSetting.get("disks").get("persistent").get("cpidisk-xx");
 	   String path=persistentDisk.get("path").toString();
