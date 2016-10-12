@@ -1,7 +1,8 @@
 package com.orange.oss.cloudfoundry.cscpi.logic;
 
+import static org.junit.Assert.assertEquals;
+
 import org.junit.Test;
-import static org.junit.Assert.*;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import org.slf4j.Logger;
