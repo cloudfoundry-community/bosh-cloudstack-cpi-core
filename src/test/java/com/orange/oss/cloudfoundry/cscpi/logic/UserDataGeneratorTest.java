@@ -11,7 +11,6 @@ import com.orange.oss.cloudfoundry.cscpi.BoshCloudstackCpiCoreApplication;
 import com.orange.oss.cloudfoundry.cscpi.domain.Network;
 import com.orange.oss.cloudfoundry.cscpi.domain.NetworkType;
 import com.orange.oss.cloudfoundry.cscpi.domain.Networks;
-import com.orange.oss.cloudfoundry.cscpi.logic.UserDataGenerator;
 
 
 @RunWith(SpringJUnit4ClassRunner.class)

@@ -1,8 +1,8 @@
 package com.orange.oss.cloudfoundry.cscpi.logic;
 
-import org.apache.commons.io.IOUtils;
-
 import java.io.IOException;
+
+import org.apache.commons.io.IOUtils;
 
 /**
  *

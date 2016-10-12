@@ -18,12 +18,10 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.orange.oss.cloudfoundry.cscpi.BoshCloudstackCpiCoreApplication;
-import com.orange.oss.cloudfoundry.cscpi.domain.Env;
 import com.orange.oss.cloudfoundry.cscpi.domain.Network;
 import com.orange.oss.cloudfoundry.cscpi.domain.NetworkType;
 import com.orange.oss.cloudfoundry.cscpi.domain.Networks;
 import com.orange.oss.cloudfoundry.cscpi.domain.PersistentDisk;
-import com.orange.oss.cloudfoundry.cscpi.logic.VmSettingGenerator;
 
 
 @RunWith(SpringJUnit4ClassRunner.class)

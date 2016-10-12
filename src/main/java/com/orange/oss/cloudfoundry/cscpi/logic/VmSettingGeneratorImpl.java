@@ -19,7 +19,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.orange.oss.cloudfoundry.cscpi.config.DirectorConfig;
 import com.orange.oss.cloudfoundry.cscpi.config.DirectorConfigNtp;
-import com.orange.oss.cloudfoundry.cscpi.domain.Env;
 import com.orange.oss.cloudfoundry.cscpi.domain.Network;
 import com.orange.oss.cloudfoundry.cscpi.domain.Networks;
 import com.orange.oss.cloudfoundry.cscpi.domain.PersistentDisk;
