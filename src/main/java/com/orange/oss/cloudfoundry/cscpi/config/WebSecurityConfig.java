@@ -8,6 +8,7 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.util.Assert;
 
 @EnableWebSecurity
 public class WebSecurityConfig {
@@ -28,6 +29,8 @@ public class WebSecurityConfig {
     
     @Autowired
     public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
+    	
+    	Assert.isTrue(!coreUser.equals(registryUser), "Must specify different users for cpi-core and admin");
         auth.inMemoryAuthentication().withUser(coreUser).password(corePassword).roles("CORE");
         auth.inMemoryAuthentication().withUser(registryUser).password(registryPassword).roles("REGISTRY");
     }
