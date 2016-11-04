@@ -165,12 +165,25 @@ public class CPIImpl implements CPI{
 		String name=CPI_EPHEMERAL_DISK_PREFIX+UUID.randomUUID().toString();
 		String ephemeralDiskName=this.diskCreate(name,ephemeralDiskSize,ephemeralDiskServiceOfferingName);
         
-        String vmName=CPI_VM_PREFIX+UUID.randomUUID().toString();
-		logger.info("now creating cloudstack vm");
-        //cloudstack userdata generation for bootstrap
-        String userData=this.userDataGenerator.userMetadata(vmName,networks);
-		this.vmCreation(stemcell_id, compute_offering, networks, vmName,agent_id,userData,env);
-		
+		String vmName = CPI_VM_PREFIX + UUID.randomUUID().toString();
+
+		// cloudstack userdata generation for bootstrap
+		String userData = this.userDataGenerator.userMetadata(vmName, networks);
+
+		try {
+			logger.info("now creating cloudstack vm");			
+			this.vmCreation(stemcell_id, compute_offering, networks, vmName, agent_id, userData, env);
+		} catch (Throwable t) {
+			logger.error("=> failed creating vm {}. cleaning ephemeral disk {}", vmName, ephemeralDiskName);
+			try {
+				this.delete_disk(ephemeralDiskName);
+				logger.info("=> failed creating vm {}. clean ephemeral disk {} is OK", vmName, ephemeralDiskName);
+			} catch (Throwable tdisk) {
+				logger.error("ephemeral disk {} clean after failed {} vm creation failed too with error {}",ephemeralDiskName,vmName, tdisk.getMessage());
+			}
+			throw t;
+		}
+
 		//NOW attach the ephemeral disk to the vm (hot plug)
 		//FIXME : placement constraint local disk offering / vm
 		logger.info("now attaching ephemeral disk {} to cloudstack vm {}",ephemeralDiskName,vmName);		
@@ -178,7 +191,7 @@ public class CPIImpl implements CPI{
 		
 		//FIXME: if attach fails, clean both vm and ephemeral disk ??
 		
-		//FIXME: registry feeding in vmCreation method. refactor here ?
+
 		
         return vmName;
     }
