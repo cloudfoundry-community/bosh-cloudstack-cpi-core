@@ -18,3 +18,12 @@ databaseChangeLog:
                   type: varchar(1000)
                   constraints:
                     nullable: false
+  - changeSet:
+      id: 2
+      author: poblin-orange
+      changes:
+        - modifyDataType:
+            columnName: settings
+            newDataType: varchar(5000)
+            tableName: registry_instance
+            
