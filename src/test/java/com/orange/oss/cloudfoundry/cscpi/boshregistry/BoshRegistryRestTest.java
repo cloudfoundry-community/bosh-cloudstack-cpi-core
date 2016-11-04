@@ -1,6 +1,6 @@
 package com.orange.oss.cloudfoundry.cscpi.boshregistry;
 
-import junit.framework.Assert;
+import java.util.Arrays;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -8,11 +8,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.boot.test.WebIntegrationTest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.web.client.HttpClientErrorException;
 
 import com.netflix.hystrix.exception.HystrixRuntimeException;
 import com.orange.oss.cloudfoundry.cscpi.BoshCloudstackCpiCoreApplication;
 import com.orange.oss.cloudfoundry.cscpi.logic.BoshRegistryClient;
+
+import junit.framework.Assert;
 
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -38,8 +39,26 @@ public class BoshRegistryRestTest {
 		client.put(vm_id,updateSetting);
 		String updatedFoundSetting=client.getRaw(vm_id);
 		Assert.assertEquals(updateSetting, updatedFoundSetting);
+	}
 		
 		
+		@Test
+		public void testSettingSizeLimitation(){
+			String  vm_id="xxxx";	
+			
+			char[] chars = new char[5000];
+			Arrays.fill(chars, 'a');
+			String settings = new String(chars);
+			
+			client.put(vm_id,settings);
+			String foundSetting=client.getRaw(vm_id);
+			Assert.assertEquals(settings, foundSetting);
+			
+			//update
+			String updateSetting="wwww";
+			client.put(vm_id,updateSetting);
+			String updatedFoundSetting=client.getRaw(vm_id);
+			Assert.assertEquals(updateSetting, updatedFoundSetting);
 		
 		
 		client.delete(vm_id);		
