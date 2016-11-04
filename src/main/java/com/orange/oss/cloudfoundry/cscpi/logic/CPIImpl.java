@@ -176,6 +176,13 @@ public class CPIImpl implements CPI{
 		} catch (Throwable t) {
 			logger.error("=> failed creating vm {}. cleaning ephemeral disk {}", vmName, ephemeralDiskName);
 			try {
+				this.delete_vm(vmName);
+				logger.info("=> failed creating vm {}. cleaning vm is OK", vmName);
+			} catch (Throwable tvm) {
+				logger.error("vm clean after failed {} vm creation failed too with error {}",vmName, tvm.getMessage());
+			}
+			
+			try {
 				this.delete_disk(ephemeralDiskName);
 				logger.info("=> failed creating vm {}. clean ephemeral disk {} is OK", vmName, ephemeralDiskName);
 			} catch (Throwable tdisk) {
