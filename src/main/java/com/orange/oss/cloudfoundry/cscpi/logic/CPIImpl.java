@@ -32,7 +32,6 @@ import org.jclouds.cloudstack.domain.VirtualMachine;
 import org.jclouds.cloudstack.domain.VirtualMachine.State;
 import org.jclouds.cloudstack.domain.Volume;
 import org.jclouds.cloudstack.domain.Volume.Type;
-import org.jclouds.cloudstack.features.NATApi;
 import org.jclouds.cloudstack.features.VolumeApi;
 import org.jclouds.cloudstack.options.CreateIPForwardingRuleOptions;
 import org.jclouds.cloudstack.options.CreateSnapshotOptions;
@@ -224,58 +223,72 @@ public class CPIImpl implements CPI{
 		String csZoneId = this.cacheableCloudstackConnector.findZoneId();
 		
 		ServiceOffering so = this.cacheableCloudstackConnector.findComputeOffering(compute_offering);
+
+		int manualAddress=0;
+		int dynamicAddress=0;
+		int vipAddress=0;
 		
-		//parse network from cloud_properties
-		Assert.isTrue(networks.networks.size()==1, "CPI currenly only support 1 network / nic per VM");
+		String manualIp=null;
+		String vip=null;
+		String network_name=null;		
 		
-		String directorNetworkName=networks.networks.keySet().iterator().next();
-		//NB: directorName must be usefull for vm provisioning ?
+		//scan networks
+		for (com.orange.oss.cloudfoundry.cscpi.domain.Network net : networks.networks.values()){
+			switch (net.type) {
+			case manual:
+				manualAddress++;
+				network_name=net.cloud_properties.get("name");
+				manualIp=net.ip;
+				break;
+				
+			case dynamic:
+				dynamicAddress++;
+				network_name=net.cloud_properties.get("name");				
+				break;
+			case vip :
+				vipAddress++;
+				vip=net.ip;
+				break;
+			
+			}
+			
+		}
 		
-		com.orange.oss.cloudfoundry.cscpi.domain.Network directorNetwork=networks.networks.values().iterator().next();
+		Assert.isTrue(network_name!=null, "no network name provided");
 		
-		String network_name=directorNetwork.cloud_properties.get("name");
+		Assert.isTrue(vipAddress<2, "CPI supports at most 1 vip per vm");
+		Assert.isTrue(dynamicAddress+manualAddress<2, "CPI currently supports at most 1 NIC per vm");
+		Assert.isTrue(dynamicAddress+manualAddress>0, "CPI must define at list a dynamic or manual IP per vm");
+		
+		Assert.isTrue((vipAddress>0 && vip!=null)||(vipAddress==0 &&vip==null),"no public IP provided for vip network");
+		Assert.isTrue((manualAddress>0 && manualIp!=null)||(manualAddress==0 &&manualIp==null),"no IP provided for manual/static network");		
+		
+		
+
 		Network network = this.cacheableCloudstackConnector.findNetwork(csZoneId, network_name);
 		NetworkOffering networkOffering = this.cacheableCloudstackConnector.findNetworkOffering(csZoneId, network);
 		
 		logger.info("associated Network Offering is {}", networkOffering.getName());
-		
-        
-        NetworkType netType=directorNetwork.type;
+
         DeployVirtualMachineOptions options=null;
 
-
-		switch (netType) 
-        {
-		case vip:
-			logger.error("vip ip net yet implemented ");
-
-			ListPublicIPAddressesOptions listPublicIpOptions=ListPublicIPAddressesOptions.Builder.IPAddress(directorNetwork.ip);
-			//check vip exists
-			String IPAddressId=api.getAddressApi().listPublicIPAddresses(listPublicIpOptions).iterator().next().getId(); //TODO: find public ip id ?.
-			
-			//check vip is avail? (or force)
-			
-			//assign vip to vm
-			logger.info("enable static nat for vip {} to vm {}",directorNetwork.ip,vmName);
-			String virtualMachineId="XXXXX"; //FIXME: must be retrieved from previously created vm
-			api.getNATApi().enableStaticNATForVirtualMachine(virtualMachineId, IPAddressId);
-
-			
-			//create nat forwarding rules
-			logger.info("adding nat forwarding rules for vip {} to vm {}",directorNetwork.ip,vmName);
-			int startPort=1;
-			CreateIPForwardingRuleOptions natOptions=CreateIPForwardingRuleOptions.Builder.endPort(65535);//check
-			
-			AsyncCreateResponse resp;
-			resp=api.getNATApi().createIPForwardingRule(IPAddressId, "TCP", startPort, natOptions);
-			jobComplete.apply(resp.getJobId());
-			
-			resp=api.getNATApi().createIPForwardingRule(IPAddressId, "UDP", startPort, natOptions);
-			jobComplete.apply(resp.getJobId());			
-			
-			throw new IllegalArgumentException("cpi does not yet support vip affection on vm");
-			
-        case dynamic:
+        if (manualAddress==1){
+        	logger.debug("static / manual ip vm creation. bosh director has chosen a specific IP");
+        	
+        	//check ip is available
+        	String vmUsingIp=this.vmWithIpExists(manualIp);
+        	Assert.isTrue(vmUsingIp==null, "The required IP "+manualIp +" is not available: used by vm "+vmUsingIp);
+        	
+			options=DeployVirtualMachineOptions.Builder
+			.name(vmName)
+			.networkId(network.getId())
+			.userData(userData.getBytes())
+			.keyPair(cloudstackConfig.default_key_name)
+			//.dataDiskSize(dataDiskSize)
+			.ipOnDefaultNetwork(manualIp)
+			;
+        } else //dynamic ip
+        	{
         	logger.debug("dynamic ip vm creation. Let Cloudstack choose an IP");
 			options=DeployVirtualMachineOptions.Builder
 			.name(vmName)
@@ -283,29 +296,9 @@ public class CPIImpl implements CPI{
 			.userData(userData.getBytes())
 			.keyPair(cloudstackConfig.default_key_name)
 			//.dataDiskSize(dataDiskSize)
-			
 			;
-			break;
-		case manual:
-        	logger.debug("static / manual ip vm creation. bosh director has chosen a specific IP");
-        	
-        	//check ip is available
-        	String vmUsingIp=this.vmWithIpExists(directorNetwork.ip);
-        	Assert.isTrue(vmUsingIp==null, "The required IP "+directorNetwork.ip +" is not available: used by vm "+vmUsingIp);
-        	
-			options=DeployVirtualMachineOptions.Builder
-			.name(vmName)
-			.networkId(network.getId())
-			.userData(userData.getBytes())
-			.keyPair(cloudstackConfig.default_key_name)
-			//.dataDiskSize(dataDiskSize)
-			.ipOnDefaultNetwork(directorNetwork.ip)
-
-			;
-			break;
-			
-        }
-		
+		}
+        
         logger.info("Now launching VM {} creation !",vmName);
         try {
         	AsyncCreateResponse job = api.getVirtualMachineApi().deployVirtualMachineInZone(csZoneId, so.getId(), csTemplateId, options);
@@ -347,6 +340,38 @@ public class CPIImpl implements CPI{
 			};
 		
 		logger.info("vm creation completed, now running ! {}",vmName);
+        
+        
+        if (vipAddress==1){
+			logger.error("vip ip net yet fully implemented ");
+			logger.info("adding vip {} to vm {}",vip,vmName);
+
+			ListPublicIPAddressesOptions listPublicIpOptions=ListPublicIPAddressesOptions.Builder.IPAddress(vip);
+			//check vip exists
+			String IPAddressId=api.getAddressApi().listPublicIPAddresses(listPublicIpOptions).iterator().next().getId(); //TODO: find public ip id ?.
+			
+			//check vip is avail? (or force)
+			
+			//assign vip to vm
+			logger.info("enable static nat for vip {} to vm {}",vip,vmName);
+			api.getNATApi().enableStaticNATForVirtualMachine(vm.getId(), IPAddressId);
+			
+			//create nat forwarding rules
+			logger.info("adding nat forwarding rules for vip {} to vm {}",vip,vmName);
+			int startPort=1;
+			CreateIPForwardingRuleOptions natOptions=CreateIPForwardingRuleOptions.Builder.endPort(65535);//check
+			
+			AsyncCreateResponse resp;
+			resp=api.getNATApi().createIPForwardingRule(IPAddressId, "TCP", startPort, natOptions);
+			jobComplete.apply(resp.getJobId());
+			
+			resp=api.getNATApi().createIPForwardingRule(IPAddressId, "UDP", startPort, natOptions);
+			jobComplete.apply(resp.getJobId());			
+        	
+        }
+        
+
+		
 	}
 
 	@Override
