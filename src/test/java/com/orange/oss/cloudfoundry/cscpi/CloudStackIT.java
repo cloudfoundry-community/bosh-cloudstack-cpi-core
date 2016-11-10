@@ -8,8 +8,8 @@ import org.jclouds.cloudstack.domain.SshKeyPair;
 import org.jclouds.cloudstack.domain.Template;
 import org.jclouds.cloudstack.domain.VirtualMachine;
 import org.jclouds.cloudstack.domain.Volume;
-import org.jclouds.cloudstack.domain.Zone;
 import org.jclouds.cloudstack.domain.Volume.Type;
+import org.jclouds.cloudstack.domain.Zone;
 import org.jclouds.cloudstack.features.TemplateApi;
 import org.jclouds.cloudstack.options.ListTemplatesOptions;
 import org.jclouds.cloudstack.options.ListVirtualMachinesOptions;
@@ -21,14 +21,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.boot.test.SpringApplicationConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
+import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.Assert;
 
 import com.orange.oss.cloudfoundry.cscpi.config.CloudStackConfiguration;
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = BoshCloudstackCpiCoreApplication.class)
+@RunWith(SpringRunner.class)
+@SpringBootTest(webEnvironment=WebEnvironment.DEFINED_PORT)
 @ConfigurationProperties
 public class CloudStackIT {
 

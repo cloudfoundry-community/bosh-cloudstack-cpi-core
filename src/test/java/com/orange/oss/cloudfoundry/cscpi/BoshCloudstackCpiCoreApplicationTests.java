@@ -2,13 +2,12 @@ package com.orange.oss.cloudfoundry.cscpi;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.boot.test.SpringApplicationConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
+import org.springframework.test.context.junit4.SpringRunner;
 
-import com.orange.oss.cloudfoundry.cscpi.BoshCloudstackCpiCoreApplication;
-
-@RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = BoshCloudstackCpiCoreApplication.class)
+@RunWith(SpringRunner.class)
+@SpringBootTest(webEnvironment=WebEnvironment.DEFINED_PORT)
 public class BoshCloudstackCpiCoreApplicationTests {
 
 	@Test

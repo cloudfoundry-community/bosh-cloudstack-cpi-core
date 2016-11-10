@@ -14,14 +14,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.boot.test.SpringApplicationConfiguration;
-import org.springframework.boot.test.WebIntegrationTest;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
+import org.springframework.test.context.junit4.SpringRunner;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.orange.oss.cloudfoundry.cscpi.BoshCloudstackCpiCoreApplication;
 import com.orange.oss.cloudfoundry.cscpi.domain.Network;
 import com.orange.oss.cloudfoundry.cscpi.domain.Networks;
 import com.orange.oss.cloudfoundry.cscpi.domain.ResourcePool;
@@ -29,10 +28,11 @@ import com.orange.oss.cloudfoundry.cscpi.exceptions.CpiErrorException;
 import com.orange.oss.cloudfoundry.cscpi.exceptions.VMCreationFailedException;
 
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = BoshCloudstackCpiCoreApplication.class)
+@RunWith(SpringRunner.class)
+@SpringBootTest(webEnvironment=WebEnvironment.DEFINED_PORT)
 @ConfigurationProperties
-@WebIntegrationTest({"server.port=8080", "management.port=0"})
+
+
 
 public class CPIImplIT {
 
