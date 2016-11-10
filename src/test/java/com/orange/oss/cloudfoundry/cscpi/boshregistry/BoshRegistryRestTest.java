@@ -1,24 +1,22 @@
 package com.orange.oss.cloudfoundry.cscpi.boshregistry;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+
 import java.util.Arrays;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.SpringApplicationConfiguration;
-import org.springframework.boot.test.WebIntegrationTest;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
+import org.springframework.test.context.junit4.SpringRunner;
 
 import com.netflix.hystrix.exception.HystrixRuntimeException;
-import com.orange.oss.cloudfoundry.cscpi.BoshCloudstackCpiCoreApplication;
 import com.orange.oss.cloudfoundry.cscpi.logic.BoshRegistryClient;
 
-import junit.framework.Assert;
 
-
-@RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = BoshCloudstackCpiCoreApplication.class)
-@WebIntegrationTest({"server.port=8080"})
+@RunWith(SpringRunner.class)
+@SpringBootTest(webEnvironment=WebEnvironment.DEFINED_PORT)
 public class BoshRegistryRestTest {
 
 	@Autowired
@@ -32,13 +30,13 @@ public class BoshRegistryRestTest {
 		String settings="zzzz";
 		client.put(vm_id,settings);
 		String foundSetting=client.getRaw(vm_id);
-		Assert.assertEquals(settings, foundSetting);
+		assertThat("settings should be equal", settings.equals(foundSetting));
 		
 		//update
 		String updateSetting="wwww";
 		client.put(vm_id,updateSetting);
 		String updatedFoundSetting=client.getRaw(vm_id);
-		Assert.assertEquals(updateSetting, updatedFoundSetting);
+		assertThat("settings should be equal", updateSetting.equals(updatedFoundSetting));
 	}
 		
 		
@@ -52,13 +50,14 @@ public class BoshRegistryRestTest {
 			
 			client.put(vm_id,settings);
 			String foundSetting=client.getRaw(vm_id);
-			Assert.assertEquals(settings, foundSetting);
+			assertThat("settings should be equal", settings.equals(foundSetting));
 			
 			//update
 			String updateSetting="wwww";
 			client.put(vm_id,updateSetting);
 			String updatedFoundSetting=client.getRaw(vm_id);
-			Assert.assertEquals(updateSetting, updatedFoundSetting);
+			assertThat("", updateSetting.equals(updatedFoundSetting));
+			
 		
 		
 		client.delete(vm_id);		

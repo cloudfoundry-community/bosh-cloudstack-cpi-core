@@ -32,13 +32,16 @@ import org.jclouds.cloudstack.domain.VirtualMachine;
 import org.jclouds.cloudstack.domain.VirtualMachine.State;
 import org.jclouds.cloudstack.domain.Volume;
 import org.jclouds.cloudstack.domain.Volume.Type;
+import org.jclouds.cloudstack.features.NATApi;
 import org.jclouds.cloudstack.features.VolumeApi;
+import org.jclouds.cloudstack.options.CreateIPForwardingRuleOptions;
 import org.jclouds.cloudstack.options.CreateSnapshotOptions;
 import org.jclouds.cloudstack.options.CreateTagsOptions;
 import org.jclouds.cloudstack.options.CreateTemplateOptions;
 import org.jclouds.cloudstack.options.DeleteTemplateOptions;
 import org.jclouds.cloudstack.options.DeployVirtualMachineOptions;
 import org.jclouds.cloudstack.options.ListDiskOfferingsOptions;
+import org.jclouds.cloudstack.options.ListPublicIPAddressesOptions;
 import org.jclouds.cloudstack.options.ListTagsOptions;
 import org.jclouds.cloudstack.options.ListTemplatesOptions;
 import org.jclouds.cloudstack.options.ListVirtualMachinesOptions;
@@ -119,9 +122,9 @@ public class CPIImpl implements CPI{
 	 * creates a vm.
 	 * take the stemcell_id as cloudstack template name.
 	 * create the vm on the correct network configuration
-	 * 	static
+	 * 	manual
 	 * 	vip
-	 * 	floating
+	 * 	dynamic
 	 * create an "ephemeral disk" and attach it the the vm
 	 * 
 	 * @param agent_id
@@ -179,14 +182,14 @@ public class CPIImpl implements CPI{
 				this.delete_vm(vmName);
 				logger.info("=> failed creating vm {}. cleaning vm is OK", vmName);
 			} catch (Throwable tvm) {
-				logger.error("vm clean after failed {} vm creation failed too with error {}",vmName, tvm.getMessage());
+				logger.error("vm clean after failed {} vm cleanup failed too with error {}",vmName, tvm.getMessage());
 			}
 			
 			try {
 				this.delete_disk(ephemeralDiskName);
 				logger.info("=> failed creating vm {}. clean ephemeral disk {} is OK", vmName, ephemeralDiskName);
 			} catch (Throwable tdisk) {
-				logger.error("ephemeral disk {} clean after failed {} vm creation failed too with error {}",ephemeralDiskName,vmName, tdisk.getMessage());
+				logger.error("ephemeral disk {} clean after failed {} vm creation, disk clean failed too with error {}",ephemeralDiskName,vmName, tdisk.getMessage());
 			}
 			throw t;
 		}
@@ -221,9 +224,10 @@ public class CPIImpl implements CPI{
 		String csZoneId = this.cacheableCloudstackConnector.findZoneId();
 		
 		ServiceOffering so = this.cacheableCloudstackConnector.findComputeOffering(compute_offering);
-
+		
 		//parse network from cloud_properties
 		Assert.isTrue(networks.networks.size()==1, "CPI currenly only support 1 network / nic per VM");
+		
 		String directorNetworkName=networks.networks.keySet().iterator().next();
 		//NB: directorName must be usefull for vm provisioning ?
 		
@@ -238,9 +242,39 @@ public class CPIImpl implements CPI{
         
         NetworkType netType=directorNetwork.type;
         DeployVirtualMachineOptions options=null;
-        switch (netType) 
+
+
+		switch (netType) 
         {
 		case vip:
+			logger.error("vip ip net yet implemented ");
+
+			ListPublicIPAddressesOptions listPublicIpOptions=ListPublicIPAddressesOptions.Builder.IPAddress(directorNetwork.ip);
+			//check vip exists
+			String IPAddressId=api.getAddressApi().listPublicIPAddresses(listPublicIpOptions).iterator().next().getId(); //TODO: find public ip id ?.
+			
+			//check vip is avail? (or force)
+			
+			//assign vip to vm
+			logger.info("enable static nat for vip {} to vm {}",directorNetwork.ip,vmName);
+			String virtualMachineId="XXXXX"; //FIXME: must be retrieved from previously created vm
+			api.getNATApi().enableStaticNATForVirtualMachine(virtualMachineId, IPAddressId);
+
+			
+			//create nat forwarding rules
+			logger.info("adding nat forwarding rules for vip {} to vm {}",directorNetwork.ip,vmName);
+			int startPort=1;
+			CreateIPForwardingRuleOptions natOptions=CreateIPForwardingRuleOptions.Builder.endPort(65535);//check
+			
+			AsyncCreateResponse resp;
+			resp=api.getNATApi().createIPForwardingRule(IPAddressId, "TCP", startPort, natOptions);
+			jobComplete.apply(resp.getJobId());
+			
+			resp=api.getNATApi().createIPForwardingRule(IPAddressId, "UDP", startPort, natOptions);
+			jobComplete.apply(resp.getJobId());			
+			
+			throw new IllegalArgumentException("cpi does not yet support vip affection on vm");
+			
         case dynamic:
         	logger.debug("dynamic ip vm creation. Let Cloudstack choose an IP");
 			options=DeployVirtualMachineOptions.Builder
@@ -249,6 +283,7 @@ public class CPIImpl implements CPI{
 			.userData(userData.getBytes())
 			.keyPair(cloudstackConfig.default_key_name)
 			//.dataDiskSize(dataDiskSize)
+			
 			;
 			break;
 		case manual:
@@ -265,6 +300,7 @@ public class CPIImpl implements CPI{
 			.keyPair(cloudstackConfig.default_key_name)
 			//.dataDiskSize(dataDiskSize)
 			.ipOnDefaultNetwork(directorNetwork.ip)
+
 			;
 			break;
 			
