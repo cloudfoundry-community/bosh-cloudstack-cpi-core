@@ -341,7 +341,10 @@ public class CPIImpl implements CPI{
 		
 		logger.info("vm creation completed, now running ! {}",vmName);
         
-        
+        /**
+         * see this for cloudstack ip association
+         * https://shankerbalan.net/blog/assign-static-nat-ip-address-using-cloudstack-api/
+         */
         if (vipAddress==1){
 			logger.error("vip ip net yet fully implemented ");
 			logger.info("adding vip {} to vm {}",vip,vmName);
