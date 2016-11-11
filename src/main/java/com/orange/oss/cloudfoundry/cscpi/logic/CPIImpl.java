@@ -9,6 +9,7 @@ import java.io.FileNotFoundException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -358,9 +359,18 @@ public class CPIImpl implements CPI{
 			
 			//check vip is avail? default is force
 			
+			
+			logger.info("enable static nat for vip {} to vm {}",vip,vmName);			
 			//assign vip to vm
-			logger.info("enable static nat for vip {} to vm {}",vip,vmName);
-			api.getNATApi().enableStaticNATForVirtualMachine(vm.getId(), IPAddressId);
+			//https://cloudstack.apache.org/api/apidocs-4.9/apis/enableStaticNat.html
+			// on VPC, need to specify the networkid. not yet supported on jclouds
+			//api.getNATApi().enableStaticNATForVirtualMachine(vm.getId(), IPAddressId);
+			
+			Map<String, String> apiParameters=new Hashtable<String,String>();
+			apiParameters.put("virtualmachineid", vm.getId());
+			apiParameters.put("ipaddressid", IPAddressId);
+			apiParameters.put("networkid", network.getId());
+			this.nativeCloudstackConnector.nativeCall("enableStaticNATForVirtualMachine", apiParameters);
 			
 			//create nat forwarding rules
 			logger.info("adding nat forwarding rules for vip {} to vm {}",vip,vmName);
@@ -589,8 +599,6 @@ public class CPIImpl implements CPI{
 		
 		
 		Volume rootVolume=api.getVolumeApi().listVolumes(ListVolumesOptions.Builder.virtualMachineId(m.getId()).type(Type.ROOT)).iterator().next();
-		//hopefully, fist volume is ROOT ?
-
 		
 		//FIXME : template name limited to 32 chars, UUID is longer. use Random
 		Random randomGenerator=new Random();
