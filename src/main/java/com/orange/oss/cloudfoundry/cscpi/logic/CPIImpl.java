@@ -370,7 +370,7 @@ public class CPIImpl implements CPI{
 			apiParameters.put("virtualmachineid", vm.getId());
 			apiParameters.put("ipaddressid", IPAddressId);
 			apiParameters.put("networkid", network.getId());
-			this.nativeCloudstackConnector.nativeCall("enableStaticNATForVirtualMachine", apiParameters);
+			this.nativeCloudstackConnector.nativeCall("enableStaticNat", apiParameters);
 			
 			//create nat forwarding rules
 			logger.info("adding nat forwarding rules for vip {} to vm {}",vip,vmName);
