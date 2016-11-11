@@ -19,6 +19,7 @@ import java.util.UUID;
 import org.jclouds.cloudstack.CloudStackApi;
 import org.jclouds.cloudstack.domain.AsyncCreateResponse;
 import org.jclouds.cloudstack.domain.DiskOffering;
+import org.jclouds.cloudstack.domain.IPForwardingRule;
 import org.jclouds.cloudstack.domain.NIC;
 import org.jclouds.cloudstack.domain.Network;
 import org.jclouds.cloudstack.domain.NetworkOffering;
@@ -40,6 +41,7 @@ import org.jclouds.cloudstack.options.CreateTemplateOptions;
 import org.jclouds.cloudstack.options.DeleteTemplateOptions;
 import org.jclouds.cloudstack.options.DeployVirtualMachineOptions;
 import org.jclouds.cloudstack.options.ListDiskOfferingsOptions;
+import org.jclouds.cloudstack.options.ListIPForwardingRulesOptions;
 import org.jclouds.cloudstack.options.ListPublicIPAddressesOptions;
 import org.jclouds.cloudstack.options.ListTagsOptions;
 import org.jclouds.cloudstack.options.ListTemplatesOptions;
@@ -346,14 +348,15 @@ public class CPIImpl implements CPI{
          * https://shankerbalan.net/blog/assign-static-nat-ip-address-using-cloudstack-api/
          */
         if (vipAddress==1){
-			logger.error("vip ip net yet fully implemented ");
+			logger.warn("vip ip net yet fully implemented ");
 			logger.info("adding vip {} to vm {}",vip,vmName);
 
 			ListPublicIPAddressesOptions listPublicIpOptions=ListPublicIPAddressesOptions.Builder.IPAddress(vip);
 			//check vip exists
+			Assert.isTrue(api.getAddressApi().listPublicIPAddresses(listPublicIpOptions).size()==1,"The required vip "+vip+ "does not exist in cloudstack");
 			String IPAddressId=api.getAddressApi().listPublicIPAddresses(listPublicIpOptions).iterator().next().getId(); //TODO: find public ip id ?.
 			
-			//check vip is avail? (or force)
+			//check vip is avail? default is force
 			
 			//assign vip to vm
 			logger.info("enable static nat for vip {} to vm {}",vip,vmName);
@@ -670,6 +673,15 @@ public class CPIImpl implements CPI{
 		
 		VirtualMachine csVm = vms.iterator().next();
 		String csVmId=csVm.getId();
+		
+		//disable any static nat on the vm (vm with vip ip)
+		Set<IPForwardingRule> rules = api.getNATApi().listIPForwardingRules(ListIPForwardingRulesOptions.Builder.virtualMachineId(csVmId));
+		if (rules.size()>0){
+			logger.info("must delete nat, as vm {} had a vip",vm_id);
+			String vip = rules.iterator().next().getIPAddressId();
+			api.getNATApi().disableStaticNATOnPublicIP(vip);
+			logger.info("done disabling nat for vip to vm {}",vm_id);
+		}
 		
 		//stop the vm
 		String stopJobId=api.getVirtualMachineApi().stopVirtualMachine(csVmId);
