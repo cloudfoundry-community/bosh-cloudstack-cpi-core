@@ -25,6 +25,7 @@ import org.jclouds.cloudstack.domain.NIC;
 import org.jclouds.cloudstack.domain.Network;
 import org.jclouds.cloudstack.domain.NetworkOffering;
 import org.jclouds.cloudstack.domain.OSType;
+import org.jclouds.cloudstack.domain.PublicIPAddress;
 import org.jclouds.cloudstack.domain.ServiceOffering;
 import org.jclouds.cloudstack.domain.Tag;
 import org.jclouds.cloudstack.domain.Template;
@@ -361,7 +362,6 @@ public class CPIImpl implements CPI{
 			
 			
 			logger.info("enable static nat for vip {} to vm {}",vip,vmName);			
-			//assign vip to vm
 			//https://cloudstack.apache.org/api/apidocs-4.9/apis/enableStaticNat.html
 			// on VPC, need to specify the networkid. not yet supported on jclouds
 			//api.getNATApi().enableStaticNATForVirtualMachine(vm.getId(), IPAddressId);
@@ -372,17 +372,21 @@ public class CPIImpl implements CPI{
 			apiParameters.put("networkid", network.getId());
 			this.nativeCloudstackConnector.nativeCall("enableStaticNat", apiParameters);
 			
-			//create nat forwarding rules
-			logger.info("adding nat forwarding rules for vip {} to vm {}",vip,vmName);
-			int startPort=1;
-			CreateIPForwardingRuleOptions natOptions=CreateIPForwardingRuleOptions.Builder.endPort(65535);//check
+			//FIXME: improve native connector exception handling for clean error message to bosh director
 			
-			AsyncCreateResponse resp;
-			resp=api.getNATApi().createIPForwardingRule(IPAddressId, "TCP", startPort, natOptions);
-			jobComplete.apply(resp.getJobId());
+			//create nat forwarding rules. only possible if firewalling  feature is enabled on VPC
+			//FIXME: add a property to activate firewalling (or inspect network offering firewall availability)
 			
-			resp=api.getNATApi().createIPForwardingRule(IPAddressId, "UDP", startPort, natOptions);
-			jobComplete.apply(resp.getJobId());			
+//			logger.info("adding nat forwarding rules for vip {} to vm {}",vip,vmName);
+//			int startPort=1;
+//			CreateIPForwardingRuleOptions natOptions=CreateIPForwardingRuleOptions.Builder.endPort(65535);//check
+//			
+//			AsyncCreateResponse resp;
+//			resp=api.getNATApi().createIPForwardingRule(IPAddressId, "TCP", startPort, natOptions);
+//			jobComplete.apply(resp.getJobId());
+//			
+//			resp=api.getNATApi().createIPForwardingRule(IPAddressId, "UDP", startPort, natOptions);
+//			jobComplete.apply(resp.getJobId());			
         	
         }
         
@@ -683,12 +687,20 @@ public class CPIImpl implements CPI{
 		String csVmId=csVm.getId();
 		
 		//disable any static nat on the vm (vm with vip ip)
-		Set<IPForwardingRule> rules = api.getNATApi().listIPForwardingRules(ListIPForwardingRulesOptions.Builder.virtualMachineId(csVmId));
-		if (rules.size()>0){
-			logger.info("must delete nat, as vm {} had a vip",vm_id);
-			String vip = rules.iterator().next().getIPAddressId();
-			api.getNATApi().disableStaticNATOnPublicIP(vip);
-			logger.info("done disabling nat for vip to vm {}",vm_id);
+		ListPublicIPAddressesOptions listPublicIpOptions=ListPublicIPAddressesOptions.Builder.allocatedOnly(true);
+		for (PublicIPAddress publicIp:api.getAddressApi().listPublicIPAddresses(listPublicIpOptions)){
+			logger.debug("examining public ip {}",publicIp);
+			if ((publicIp.getVirtualMachineId()!=null) && (publicIp.getVirtualMachineId().equals(csVmId))){
+				logger.info("Found public ip adress {} associated to vm {}. => disabling static nat",publicIp.getIPAddress(),vm_id);
+				//removing forwarding rules
+				Set<IPForwardingRule> rules = api.getNATApi().listIPForwardingRules(ListIPForwardingRulesOptions.Builder.virtualMachineId(csVmId));
+				for (IPForwardingRule rule: rules){
+					logger.debug("removing forwarding rule {}",rule);
+					api.getNATApi().deleteIPForwardingRule(rule.getId());
+				}
+				api.getNATApi().disableStaticNATOnPublicIP(publicIp.getId());
+				logger.info("Done disabling public ip adress {} static NAT to vm {}",publicIp.getIPAddress(),vm_id);
+			}
 		}
 		
 		//stop the vm
