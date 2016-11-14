@@ -251,9 +251,9 @@ public class CPIAdapterImpl implements CPIAdapter {
     			
     			
     		case dynamic:
-				Assert.isNull(n.ip,"must not provide ip / gateway / netmask with dynamic/vip network");
-				Assert.isNull(n.gateway,"must not provide ip / gateway / netmask with dynamic/vip network");
-				Assert.isNull(n.netmask,"must not provide ip / gateway / netmask with dynamic/vip network");
+				//Assert.isNull(n.ip,"must not provide ip / gateway / netmask with dynamic/vip network");
+				//Assert.isNull(n.gateway,"must not provide ip / gateway / netmask with dynamic/vip network");
+				//Assert.isNull(n.netmask,"must not provide ip / gateway / netmask with dynamic/vip network");
 				Assert.notNull(n.cloud_properties.get("name"),"A name for the target network is required in cloud_properties");				
 				break;
     		default:
