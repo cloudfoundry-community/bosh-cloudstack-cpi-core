@@ -969,7 +969,7 @@ public class CPIImpl implements CPI{
 		Assert.isTrue(volumes.size()==1,"attach_disk: Unable to find volume "+disk_id);
 		
 		Volume csDisk = volumes.iterator().next();
-		Assert.isTrue(csDisk.getVmName()==null,"attach_disk: volume already attached to vm "+csDisk.getVmName());
+		Assert.isTrue(csDisk.getVmName()==null,"attach_disk: volume "+disk_id+" is already attached to vm "+csDisk.getVmName()+" . cant attach to vm"+vm_id);
 		
 		String csDiskId=csDisk.getId();
 		
