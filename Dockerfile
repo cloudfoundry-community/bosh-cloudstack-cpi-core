@@ -1,8 +1,8 @@
 FROM maven:3.3-jdk-8
-ADD pom.xml pom.xml
 ADD src/ src/
+ADD pom.xml pom.xml
 RUN mvn clean install -DskipTests=true
-ADD ./target/cloudstack-cpi-core-0.0.1-SNAPSHOT.jar app.jar
+ADD target/cloudstack-cpi-core-0.0.1-SNAPSHOT.jar app.jar
 RUN sh -c 'touch /app.jar'
 ENV PORT 8080
 EXPOSE 8080 
