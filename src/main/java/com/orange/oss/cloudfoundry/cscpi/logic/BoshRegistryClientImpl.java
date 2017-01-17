@@ -41,7 +41,7 @@ public class BoshRegistryClientImpl implements BoshRegistryClient {
 	String password;
 
 	@Override
-	@HystrixCommand(commandProperties = @HystrixProperty(name = "execution.isolation.thread.timeoutInMilliseconds", value = "30000"))	
+	@HystrixCommand(commandProperties = @HystrixProperty(name = "execution.isolation.thread.timeoutInMilliseconds", value = "60000"))	
 	public void put(String vm_id, String settings) {
 
 		String uri = this.endpoint + "/instances/" + vm_id;
@@ -54,7 +54,7 @@ public class BoshRegistryClientImpl implements BoshRegistryClient {
 
 	
 	@Override
-	@HystrixCommand(commandProperties = @HystrixProperty(name = "execution.isolation.thread.timeoutInMilliseconds", value = "30000"))	
+	@HystrixCommand(commandProperties = @HystrixProperty(name = "execution.isolation.thread.timeoutInMilliseconds", value = "60000"))	
 	public String get(String vm_id) {
 		String uri = this.endpoint + "/instances/" + vm_id + "/settings";
 		HttpHeaders headers=this.basicAuthEntityHeader();
@@ -66,7 +66,7 @@ public class BoshRegistryClientImpl implements BoshRegistryClient {
 	}
 
 	@Override
-	@HystrixCommand(commandProperties = @HystrixProperty(name = "execution.isolation.thread.timeoutInMilliseconds", value = "30000"))	
+	@HystrixCommand(commandProperties = @HystrixProperty(name = "execution.isolation.thread.timeoutInMilliseconds", value = "60000"))	
 	public String getRaw(String vm_id) {
 		String uri = this.endpoint + "/instances/" + vm_id + "/rawsettings";
 
@@ -79,7 +79,7 @@ public class BoshRegistryClientImpl implements BoshRegistryClient {
 	}
 	
 	@Override
-	@HystrixCommand(commandProperties = @HystrixProperty(name = "execution.isolation.thread.timeoutInMilliseconds", value = "30000"))	
+	@HystrixCommand(commandProperties = @HystrixProperty(name = "execution.isolation.thread.timeoutInMilliseconds", value = "60000"))	
 	public void delete(String vm_id) {
 		String uri = this.endpoint + "instances/" + vm_id;
 		HttpHeaders headers=this.basicAuthEntityHeader();
