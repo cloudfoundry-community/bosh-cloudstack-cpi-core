@@ -63,7 +63,7 @@ public class BoshRegistryRestTest {
 		client.delete(vm_id);		
 	}
 	
-	@Test(expected=HystrixRuntimeException.class)
+	@Test(expected=RuntimeException.class)
 	public void test_404_if_unknow_vm_id(){
 		String  vm_id="xxxx";		
 		client.get(vm_id);
