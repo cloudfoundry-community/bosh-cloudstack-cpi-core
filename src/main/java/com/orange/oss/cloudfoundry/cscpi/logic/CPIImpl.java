@@ -280,7 +280,7 @@ public class CPIImpl implements CPI{
         	logger.debug("static / manual ip vm creation. bosh director has chosen a specific IP");
         	
         	//check ip is available
-        	String vmUsingIp=this.vmWithIpExists(manualIp);
+        	String vmUsingIp=this.vmWithIpExists(manualIp,network);
         	Assert.isTrue(vmUsingIp==null, "The required IP "+manualIp +" is not available: used by vm "+vmUsingIp);
         	
 			options=DeployVirtualMachineOptions.Builder
@@ -1113,12 +1113,17 @@ public class CPIImpl implements CPI{
 	 * @param ip
 	 * @return Vm name using this ip
 	 */
-	public String  vmWithIpExists(String ip) {
+	public String  vmWithIpExists(String ip,Network network) {
 		logger.debug("check vm exist with ip {}", ip);
-		Set<VirtualMachine> listVirtualMachines = api.getVirtualMachineApi().listVirtualMachines(ListVirtualMachinesOptions.Builder.zoneId(this.cacheableCloudstackConnector.findZoneId()));
+		
+		Set<VirtualMachine> listVirtualMachines = api.getVirtualMachineApi()
+		.listVirtualMachines(ListVirtualMachinesOptions.Builder
+		.networkId(network.getId())
+		.zoneId(this.cacheableCloudstackConnector.findZoneId()));
 		for (VirtualMachine vm : listVirtualMachines) {
 			Set<NIC> nics = vm.getNICs();
 			for (NIC nic : nics) {
+				
 				String vmIp = nic.getIPAddress();
 				if ((vmIp != null) && (vmIp.equals(ip))) {
 					logger.warn("vm {} already uses ip {}", vm.getName(), ip);
