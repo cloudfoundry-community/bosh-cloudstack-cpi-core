@@ -274,7 +274,13 @@ public class CPIImpl implements CPI{
 		
 		logger.info("associated Network Offering is {}", networkOffering.getName());
 
-        DeployVirtualMachineOptions options=null;
+		ExtendedDeployVMOptions options = new ExtendedDeployVMOptions()
+				.name(vmName)
+				.networkId(network.getId())
+				.userData(userData.getBytes())
+				.keyPair(cloudstackConfig.default_key_name)
+				//.dataDiskSize(dataDiskSize)
+				;
 
         if (manualAddress==1){
         	logger.debug("static / manual ip vm creation. bosh director has chosen a specific IP");
@@ -283,27 +289,18 @@ public class CPIImpl implements CPI{
         	String vmUsingIp=this.vmWithIpExists(manualIp,network);
         	Assert.isTrue(vmUsingIp==null, "The required IP "+manualIp +" is not available: used by vm "+vmUsingIp);
         	
-			options=new ExtendedDeployVMOptions()
-			.name(vmName)
-			.networkId(network.getId())
-			.userData(userData.getBytes())
-			.keyPair(cloudstackConfig.default_key_name)
-			//.dataDiskSize(dataDiskSize)
+			options
 			.ipOnDefaultNetwork(manualIp)
-			.affinityGroupNames(affinitygroupnames)
 			;
         } else //dynamic ip
         	{
         	logger.debug("dynamic ip vm creation. Let Cloudstack choose an IP");
-			options=new ExtendedDeployVMOptions()
-			.name(vmName)
-			.networkId(network.getId())
-			.userData(userData.getBytes())
-			.keyPair(cloudstackConfig.default_key_name)
-			//.dataDiskSize(dataDiskSize)
-			.affinityGroupNames(affinitygroupnames)
-			;
 		}
+
+		if (affinitygroupnames != null) {
+			options
+			.affinityGroupNames(affinitygroupnames);
+        }
         
         logger.info("Now launching VM {} creation !",vmName);
         try {
