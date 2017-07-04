@@ -9,7 +9,7 @@ public class ResourcePool {
 	public String compute_offering;
 	public int disk;
 	public String ephemeral_disk_offering;
-	public String affinity_group;
+	public String affinity_group_list;
 	
 	
     public boolean equals(Object obj) {

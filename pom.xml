@@ -21,7 +21,7 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<java.version>1.8</java.version>
-		<jclouds.version>1.9.2</jclouds.version>
+		<jclouds.version>2.0.1</jclouds.version>
 	</properties>
 
 	<dependencies>

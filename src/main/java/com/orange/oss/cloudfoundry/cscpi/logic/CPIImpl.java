@@ -142,9 +142,9 @@ public class CPIImpl implements CPI{
         String compute_offering=resource_pool.compute_offering;
         Assert.isTrue(compute_offering!=null,"Must provide compute offering in vm ressource pool");
         
-        String affinityGroup=resource_pool.affinity_group;
-        if (affinityGroup!=null) {
-        	logger.info("an affinity group {} has been specified for create_vm",affinityGroup);
+        String affinityGroupNames=resource_pool.affinity_group_list;
+        if (affinityGroupNames!=null) {
+            logger.info("an affinity group {} has been specified for create_vm",affinityGroupNames);
         }
         
 
@@ -170,7 +170,7 @@ public class CPIImpl implements CPI{
 
 		try {
 			logger.info("now creating cloudstack vm");			
-			this.vmCreation(stemcell_id, compute_offering, networks, vmName, agent_id, userData, env);
+			this.vmCreation(stemcell_id, compute_offering, networks, vmName, agent_id, userData, env, affinityGroupNames);
 		} catch (Throwable t) {
 			logger.error("=> failed creating vm {}. cleaning ephemeral disk {}", vmName, ephemeralDiskName);
 			try {
@@ -210,7 +210,7 @@ public class CPIImpl implements CPI{
      * @throws VMCreationFailedException 
      */
 	private void vmCreation(String stemcell_id, String compute_offering,
-			Networks networks, String vmName,String agent_id,String userData,JsonNode env) throws VMCreationFailedException {
+			Networks networks, String vmName,String agent_id,String userData,JsonNode env,String affinitygroupnames) throws VMCreationFailedException {
 
 		Template stemCellTemplate = this.cacheableCloudstackConnector.findStemcell(stemcell_id);
 		String csTemplateId=stemCellTemplate.getId();
@@ -266,7 +266,13 @@ public class CPIImpl implements CPI{
 		
 		logger.info("associated Network Offering is {}", networkOffering.getName());
 
-        DeployVirtualMachineOptions options=null;
+		ExtendedDeployVMOptions options = new ExtendedDeployVMOptions()
+				.name(vmName)
+				.networkId(network.getId())
+				.userData(userData.getBytes())
+				.keyPair(cloudstackConfig.default_key_name)
+				//.dataDiskSize(dataDiskSize)
+				;
 
         if (manualAddress==1){
         	logger.debug("static / manual ip vm creation. bosh director has chosen a specific IP");
@@ -275,25 +281,18 @@ public class CPIImpl implements CPI{
         	String vmUsingIp=this.vmWithIpExists(manualIp,network);
         	Assert.isTrue(vmUsingIp==null, "The required IP "+manualIp +" is not available: used by vm "+vmUsingIp);
         	
-			options=DeployVirtualMachineOptions.Builder
-			.name(vmName)
-			.networkId(network.getId())
-			.userData(userData.getBytes())
-			.keyPair(cloudstackConfig.default_key_name)
-			//.dataDiskSize(dataDiskSize)
+			options
 			.ipOnDefaultNetwork(manualIp)
 			;
         } else //dynamic ip
         	{
         	logger.debug("dynamic ip vm creation. Let Cloudstack choose an IP");
-			options=DeployVirtualMachineOptions.Builder
-			.name(vmName)
-			.networkId(network.getId())
-			.userData(userData.getBytes())
-			.keyPair(cloudstackConfig.default_key_name)
-			//.dataDiskSize(dataDiskSize)
-			;
 		}
+
+		if (affinitygroupnames != null) {
+			options
+			.affinityGroupNames(affinitygroupnames);
+        }
         
         logger.info("Now launching VM {} creation !",vmName);
         try {
@@ -584,7 +583,7 @@ public class CPIImpl implements CPI{
 		
 		fakeDirectorNetworks.networks.put("default",net);
 
-		this.vmCreation(existingTemplateName, cloudstackConfig.light_stemcell_instance_type, fakeDirectorNetworks, workVmName,"fakeagent","fakeuserdata",null);
+		this.vmCreation(existingTemplateName, cloudstackConfig.light_stemcell_instance_type, fakeDirectorNetworks, workVmName,"fakeagent","fakeuserdata",null, null);
 		VirtualMachine m=api.getVirtualMachineApi().listVirtualMachines(ListVirtualMachinesOptions.Builder.name(workVmName)).iterator().next();
 		
 		logger.info("STOPPING work vm for template generation");
