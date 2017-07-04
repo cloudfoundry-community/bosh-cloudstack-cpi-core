@@ -36,15 +36,17 @@ public class CPIRestController {
 		ObjectMapper mapper = new ObjectMapper();
 		JsonNode rootNode = mapper.createObjectNode(); // will be of type  ObjectNode
 
-		if ((response.result.size() == 1) && (response.result.get(0) instanceof Boolean)) {
-			((ObjectNode) rootNode).put("result", (Boolean) response.result.get(0));
-		} else if (response.result.size() == 1) {
-			((ObjectNode) rootNode).put("result",(String) response.result.get(0));
-		} else if (response.result.size() == 0) {
-			((ObjectNode) rootNode).put("result","[]");} 
-		else {
-				throw new RuntimeException("NOT IMPLEMENTED : multiple response for "+request.textValue());
-		}	
+        if ((response.result.size() == 1) && (response.result.get(0) instanceof Boolean)) {
+            ((ObjectNode) rootNode).put("result", (Boolean) response.result.get(0));
+        } else if (response.result.size() == 1 && (response.result.get(0) instanceof String)) {
+            ((ObjectNode) rootNode).put("result", (String) response.result.get(0));
+        } else if (response.result.size() == 1) {
+            ((ObjectNode) rootNode).put("result", mapper.valueToTree(response.result.get(0)));
+        } else if (response.result.size() == 0) {
+            ((ObjectNode) rootNode).put("result", "[]");
+        } else {
+            throw new RuntimeException("NOT IMPLEMENTED : multiple response for " + request.textValue());
+        }
 		
 		((ObjectNode) rootNode).put("error", mapper.valueToTree(response.error));
 		
