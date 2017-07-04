@@ -322,7 +322,12 @@ public interface CPI {
 
     */
    List<String> get_disks(String vm_id);
-   
-   
-   
+
+
+    /**
+     * Give back all supported stemcell format by this cpi
+     *
+     * @return List<String>
+     */
+    List<String> stemcell_formats();
 }

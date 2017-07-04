@@ -1,0 +1,9 @@
+{
+  "result": {
+    "stemcell_formats": [
+      "cloudstack-vhdx"
+    ]
+  },
+  "error": null,
+  "log": ""
+}

@@ -55,6 +55,7 @@ public class CPIAdapterImpl implements CPIAdapter {
 	private static final String ATTACH_DISK = "attach_disk";
 	private static final String DELETE_DISK = "delete_disk";
 	private static final String CREATE_DISK = "create_disk";
+	private static final String CPI_INFO = "info";
 	private static Logger logger = LoggerFactory.getLogger(CPIAdapterImpl.class.getName());
 
 	@Autowired
@@ -151,7 +152,11 @@ public class CPIAdapterImpl implements CPIAdapter {
 				String vm_id=args.next().asText();
 				Networks networks=this.parseNetwork(args.next());				
 				this.cpi.configure_networks(vm_id, networks);
-			} 
+			}  else if (method.equals(CPI_INFO)) {
+                Map<String, Object> info = new HashMap<>();
+                info.put("stemcell_formats", this.cpi.stemcell_formats());
+                response.result.add(info);
+            }
 			
 			else
 				throw new IllegalArgumentException("Unknown method :" + method);
