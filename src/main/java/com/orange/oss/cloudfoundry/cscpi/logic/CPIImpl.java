@@ -7,15 +7,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 import org.jclouds.cloudstack.CloudStackApi;
 import org.jclouds.cloudstack.domain.AsyncCreateResponse;
@@ -1134,7 +1126,13 @@ public class CPIImpl implements CPI{
 			}
 		}
 		return null;
-	}	
+	}
 
+    @Override
+    public List<String> stemcell_formats() {
+        return new ArrayList<String>(Arrays.asList(new String[]{
+                "cloudstack-vhdx",
+        }));
+    }
 	
 }
