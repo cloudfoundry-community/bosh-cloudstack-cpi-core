@@ -23,14 +23,14 @@ import com.orange.oss.cloudfoundry.cscpi.exceptions.VMCreationFailedException;
              never attached to more than a single VM at one time
  *
  *
- * @see https://github.com/cloudfoundry/bosh/wiki/BOSH-CPI-API-v1-%28WIP%29	
- *  
+ * @see https://github.com/cloudfoundry/bosh/wiki/BOSH-CPI-API-v1-%28WIP%29
+ *
  */
 public interface CPI {
 
-	
+
 	/**
-	 * 
+	 *
 	 *     ##
     # Creates a VM - creates (and powers on) a VM from a stemcell with the proper resources
     # and on the specified network. When disk locality is present the VM will be placed near
@@ -67,57 +67,57 @@ public interface CPI {
     # @param [optional, Hash] env environment that will be passed to this vm
     # @return [String] opaque id later used by {#configure_networks}, {#attach_disk},
     #                  {#detach_disk}, and {#delete_vm}
-	 * 
-	 * 
-	 * @param agent_id   
+	 *
+	 *
+	 * @param agent_id
 	 * @param stemcell_id
 	 * @param resource_pool
 	 * @param networks
 	 * @param disk_locality
 	 * @param env
 	 * @return
-	 * @throws VMCreationFailedException 
+	 * @throws VMCreationFailedException
 	 */
 	String create_vm(String agent_id, String stemcell_id,
 			ResourcePool resource_pool, Networks networks,
 			List<String> disk_locality, JsonNode env) throws VMCreationFailedException;
-	
-	
-	
-	
+
+
+
+
 	/**
 	 * Get the vm_id of this host
-	 * @return [String] opaque id later used by other methods of the CPI 
+	 * @return [String] opaque id later used by other methods of the CPI
 	 */
 	@Deprecated
     String current_vm_id();
 
-	
+
 	/**
 	 *  Creates a stemcell
 	 @param [String] image_path path to an opaque blob containing the stemcell image
 	 @param [Hash] cloud_properties properties required for creating this template
 	               specific to a CPI
 	@return [String] opaque id later used by {#create_vm} and {#delete_stemcell}
-	 * @throws CpiErrorException 
+	 * @throws CpiErrorException
 	 */
     String create_stemcell(String image_path, Map<String,Object>cloud_properties) throws CpiErrorException;
-    
-    
-    
+
+
+
 /**
  * Deletes a stemcell
 
 @param [String] stemcell stemcell id that was once returned by {#create_stemcell}
 @return [void]
- 
- * 
+
+ *
  */
     void delete_stemcell(String stemcell_id);
-    
-    
-/**    
-    
+
+
+/**
+
     ##
     # Deletes a VM
     #
@@ -126,12 +126,12 @@ public interface CPI {
     def delete_vm(vm_id)
       not_implemented(:delete_vm)
     end
- * @throws CpiErrorException 
+ * @throws CpiErrorException
 **/
-   void delete_vm(String vm_id) throws CpiErrorException; 
-	
+   void delete_vm(String vm_id) throws CpiErrorException;
+
 	/**
-	 * 
+	 *
 	 *    ##
     # Checks if a VM exists
     #
@@ -140,15 +140,15 @@ public interface CPI {
     def has_vm?(vm_id)
       not_implemented(:has_vm?)
     end
-	 * 
+	 *
 	 */
-   
+
    boolean has_vm(String vm_id);
-   
-   
-   
+
+
+
    /**
-    * 
+    *
     *     ##
     # Checks if a disk exists
     #
@@ -158,14 +158,14 @@ public interface CPI {
       not_implemented(:has_disk?)
     end
 
-    * 
+    *
     */
-   
+
    boolean has_disk(String disk_id);
-   
-   
+
+
 /**
- *    
+ *
    ##
    # Reboots a VM
    #
@@ -176,12 +176,12 @@ public interface CPI {
      not_implemented(:reboot_vm)
    end
  */
-   
+
    void reboot_vm(String vm_id);
-   
+
 
    /**
-    * 
+    *
     *     ##
     # Set metadata for a VM
     #
@@ -196,10 +196,25 @@ public interface CPI {
 
     */
    void set_vm_metadata(String vm_id,Map<String,String> metadata);
-   
-   
+
+	/**
+	 *
+	 *     ##
+	 # Set metadata for a disk
+	 #
+	 # Optional. Implement to provide more information for the IaaS.
+	 #
+	 # @param [String] disk id id that was once returned by {#create_vm}
+	 # @param [Hash] metadata metadata key/value pairs
+	 # @return [void]
+	 def set_disk_metadata(disk_id, metadata)
+	 end
+
+	 */
+	void set_disk_metadata(String disk_id, Map<String,String> metadata);
+
    /**
-    * 
+    *
     # Configures networking an existing VM.
     #
     # @param [String] vm vm id that was once returned by {#create_vm}
@@ -209,15 +224,15 @@ public interface CPI {
     def configure_networks(vm_id, networks)
       not_implemented(:configure_networks)
     end
- * @throws NotSupportedException 
-    * 
+ * @throws NotSupportedException
+    *
     */
    void configure_networks(String vm_id,Networks networks) throws NotSupportedException;
-   
-   
-   
+
+
+
    /**
-    * 
+    *
     *     ##
     # Creates a disk (possibly lazily) that will be attached later to a VM. When
     # VM locality is specified the disk will be placed near the VM so it won't have to move
@@ -232,11 +247,11 @@ public interface CPI {
     def create_disk(size, cloud_properties, vm_locality = nil)
       not_implemented(:create_disk)
     end
-    * 
+    *
     */
    String create_disk(Integer size,Map<String,String> cloud_properties);
-   
-   
+
+
    /**
     *     ##
     # Deletes a disk
@@ -250,10 +265,10 @@ public interface CPI {
 
     */
    void delete_disk(String disk_id);
-   
-   
+
+
    /**
-    * 
+    *
     # Attaches a disk
     # @param [String] vm vm id that was once returned by {#create_vm}
     # @param [String] disk disk id that was once returned by {#create_disk}
@@ -261,13 +276,13 @@ public interface CPI {
     def attach_disk(vm_id, disk_id)
       not_implemented(:attach_disk)
     end
-    * 
+    *
     */
    void attach_disk(String vm_id,String disk_id);
-   
-   
+
+
    /**
-    * 
+    *
     # Take snapshot of disk
     # @param [String] disk_id disk id of the disk to take the snapshot of
     # @param [Hash] metadata metadata key/value pairs
@@ -276,13 +291,13 @@ public interface CPI {
       not_implemented(:snapshot_disk)
     end
 
-    * 
-    * 
-    * 
+    *
+    *
+    *
     */
    String snapshot_disk(String disk_id,Map<String,String> metadata);
-   
-   
+
+
    /**
     *     # Delete a disk snapshot
     # @param [String] snapshot_id snapshot id to delete
@@ -291,13 +306,13 @@ public interface CPI {
       not_implemented(:delete_snapshot)
     end
 
-    * 
-    * 
+    *
+    *
     */
    void delete_snapshot(String snapshot_id);
- 
-   
-   
+
+
+
    /**
     *     # Detaches a disk
     # @param [String] vm vm id that was once returned by {#create_vm}
@@ -309,8 +324,8 @@ public interface CPI {
 
     */
    void detach_disk(String vm_id,String disk_id);
-   
-   
+
+
    /**
     *    # List the attached disks of the VM.
     # @param [String] vm_id is the CPI-standard vm_id (eg, returned from current_vm_id)
