@@ -1,5 +1,6 @@
 package com.orange.oss.cloudfoundry.cscpi;
 
+import java.util.Iterator;
 import java.util.Set;
 
 import org.jclouds.cloudstack.CloudStackApi;
@@ -110,11 +111,16 @@ public class CloudStackIT {
         ListZonesOptions zoneOptions=ListZonesOptions.Builder.available(true);
 		Set<Zone> zones = api.getZoneApi().listZones(zoneOptions);
 		Assert.notEmpty(zones, "No Zone available");
-		Zone zone=zones.iterator().next();
-		String zoneId = zone.getId();
-		
-		Assert.isTrue(zone.getName().equals(this.cloudstackConfig.default_zone));
-		
+		String zoneId = "";
+		Iterator<Zone> it = zones.iterator();
+		while(it.hasNext())
+		{
+			Zone zone = it.next();
+			zoneId = zone.getId();
+			if(zone.getName().equals(this.cloudstackConfig.default_zone))
+				return zoneId;
+		}
+		Assert.isTrue(false);		
 		return zoneId;
 	}
 	
