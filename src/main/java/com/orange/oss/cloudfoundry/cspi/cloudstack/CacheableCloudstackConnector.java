@@ -1,5 +1,6 @@
 package com.orange.oss.cloudfoundry.cspi.cloudstack;
 
+import java.util.Iterator;
 import java.util.Set;
 
 import org.jclouds.cloudstack.CloudStackApi;
