@@ -120,8 +120,7 @@ public class CloudStackIT {
 			if(zone.getName().equals(this.cloudstackConfig.default_zone))
 				return zoneId;
 		}
-		Assert.isTrue(zone.getName().equals(this.cloudstackConfig.default_zone));
-		
+		Assert.isTrue(false);		
 		return zoneId;
 	}
 	
