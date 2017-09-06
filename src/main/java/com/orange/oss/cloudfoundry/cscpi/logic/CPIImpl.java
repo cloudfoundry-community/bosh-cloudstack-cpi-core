@@ -231,17 +231,17 @@ public class CPIImpl implements CPI{
 		//scan networks
 		for (com.orange.oss.cloudfoundry.cscpi.domain.Network net : networks.networks.values()){
 			switch (net.type) {
-			case manual:
+			case NetworkType.manual:
 				manualAddress++;
 				network_name=net.cloud_properties.get("name");
 				manualIp=net.ip;
 				break;
 
-			case dynamic:
+			case NetworkType.dynamic:
 				dynamicAddress++;
 				network_name=net.cloud_properties.get("name");
 				break;
-			case vip :
+			case NetworkType.vip :
 				vipAddress++;
 				vip=net.ip;
 				break;

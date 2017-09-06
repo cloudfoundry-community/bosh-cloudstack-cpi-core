@@ -20,6 +20,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.orange.oss.cloudfoundry.cscpi.config.DirectorConfig;
 import com.orange.oss.cloudfoundry.cscpi.config.DirectorConfigNtp;
 import com.orange.oss.cloudfoundry.cscpi.domain.Network;
+import com.orange.oss.cloudfoundry.cscpi.domain.NetworkType;
 import com.orange.oss.cloudfoundry.cscpi.domain.Networks;
 import com.orange.oss.cloudfoundry.cscpi.domain.PersistentDisk;
 /**
@@ -89,7 +90,7 @@ public class VmSettingGeneratorImpl implements VmSettingGenerator {
 			VirtualMachine vm, Networks networks,JsonNode env) {
 		Setting settingObject = new Setting();
 		settingObject.agent_id = agent;
-
+	
 		// blobstore
 		
 		//FIXME: check blobstore options from director env (application.yml templated with deployment props)
@@ -98,49 +99,49 @@ public class VmSettingGeneratorImpl implements VmSettingGenerator {
 		settingObject.blobstore.options.put("user", directorConfig.user);
 		settingObject.blobstore.options.put("password", directorConfig.password);
 		settingObject.blobstore.options.put("blobstore_path", directorConfig.path);
-
+	
 		// env
 		settingObject.env=env;
-
+	
 		// networks
 		settingObject.networks = networks.networks;
 		
+		
+		
 		// ntp
 		settingObject.ntp=ntpConfig.getNtp();
-
+	
 		// mbus url
 		settingObject.mbus=directorConfig.mbus;
 				
 		// vm
 		settingObject.vm.name = vmName;
 		
-		// set mac adress (required?)
-		if (vm!=null) {
-			logger.debug("setting mac address in setting");
-			String macAddress=vm.getNICs().iterator().next().getMacAddress();
-			settingObject.networks.values().iterator().next().mac=macAddress;
+		for (Network n:settingObject.networks.values()){
+			if (n.type.equals(NetworkType.vip)){ continue;
+			}
+			if (n.type.equals(NetworkType.manual)){ n.type=""; //override empty value expected by bosh agent
+			}
 			
-		
-		//FIXME only support single NIC
+			// set mac adress (required?)
+			logger.debug("setting mac address in setting for non vip network");
+			String macAddress=vm.getNICs().iterator().next().getMacAddress();
+			n.mac=macAddress;
+			
+			//director level configuration for cloudstack see https://github.com/cloudfoundry/bosh/issues/911
+			n.use_dhcp=directorConfig.use_dhcp;
+			
+			//Keep track if network was resolved via DHCP
+			//Add Resolved flag to network to indicate that it was resolved via
+			//DHCP so that on subsequent checks it continues to use DHCP.
+			//Dynamic network always is using DHCP. Manual network will use DHCP only if
+			//IP or Netmask are not provided required for static configuration.
+			n.resolved=false; //Check ?
+			
 		}
-		//director level configuration for cloudstack see https://github.com/cloudfoundry/bosh/issues/911
-		settingObject.networks.values().iterator().next().use_dhcp=directorConfig.use_dhcp;
+	
 		
-		
-		//set default: [gateway,dns], hardcoded as long as single NIC support
-		settingObject.networks.values().iterator().next().default_prop.add("gateway");
-		settingObject.networks.values().iterator().next().default_prop.add("dns");		
-		
-
-		//Keep track if network was resolved via DHCP
-		//Add Resolved flag to network to indicate that it was resolved via
-		//DHCP so that on subsequent checks it continues to use DHCP.
-		//Dynamic network always is using DHCP. Manual network will use DHCP only if
-		//IP or Netmask are not provided required for static configuration.
-
-		settingObject.networks.values().iterator().next().resolved=false; //Check ?
-		
-
+	
 		// serialize to json
 		ObjectMapper mapper = new ObjectMapper();
 		mapper.setVisibility(PropertyAccessor.FIELD, Visibility.ANY);
@@ -151,9 +152,9 @@ public class VmSettingGeneratorImpl implements VmSettingGenerator {
 			throw new IllegalArgumentException("Cant serialize JSON userData",
 					e);
 		}
-
+	
 		logger.info("generated vm setting : \n{}", setting);
-
+	
 		return setting;
 	}
 
