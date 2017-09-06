@@ -19,6 +19,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.orange.oss.cloudfoundry.cscpi.domain.CPIResponse;
 import com.orange.oss.cloudfoundry.cscpi.domain.CPIResponse.CmdError;
 import com.orange.oss.cloudfoundry.cscpi.domain.Network;
+import com.orange.oss.cloudfoundry.cscpi.domain.NetworkType;
 import com.orange.oss.cloudfoundry.cscpi.domain.Networks;
 import com.orange.oss.cloudfoundry.cscpi.domain.ResourcePool;
 import com.orange.oss.cloudfoundry.cscpi.exceptions.CPIException;
@@ -243,7 +244,7 @@ public class CPIAdapterImpl implements CPIAdapter {
 
             //FIXME: compilation vm create_vm do not provide network type. assume manual defaut
             switch (n.type) {
-                case manual:
+                case NetworkType.manual:
                     Assert.notNull(n.ip, "must provide ip  with manual (static) network");
                     Assert.notNull(n.gateway, "must provide gateway  with manual (static) network");
                     Assert.notNull(n.netmask, "must provide netmask with manual (static) network");
@@ -251,13 +252,13 @@ public class CPIAdapterImpl implements CPIAdapter {
                     Assert.notNull(n.cloud_properties.get("name"), "A name for the target network is required in cloud_properties");
                     break;
 
-                case vip:
+                case NetworkType.vip:
                     Assert.isNull(n.gateway, "must not provide ip / gateway / netmask with dynamic/vip network");
                     Assert.isNull(n.netmask, "must not provide ip / gateway / netmask with dynamic/vip network");
                     break;
 
 
-                case dynamic:
+                case NetworkType.dynamic:
                     Assert.isNull(n.ip, "must not provide ip / gateway / netmask with dynamic/vip network");
                     Assert.isNull(n.gateway, "must not provide ip / gateway / netmask with dynamic/vip network");
                     Assert.isNull(n.netmask, "must not provide ip / gateway / netmask with dynamic/vip network");

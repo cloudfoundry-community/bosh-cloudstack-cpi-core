@@ -16,7 +16,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 @JsonIgnoreProperties(ignoreUnknown=true)
 public class Network {
-	    public NetworkType type; //default is manual ?
+	    public String type=NetworkType.manual; //default is manual ?
+	    
 		public String ip;
 	    public String netmask;
 	    public Map<String,String> cloud_properties=new HashMap<String, String>();
