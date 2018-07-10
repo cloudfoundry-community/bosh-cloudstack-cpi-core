@@ -11,3 +11,4 @@ hs_err_pid*
 # idea users keep their files local
 /.idea
 /src/test/**/application-*.yml
+application-override.yml

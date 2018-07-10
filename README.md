@@ -14,6 +14,12 @@ An application.yml and logback.xml must be provided, and the cpi-launched before
 
 
 
+HowTo Bootstrap
+---------------
+
+```bash
+docker run -ti --name cpi --rm -v /full/path/to/application-override.yml:/application-override.yml -p 8080:8080  orangecloudfoundry/bosh-cloudstack-cpi-core:latest
+```
 
 
 see [bosh-cloudstack-cpi-release](https://github.com/cloudfoundry-community/bosh-cloudstack-cpi-release) for doc and issues.

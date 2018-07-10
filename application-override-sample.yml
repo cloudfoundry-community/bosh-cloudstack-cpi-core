@@ -1,0 +1,22 @@
+cloudstack:
+  endpoint:  http://your-cs-url:8080/client/api
+  proxy_host:
+  proxy_port: 8080
+  proxy_user: ""
+  proxy_password: ""
+  api_key: cs-api-api
+  secret_access_key: cs-secret-key
+  default_key_name: stagingSSHkeys
+  private_key: "-----BEGIN RSA PRIVATE KEY----- XXXXXXXXX -----END RSA PRIVATE KEY-----"
+  state_timeout: 600
+  state_timeout_volume: 600
+  stemcell_public_visibility: true
+  stemcell_publish_timeout: 5
+  stemcell_requires_hvm: true
+  stemcell_os_type: Other PV (64-bit)
+  default_zone: your-zone
+
+cpi:
+  core:
+    user: define-cpi-username
+    password: define-cpi-password

@@ -1,0 +1,84 @@
+logging:
+  level:
+    org.springframework: DEBUG
+    org.springframework.boot.actuate: DEBUG
+    org.apache.http.client: DEBUG
+
+management:
+  context-path: /admin
+
+spring:
+  application:
+    name: cloudstack-cpi
+  main:
+    show-banner: true
+  jackson:
+    deserialization:
+      ACCEPT_SINGLE_VALUE_AS_ARRAY: true
+  jpa:
+    hibernate:
+      ddl-auto: none
+  pidfile: /tmp/application.pid
+  sleuth:
+    sampler:
+      percentage: 1.0
+  zipkin:
+    enabled: false
+    base-url: http://zipkin-server
+  datasource:
+    url:  jdbc:hsqldb:mem:testdb
+
+server:
+  tomcat:
+    access-log-enabled: true
+
+cloudstack:
+  endpoint:  https://cloudstack.ikoula.com/client/api
+  proxy_host:
+  proxy_port: 8080
+  proxy_user: zz
+  proxy_password: www
+  api_key: xxx
+  secret_access_key: yyy
+  default_key_name: bosh-keypair
+  private_key: zz
+  state_timeout: 600
+  state_timeout_volume: 600
+  stemcell_public_visibility: true
+  stemcell_publish_timeout: 5
+  stemcell_requires_hvm: true
+  stemcell_os_type: Other PV (64-bit)
+  # stemcell_os_type: Ubuntu 14.04 (64-bit)
+  default_zone: EU-FR-IKDC1-Z1-ADV
+
+cpi:
+  vm_create_delay: 15
+  vm_expunge_delay: 30
+  force_expunge: true
+  use_dhcp: false
+  webdav_host: 127.0.0.1
+  webdav_port: 8080
+  webdav_directory: "/tmp"
+  core:
+    user: cpi
+    password: cpipassword
+  default_disk_offering: "Data disk"
+  default_ephemeral_disk_offering: "Data disk"
+  lightstemcell:
+    network_name: "orange-private"
+    instance_type: "m1.small"
+  registry:
+    endpoint: http://127.0.0.1:8080
+    user: admin
+    password: admin
+  blobstore:
+    provider: local
+    path: /var/vcap/micro_bosh/data/cache
+    address: xx.xx.xx.xx
+    port: 25250
+    options:
+      user: agent
+      password: password
+  agent:
+    mbus: "nats://nats:nats-password@yy.yy.yyy:4222"
+  ntp: "[xx.xx.xx.xx ,yy.yy.yy.yy]"
