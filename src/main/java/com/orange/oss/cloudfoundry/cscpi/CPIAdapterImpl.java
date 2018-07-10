@@ -1,5 +1,16 @@
 package com.orange.oss.cloudfoundry.cscpi;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.orange.oss.cloudfoundry.cscpi.domain.*;
+import com.orange.oss.cloudfoundry.cscpi.domain.CPIResponse.CmdError;
+import com.orange.oss.cloudfoundry.cscpi.exceptions.CPIException;
+import com.orange.oss.cloudfoundry.cscpi.logic.CPI;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.Assert;
+
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
@@ -9,40 +20,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.util.Assert;
-
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.orange.oss.cloudfoundry.cscpi.domain.CPIResponse;
-import com.orange.oss.cloudfoundry.cscpi.domain.CPIResponse.CmdError;
-import com.orange.oss.cloudfoundry.cscpi.domain.Network;
-import com.orange.oss.cloudfoundry.cscpi.domain.NetworkType;
-import com.orange.oss.cloudfoundry.cscpi.domain.Networks;
-import com.orange.oss.cloudfoundry.cscpi.domain.ResourcePool;
-import com.orange.oss.cloudfoundry.cscpi.exceptions.CPIException;
-import com.orange.oss.cloudfoundry.cscpi.logic.CPI;
-
 
 public class CPIAdapterImpl implements CPIAdapter {
 
-
-    public enum CPIMethod {
-        delete_stemcell,
-        create_stemcell,
-        has_disk,
-        has_vm,
-        delete_vm,
-        set_vm_metadata,
-        reboot_vm,
-        create_vm,
-        detach_disk,
-        attach_disk,
-        delete_disk,
-        create_disk
-    }
 
     private static final String DELETE_STEMCELL = "delete_stemcell";
     private static final String CREATE_STEMCELL = "create_stemcell";
@@ -51,6 +31,7 @@ public class CPIAdapterImpl implements CPIAdapter {
     private static final String DELETE_VM = "delete_vm";
     private static final String SET_VM_METADATA = "set_vm_metadata";
     private static final String SET_DISK_METADATA = "set_disk_metadata";
+    private static final String CALCULATE_VM_PROPS = "calculate_vm_cloud_properties";
     private static final String REBOOT_VM = "reboot_vm";
     private static final String CREATE_VM = "create_vm";
     private static final String DETACH_DISK = "detach_disk";
@@ -59,10 +40,8 @@ public class CPIAdapterImpl implements CPIAdapter {
     private static final String CREATE_DISK = "create_disk";
     private static final String CPI_INFO = "info";
     private static Logger logger = LoggerFactory.getLogger(CPIAdapterImpl.class.getName());
-
     @Autowired
     private CPI cpi;
-
 
     @Override
     public CPIResponse execute(JsonNode json) {
@@ -165,6 +144,9 @@ public class CPIAdapterImpl implements CPIAdapter {
                 Map<String, Object> info = new HashMap<>();
                 info.put("stemcell_formats", this.cpi.stemcell_formats());
                 response.result.add(info);
+            } else if (method.equals(CALCULATE_VM_PROPS)) {
+                VMParams vmParams = mapper.convertValue(args.next(), VMParams.class);
+                response.result.add(this.cpi.calculate_vm_cloud_properties(vmParams));
             } else
                 throw new IllegalArgumentException("Unknown method :" + method);
 
@@ -201,7 +183,6 @@ public class CPIAdapterImpl implements CPIAdapter {
         }
 
     }
-
 
     /**
      * Utility to parse JSON resource pool
@@ -271,6 +252,21 @@ public class CPIAdapterImpl implements CPIAdapter {
 
 
         return nets;
+    }
+
+    public enum CPIMethod {
+        delete_stemcell,
+        create_stemcell,
+        has_disk,
+        has_vm,
+        delete_vm,
+        set_vm_metadata,
+        reboot_vm,
+        create_vm,
+        detach_disk,
+        attach_disk,
+        delete_disk,
+        create_disk
     }
 
 }
