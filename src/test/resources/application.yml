@@ -80,7 +80,11 @@ cpi:
   webdav_host: 127.0.0.1
   webdav_port: 8080
   webdav_directory: "/tmp"
-
+  calculate_vm_cloud_properties:
+    disk:
+      tags: SCALEIO
+    compute:
+      tags: SCALEIO
   core:
     user: cpi
     password: cpipassword
