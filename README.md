@@ -1,3 +1,5 @@
+**As of April 2021, this repo is deprecated in favor of** https://github.com/orange-cloudfoundry/bosh-go-cpi-cloudstack 
+
 [![Build Status](https://travis-ci.org/cloudfoundry-community/bosh-cloudstack-cpi-core.png)](https://travis-ci.org/cloudfoundry-community/bosh-cloudstack-cpi-core)
 [![Docker Automated build](https://img.shields.io/docker/automated/jrottenberg/ffmpeg.svg)](https://hub.docker.com/r/orangecloudfoundry/bosh-cloudstack-cpi-core/builds/)
 
